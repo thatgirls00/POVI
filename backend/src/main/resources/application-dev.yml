@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver # MySQL 드라이버
+    url: jdbc:mysql://localhost:3306/povi  # DB 이름 coffee_shop
+    username: root
+    password: ${DB_PASSWORD}   # 환경 변수로 비밀번호 사용
