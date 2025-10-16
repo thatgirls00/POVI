@@ -43,10 +43,9 @@ public class UserMission extends BaseEntity {
     }
 
     // 필요한 값만 받는 생성자 (createdAt은 BaseEntity가 관리)
-    public UserMission(User user, Mission mission, Mission.EmotionType emotionType) {
+    public UserMission(User user, Mission mission) {
         this.user = user;
         this.mission = mission;
-        this.emotionType = emotionType;
         this.status = MissionStatus.IN_PROGRESS;
     }
 
