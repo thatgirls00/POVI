@@ -29,7 +29,7 @@ public class DiaryController {
     @PatchMapping("/{diaryId}")
     @Operation(summary = "다이어리 부분수정")
     public ResponseEntity<DiaryUpdateRes> updateDiary(
-            @PathVariable Long diaryId,
+            @PathVariable("diaryId") Long diaryId,
             @RequestBody @Valid DiaryUpdateReq req
     ) {
         DiaryUpdateRes response = diaryService.update(diaryId, req);
