@@ -2,7 +2,9 @@ package org.example.povi.domain.diary.entry.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.povi.domain.diary.entry.dto.request.DiaryCreateReq;
+import org.example.povi.domain.diary.entry.dto.request.DiaryUpdateReq;
 import org.example.povi.domain.diary.entry.dto.response.DiaryCreateRes;
+import org.example.povi.domain.diary.entry.dto.response.DiaryUpdateRes;
 import org.example.povi.domain.diary.entry.entity.DiaryEntry;
 import org.example.povi.domain.diary.entry.entity.DiaryImage;
 import org.example.povi.domain.diary.entry.repository.DiaryRepository;
@@ -51,5 +53,20 @@ public class DiaryService {
 
         diaryRepository.save(diaryEntry);
         return DiaryCreateRes.from(diaryEntry);
+    }
+
+    //다이어리 수정
+    @Transactional
+    public DiaryUpdateRes update(Long diaryId, DiaryUpdateReq req) {
+        DiaryEntry diaryEntry = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Diary not found"));
+
+        String title = (req.getTitle() != null) ? req.getTitle().trim() : null;
+        String content = (req.getContent() != null) ? req.getContent().trim() : null;
+
+
+        diaryEntry.update(req);
+
+        return DiaryUpdateRes.from(diaryEntry);
     }
 }

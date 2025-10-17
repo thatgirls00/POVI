@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.povi.domain.diary.entry.dto.request.DiaryUpdateReq;
 import org.example.povi.domain.diary.type.MoodEmoji;
 import org.example.povi.domain.diary.type.Visibility;
 import org.example.povi.domain.user.entity.User;
@@ -55,4 +56,17 @@ public class DiaryEntry extends BaseEntity {
         image.setDiaryEntry(this);
     }
 
+    public void update(DiaryUpdateReq req) {
+        if (req.getTitle() != null) this.title = req.getTitle();
+        if (req.getContent() != null) this.content = req.getContent();
+        if (req.getMoodEmoji() != null) this.moodEmoji = req.getMoodEmoji();
+        if (req.getVisibility() != null) this.visibility = req.getVisibility();
+
+        if (req.getImageUrls() != null) {
+            this.images.clear();
+            req.getImageUrls().forEach(url -> this.addImage(new DiaryImage(this, url)));
+        }
+    }
+
 }
+
