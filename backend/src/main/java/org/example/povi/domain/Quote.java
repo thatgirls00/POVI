@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.povi.global.entity.BaseEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,6 +28,9 @@ public class Quote extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private QuoteSource quoteSource = QuoteSource.QUOTE;
+
+    @OneToMany(mappedBy = "quote", cascade = CascadeType.ALL)
+    private List<Transcription> transcriptions = new ArrayList<>();
 
     public Quote(String author, String content) {
         this.author = author;

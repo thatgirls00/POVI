@@ -42,14 +42,14 @@ public class QuoteService {
     }
 
     public Optional<QuoteRes> getTodayQuote() {
-        // 1. 오늘의 시작과 끝 시간 설정
+        // 오늘의 시작과 끝 시간 설정
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay(); // 오늘 00:00:00
         LocalDateTime endOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.MAX); // 오늘 23:59:59.99...
 
-        // 2. Repository를 통해 DB에서 오늘의 명언 조회
+        // Repository를 통해 DB에서 오늘의 명언 조회
         Optional<Quote> optionalQuote = quoteRepository.findFirstByCreatedAtBetweenOrderByCreatedAtDesc(startOfDay, endOfDay);
 
-        // 3. Entity를 DTO로 변환하여 반환
-        return optionalQuote.map(quote -> new QuoteRes(quote.getAuthor(), quote.getContent()));
+        // Entity를 DTO로 변환하여 반환
+        return optionalQuote.map(quote -> new QuoteRes(quote.getId(), quote.getAuthor(), quote.getContent()));
     }
 }

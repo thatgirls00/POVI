@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import org.example.povi.global.entity.BaseEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Entity
 @Table(name = "users")
@@ -27,4 +30,7 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", nullable = false)
     private UserRole userRole;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Transcription> transcriptions = new ArrayList<>();
 }

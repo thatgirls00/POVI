@@ -5,8 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="51b61f32-5a2a-4117-b969-88e443b4da14" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/domain/Transcription.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/global/User/UserDetailsImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/global/User/UserDetailsServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/transcription/controller/TranscriptionController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/transcription/dto/TranscriptionReq.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/transcription/repository/TranscriptionRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/transcription/service/TranscriptionService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/user/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/POVI.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/POVI.main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/backend/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/backend/build/reports/problems/problems-report.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/PoviApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/PoviApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/domain/Quote.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/domain/Quote.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/domain/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/domain/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/quote/dto/QuoteRes.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/quote/dto/QuoteRes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/quote/service/QuoteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/org/example/povi/quote/service/QuoteService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,7 +145,8 @@
       <updated>1760429307487</updated>
       <workItem from="1760429309128" duration="1846000" />
       <workItem from="1760490335492" duration="22534000" />
-      <workItem from="1760573165109" duration="1532000" />
+      <workItem from="1760573165109" duration="7797000" />
+      <workItem from="1760659421149" duration="1340000" />
     </task>
     <servers />
   </component>

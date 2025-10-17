@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 public class QuoteRes{
-
+    private Long quoteId;
     private String author;
     private String message;
 }
