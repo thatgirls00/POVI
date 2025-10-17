@@ -56,17 +56,61 @@ public class DiaryService {
     }
 
     //다이어리 수정
+    //추후 추가 예정 - 소유자 검증
     @Transactional
     public DiaryUpdateRes update(Long diaryId, DiaryUpdateReq req) {
         DiaryEntry diaryEntry = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Diary not found"));
 
-        String title = (req.getTitle() != null) ? req.getTitle().trim() : null;
-        String content = (req.getContent() != null) ? req.getContent().trim() : null;
+        String title = trimToNull(req.getTitle());
+        String content = trimToNull(req.getContent());
+        // 제목
+        if (req.getTitle() != null) {
+            if (title == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "제목은 공백만으로 수정할 수 없습니다.");
+            if (title.length() < 2 || title.length() > 50)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "제목은 2~50자여야 합니다.");
+            diaryEntry.renameTo(title);
+        }
 
+        // 내용
+        if (req.getContent() != null) {
+            if (content == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "내용은 공백만으로 수정할 수 없습니다.");
+            if (content.length() < 10 || content.length() > 3000)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "내용은 10~3000자여야 합니다.");
+            diaryEntry.rewriteContent(content);
+        }
 
-        diaryEntry.update(req);
+        // 이모지/공개범위
+        if (req.getMoodEmoji() != null) diaryEntry.changeMood(req.getMoodEmoji());
+        if (req.getVisibility() != null) diaryEntry.changeVisibility(req.getVisibility());
+
+        // 이미지: null=미변경 / []=모두삭제 / 값있음=전체교체
+        if (req.getImageUrls() != null) {
+            List<String> normalized = req.getImageUrls().stream()
+                    .filter(u -> u != null && !u.isBlank())
+                    .map(String::trim)
+                    .distinct()
+                    .toList();
+
+            if (normalized.size() > 3) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미지는 최대 3개까지 첨부할 수 있습니다.");
+            }
+            for (String u : normalized) {
+                if (u.length() > 2048) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미지 URL은 2048자 이하여야 합니다.");
+                }
+            }
+
+            diaryEntry.replaceImages(normalized);
+        }
+        diaryRepository.flush();
 
         return DiaryUpdateRes.from(diaryEntry);
+    }
+
+    private String trimToNull(String s) {
+        if (s == null) return null;
+        String t = s.trim();
+        return t.isEmpty() ? null : t;
     }
 }

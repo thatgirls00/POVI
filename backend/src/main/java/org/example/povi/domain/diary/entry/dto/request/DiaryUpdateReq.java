@@ -1,5 +1,6 @@
 package org.example.povi.domain.diary.entry.dto.request;
 
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,10 +13,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiaryUpdateReq {
+
+    @Size(min = 2, max = 50)
     private String title;
+
+    @Size(min = 10, max = 3000)
     private String content;
+
     private MoodEmoji moodEmoji;
     private Visibility visibility;
-    private List<String> imageUrls;
 
+    @Size(max = 3)
+    private List<String> imageUrls;
 }

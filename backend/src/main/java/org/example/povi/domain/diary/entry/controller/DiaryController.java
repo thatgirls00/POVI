@@ -30,10 +30,9 @@ public class DiaryController {
     @Operation(summary = "다이어리 부분수정")
     public ResponseEntity<DiaryUpdateRes> updateDiary(
             @PathVariable Long diaryId,
-            @RequestBody DiaryUpdateReq req
+            @RequestBody @Valid DiaryUpdateReq req
     ) {
         DiaryUpdateRes response = diaryService.update(diaryId, req);
         return ResponseEntity.ok(response);
     }
-
 }
