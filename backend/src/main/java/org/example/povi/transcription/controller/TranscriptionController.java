@@ -24,4 +24,13 @@ public class TranscriptionController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body("필사 기록이 성공적으로 생성됐습니다.");
     }
+
+    @DeleteMapping("/{transcriptionId}")
+    public ResponseEntity<?> deleteTranscription(
+            @PathVariable Long transcriptionId,
+            @RequestParam Long userId
+    ) {
+        transcriptionService.deleteTranscription(userId, transcriptionId);
+        return ResponseEntity.noContent().build();
+    }
 }

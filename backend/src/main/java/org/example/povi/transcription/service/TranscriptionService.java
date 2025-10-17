@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.povi.domain.Quote;
 import org.example.povi.domain.Transcription;
 import org.example.povi.domain.User;
+import org.example.povi.global.exception.AuthorizationException;
 import org.example.povi.global.exception.DuplicateTranscriptionException;
 import org.example.povi.global.exception.ResourceNotFoundException;
 import org.example.povi.quote.repository.QuoteRepository;
@@ -41,5 +42,17 @@ public class TranscriptionService {
             // DB의 유니크 제약 조건 위반 시 이 예외가 발생
             throw new DuplicateTranscriptionException("이미 필사한 명언입니다.");
         }
+    }
+
+    @Transactional
+    public void deleteTranscription(Long userId, Long transcriptionId) {
+        Transcription transcription = transcriptionRepository.findById(transcriptionId)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 필사 기록을 찾을 수 없습니다."));
+
+        if(!transcription.getUser().getId().equals(userId)) {
+            throw new AuthorizationException("삭제 권한이 없습니다.");
+        }
+
+        transcriptionRepository.delete(transcription);
     }
 }

@@ -28,4 +28,12 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST) // 400 Bad Request 상태 코드
                 .body(ex.getMessage());
     }
+
+    @ExceptionHandler(AuthorizationException.class)
+    public ResponseEntity<String> handleAuthorizationException(AuthorizationException ex) {
+        // 403 Forbidden 상태 코드와 함께 에러 메시지를 반환
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ex.getMessage());
+    }
 }
