@@ -23,7 +23,7 @@ public class DiaryEntry extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "title", length = 255, nullable = false)
+    @Column(name = "title", length = 50, nullable = false)
     private String title;
 
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
@@ -50,9 +50,22 @@ public class DiaryEntry extends BaseEntity {
         this.visibility = (visibility != null) ? visibility : Visibility.PRIVATE;
     }
 
+    public void renameTo(String newTitle) { this.title = newTitle; }
+    public void rewriteContent(String newContent) { this.content = newContent; }
+    public void changeMood(MoodEmoji newMood) { this.moodEmoji = newMood; }
+    public void changeVisibility(Visibility newVisibility) { this.visibility = newVisibility; }
+
     public void addImage(DiaryImage image) {
         images.add(image);
         image.setDiaryEntry(this);
     }
 
+    public void replaceImages(List<String> urls) {
+        images.clear();
+        for (String url : urls) {
+            addImage(new DiaryImage(this, url));
+        }
+    }
+
 }
+
