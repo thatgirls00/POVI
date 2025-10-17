@@ -1,6 +1,6 @@
-package org.example.povi.quote.repository;
+package org.example.povi.domain.quote.repository;
 
-import org.example.povi.domain.Quote;
+import org.example.povi.domain.quote.entity.Quote;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;

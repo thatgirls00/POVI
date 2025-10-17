@@ -1,6 +1,6 @@
-package org.example.povi.transcription.repository;
+package org.example.povi.domain.transcription.repository;
 
-import org.example.povi.domain.Transcription;
+import org.example.povi.domain.transcription.entity.Transcription;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

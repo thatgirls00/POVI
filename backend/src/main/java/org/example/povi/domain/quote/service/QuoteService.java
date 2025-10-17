@@ -1,11 +1,11 @@
-package org.example.povi.quote.service;
+package org.example.povi.domain.quote.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.povi.domain.Quote;
-import org.example.povi.quote.dto.QuoteDto;
-import org.example.povi.quote.dto.QuoteRes;
-import org.example.povi.quote.repository.QuoteRepository;
+import org.example.povi.domain.quote.dto.QuoteDto;
+import org.example.povi.domain.quote.dto.QuoteRes;
+import org.example.povi.domain.quote.entity.Quote;
+import org.example.povi.domain.quote.repository.QuoteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;

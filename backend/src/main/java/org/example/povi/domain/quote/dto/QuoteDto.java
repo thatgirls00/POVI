@@ -1,4 +1,4 @@
-package org.example.povi.quote.dto;
+package org.example.povi.domain.quote.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

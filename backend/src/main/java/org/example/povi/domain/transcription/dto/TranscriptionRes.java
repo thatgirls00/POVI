@@ -1,8 +1,8 @@
-package org.example.povi.transcription.dto;
+package org.example.povi.domain.transcription.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.example.povi.domain.Transcription;
+import org.example.povi.domain.transcription.entity.Transcription;
 
 import java.time.LocalDateTime;
 

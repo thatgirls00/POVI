@@ -1,11 +1,11 @@
-package org.example.povi.transcription.controller;
+package org.example.povi.domain.transcription.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.povi.transcription.dto.TranscriptionReq;
-import org.example.povi.transcription.dto.TranscriptionListRes;
-import org.example.povi.transcription.dto.TranscriptionRes;
-import org.example.povi.transcription.service.TranscriptionService;
+import org.example.povi.domain.transcription.dto.TranscriptionReq;
+import org.example.povi.domain.transcription.service.TranscriptionService;
+import org.example.povi.domain.transcription.dto.TranscriptionListRes;
+import org.example.povi.domain.transcription.dto.TranscriptionRes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,8 +1,9 @@
-package org.example.povi.domain;
+package org.example.povi.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.example.povi.global.entity.BaseEntity;
+import org.example.povi.domain.transcription.entity.Transcription;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.example.povi.transcription.dto;
+package org.example.povi.domain.transcription.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

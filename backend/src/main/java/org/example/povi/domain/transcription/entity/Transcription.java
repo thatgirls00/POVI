@@ -1,10 +1,12 @@
-package org.example.povi.domain;
+package org.example.povi.domain.transcription.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.povi.domain.quote.entity.Quote;
+import org.example.povi.domain.user.entity.User;
 import org.example.povi.global.entity.BaseEntity;
 
 @Getter
