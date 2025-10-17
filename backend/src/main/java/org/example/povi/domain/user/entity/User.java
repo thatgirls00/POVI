@@ -1,4 +1,4 @@
-package org.example.povi.domain;
+package org.example.povi.domain.user;
 
 import jakarta.persistence.*;
 import lombok.Getter;
