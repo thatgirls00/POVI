@@ -1,9 +1,11 @@
 package org.example.povi.transcription.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.povi.transcription.dto.TranscriptionReq;
+import org.example.povi.transcription.dto.TranscriptionListRes;
+import org.example.povi.transcription.dto.TranscriptionRes;
 import org.example.povi.transcription.service.TranscriptionService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,12 +19,12 @@ public class TranscriptionController {
     @PostMapping("/{quoteId}")
     public ResponseEntity<?> createTranscription(
             @PathVariable Long quoteId,
-            @RequestBody TranscriptionReq reqDto,
+            @RequestBody @Valid TranscriptionReq reqDto,
             @RequestParam Long userId
             ) {
-        transcriptionService.createTranscription(userId, quoteId, reqDto);
+        TranscriptionRes responseDto = transcriptionService.createTranscription(userId, quoteId, reqDto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("필사 기록이 성공적으로 생성됐습니다.");
+        return ResponseEntity.ok(responseDto);
     }
 
     @DeleteMapping("/{transcriptionId}")
@@ -32,5 +34,11 @@ public class TranscriptionController {
     ) {
         transcriptionService.deleteTranscription(userId, transcriptionId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")  // 본인이 작성한 필사기록 조회
+    public ResponseEntity<?> getMyTranscriptions(@RequestParam Long userId) {
+        TranscriptionListRes responseDto = transcriptionService.getMyTranscriptions(userId);
+        return ResponseEntity.ok(responseDto);
     }
 }
