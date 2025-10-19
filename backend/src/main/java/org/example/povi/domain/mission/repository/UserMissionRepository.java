@@ -1,6 +1,6 @@
 package org.example.povi.domain.mission.repository;
 
-import org.example.povi.domain.User;
+import org.example.povi.domain.user.entity.User;
 import org.example.povi.domain.mission.entity.UserMission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

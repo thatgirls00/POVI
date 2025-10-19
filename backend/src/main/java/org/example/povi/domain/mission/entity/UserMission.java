@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.povi.domain.User;
+import org.example.povi.domain.user.entity.User;
 import org.example.povi.global.entity.BaseEntity;
 
 import java.time.LocalDate;

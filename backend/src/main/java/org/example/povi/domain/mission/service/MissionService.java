@@ -2,13 +2,13 @@ package org.example.povi.domain.mission.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.povi.domain.User;
 import org.example.povi.domain.mission.dto.response.MissionResponse;
 import org.example.povi.domain.mission.entity.Mission;
 import org.example.povi.domain.mission.entity.UserMission;
 import org.example.povi.domain.mission.repository.MissionRepository;
 import org.example.povi.domain.mission.repository.UserMissionRepository;
-import org.example.povi.domain.mission.repository.UserRepository;
+import org.example.povi.domain.user.repository.UserRepository;
+import org.example.povi.domain.user.entity.User;
 import org.example.povi.domain.weather.OpenWeatherClient;
 import org.example.povi.domain.weather.WeatherTypeMapper;
 import org.springframework.stereotype.Service;
