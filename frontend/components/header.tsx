@@ -15,7 +15,7 @@ export function Header() {
 
         <nav className="hidden md:flex items-center gap-6">
           <Link
-            href="/diary"
+            href="/diaryEntry"
             className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             <BookOpen className="h-4 w-4" />
