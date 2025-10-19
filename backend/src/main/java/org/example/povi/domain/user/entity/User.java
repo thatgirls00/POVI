@@ -8,11 +8,6 @@ import org.example.povi.global.entity.BaseEntity;
 @Entity
 @Table(name = "users")
 public class User extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")  // FK가 user_missions.user_id로 물려 있으니 그대로 맞춰줌
-    private Long id;
-
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
