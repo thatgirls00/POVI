@@ -1,4 +1,4 @@
-package org.example.povi.domain.user.entity;
+package org.example.povi.domain.user;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
