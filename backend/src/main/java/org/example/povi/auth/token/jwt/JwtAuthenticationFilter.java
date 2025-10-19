@@ -37,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
                 Long userId = jwtTokenProvider.getUserId(token);
                 String email = jwtTokenProvider.getUserEmail(token);
-                String nickname = "unknown";  // nickname은 보통 DB에서 조회해야 정확함
+                String nickname = "unknown";
 
                 CustomJwtUser userDetails = new CustomJwtUser(userId, email, nickname);
                 UsernamePasswordAuthenticationToken authentication =
@@ -63,7 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);  // "Bearer " 이후 토큰 값만 추출
+            return bearerToken.substring(7);
         }
         return null;
     }

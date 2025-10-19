@@ -71,7 +71,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return userRepository.save(User.builder()
                 .email(email)
                 .nickname(nickname)
-                .password("")  // 비밀번호 없음
+                .password("")
                 .provider(provider)
                 .providerId(providerId)
                 .userRole(UserRole.USER)

@@ -67,7 +67,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         return userRepository.save(User.builder()
                 .email(oAuth2User.getEmail())
                 .nickname(oAuth2User.getNickname())
-                .password("") // 소셜 로그인은 비밀번호 미사용
+                .password("")
                 .provider(provider)
                 .providerId(oAuth2User.getProviderId())
                 .userRole(UserRole.USER)

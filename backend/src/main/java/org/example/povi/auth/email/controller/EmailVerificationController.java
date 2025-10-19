@@ -26,8 +26,6 @@ public class EmailVerificationController {
     /**
      * 인증 메일을 전송합니다.
      *
-     * <p>POST /auth/email/send
-     *
      * @param request 이메일 주소 DTO
      * @return 200 OK
      */
@@ -41,8 +39,6 @@ public class EmailVerificationController {
 
     /**
      * 이메일 인증 토큰을 검증합니다.
-     *
-     * <p>GET /auth/email/verify?token=abc123
      *
      * @param token 이메일 인증 토큰
      * @return 인증 성공 시 200 OK, 실패 시 400 Bad Request
@@ -64,8 +60,6 @@ public class EmailVerificationController {
 
     /**
      * 특정 이메일의 인증 여부를 조회합니다.
-     *
-     * <p>GET /auth/email/status?email=example@email.com
      *
      * @param email 이메일 주소
      * @return 인증 상태 정보 DTO
