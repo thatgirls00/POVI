@@ -39,12 +39,12 @@ public class AuthService {
             throw new InvalidAuthProviderException();
         }
 
-        // 이메일 인증 여부 확인 (email_verification_token 테이블 또는 user 테이블에서)
+        // 이메일 인증 여부 확인
         // 만약 이메일 인증을 완료하지 않았다면 회원가입 차단
         userRepository.findByEmail(requestDto.getEmail())
                 .ifPresent(existingUser -> {
                     if (!existingUser.isEmailVerified()) {
-                        throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED); // ⚠이메일 미인증 예외
+                        throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
                     }
                 });
 
@@ -56,7 +56,7 @@ public class AuthService {
                 .provider(provider)
                 .providerId(requestDto.getProviderId())
                 .userRole(UserRole.USER)
-                .isEmailVerified(false) // ⚠기본값 false로 설정
+                .isEmailVerified(false)
                 .build();
 
         // DB 저장
@@ -64,7 +64,7 @@ public class AuthService {
     }
 
     /**
-     * 로그인 (이메일 인증 확인 포함)
+     * 로그인
      */
     public LoginResponseDto login(LoginRequestDto requestDto) {
         // 사용자 존재 여부 확인

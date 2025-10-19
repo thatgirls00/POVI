@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 /**
- * 이메일 인증 요청을 위한 DTO입니다.
- * 클라이언트가 입력한 이메일 주소를 포함합니다.
+ * 이메일 인증 요청을 위한 DTO
+ * 클라이언트가 입력한 이메일 주소를 포함
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

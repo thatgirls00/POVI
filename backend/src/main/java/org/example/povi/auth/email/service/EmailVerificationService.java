@@ -18,7 +18,6 @@ import java.util.UUID;
 
 /**
  * 이메일 인증 서비스
- * <p>
  * 이메일 인증 요청, 전송, 토큰 검증, 상태 조회 처리
  */
 @Service
