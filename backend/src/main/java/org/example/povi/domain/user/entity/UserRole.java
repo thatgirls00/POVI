@@ -1,4 +1,4 @@
-package org.example.povi.domain.user;
+package org.example.povi.domain.user.entity;
 
 public enum UserRole {
     USER,
