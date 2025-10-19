@@ -1,20 +1,16 @@
 package org.example.povi.domain.mission.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.povi.domain.User;
-import org.example.povi.domain.mission.dto.MissionResponseDto;
-import org.example.povi.domain.mission.dto.UserMissionResponseDto;
-import org.example.povi.domain.mission.entity.Mission;
-import org.example.povi.domain.mission.entity.UserMission;
-import org.example.povi.domain.mission.repository.UserMissionRepository;
-import org.example.povi.domain.mission.service.MissionRecommendationService;
+import org.example.povi.domain.mission.dto.request.CreateTodayMissionsRequest;
+import org.example.povi.domain.mission.dto.request.UpdateStatusRequest;
+import org.example.povi.domain.mission.dto.response.MissionResponse;
 import org.example.povi.domain.mission.service.MissionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/missions")
@@ -23,10 +19,28 @@ public class MissionController {
 
     private final MissionService missionService;
 
-    @GetMapping
-    public ResponseEntity<List<MissionResponseDto>> getTodayMissions(@RequestParam(value = "userId") Long userId, @RequestParam(value = "emotionType", required = false) Mission.EmotionType emotionType, @RequestParam(value = "latitude", required = false) Double latitude, @RequestParam(value = "longitude", required = false) Double longitude) {
-        List<MissionResponseDto> todaytMissions = missionService.getTodaytMissions(userId, emotionType, latitude, longitude);
-        //1. Req / Res 설정
-        return ResponseEntity.ok().body(todaytMissions);
+
+    // 오늘 미션 조회
+    @GetMapping("/today")
+    public ResponseEntity<List<MissionResponse>> getTodayMissions(@RequestParam Long userId) {
+        List<MissionResponse> list = missionService.readTodayMissions(userId);
+        if (list.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(list);
+    }
+
+
+    // 오늘 미션 생성
+    @PostMapping("/today")
+    public ResponseEntity<List<MissionResponse>> createTodayMissions(@RequestBody CreateTodayMissionsRequest req) {
+        List<MissionResponse> list = missionService.createTodayMissions(req.userId(), req.emotionType(), req.latitude(), req.longitude());
+        return ResponseEntity.status(HttpStatus.CREATED).body(list);
+    }
+
+
+    // 유저 미션 상태 업데이트
+    @PatchMapping("/{userMissionId}/status")
+    public ResponseEntity<Void> updateStatus(@RequestParam Long userId, @PathVariable Long userMissionId, @RequestBody @Valid UpdateStatusRequest req) {
+        missionService.updateUserMissionStatus(userId, userMissionId, req.status());
+        return ResponseEntity.noContent().build();
     }
 }

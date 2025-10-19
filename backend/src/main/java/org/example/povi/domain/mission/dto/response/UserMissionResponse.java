@@ -1,29 +1,27 @@
-package org.example.povi.domain.mission.dto;
+package org.example.povi.domain.mission.dto.response;
 
 import lombok.Getter;
 import org.example.povi.domain.mission.entity.UserMission;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
-public class UserMissionResponseDto {
+public class UserMissionResponse {
     private Long userMissionId;
     private Long missionId;
     private String title;
     private String description;
     private String emotionType;
     private String status;
-    private LocalDateTime assignedDate;
-    private LocalDateTime completedAt;
+    private LocalDate missionDate;
 
-    public UserMissionResponseDto(UserMission userMission) {
+    public UserMissionResponse(UserMission userMission) {
         this.userMissionId = userMission.getId();
         this.missionId = userMission.getMission().getId();
         this.title = userMission.getMission().getTitle();
         this.description = userMission.getMission().getDescription();
         this.emotionType = userMission.getMission().getEmotionType().name();
         this.status = userMission.getStatus().name();
-        this.assignedDate = userMission.getCreatedAt();
-        this.completedAt = userMission.getCompletedAt();
+        this.missionDate = userMission.getMissionDate();
     }
 }
