@@ -1,4 +1,10 @@
+"use client"
+
 import Link from "next/link"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import axios from "axios"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -7,90 +13,176 @@ import { Header } from "@/components/header"
 import { Heart } from "lucide-react"
 
 export default function SignupPage() {
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+    nickname: "",
+  })
+
+  const [isEmailVerified, setIsEmailVerified] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
+
+  const router = useRouter()
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.id]: e.target.value })
+    // 이메일 변경 시 인증 상태 초기화
+    if (e.target.id === "email") {
+      setIsEmailVerified(false)
+      setEmailSent(false)
+    }
+  }
+
+  // ✉️ 이메일 인증 요청
+  const handleSendEmailVerification = async () => {
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/email/send`, {
+        email: form.email,
+      })
+      alert("인증 이메일이 전송되었습니다. 메일을 확인하세요.")
+      setEmailSent(true)
+    } catch (err: any) {
+      alert(err.response?.data?.message || "이메일 전송에 실패했습니다.")
+    }
+  }
+
+  // ✅ 이메일 인증 확인
+  const handleCheckEmailVerified = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/email/status`, {
+        params: { email: form.email },
+      })
+
+      if (response.data.verified) {
+        alert("이메일 인증이 확인되었습니다.")
+        setIsEmailVerified(true)
+      } else {
+        alert("아직 인증되지 않았습니다. 이메일을 확인해주세요.")
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || "이메일 인증 확인에 실패했습니다.")
+    }
+  }
+
+  // 📝 회원가입
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (form.password !== form.confirmPassword) {
+      alert("비밀번호가 일치하지 않습니다.")
+      return
+    }
+
+    if (!isEmailVerified) {
+      alert("이메일 인증을 완료해주세요.")
+      return
+    }
+
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/signup`, {
+        email: form.email,
+        password: form.password,
+        nickname: form.nickname,
+        provider: "LOCAL",
+        providerId: "none",
+      })
+
+      alert("회원가입이 완료되었습니다.")
+      router.push("/login")
+    } catch (err: any) {
+      alert(err.response?.data?.message || "회원가입에 실패했습니다.")
+    }
+  }
+
   return (
-    <div className="min-h-screen">
-      <Header />
+      <div className="min-h-screen">
+        <Header />
 
-      <main className="container flex items-center justify-center py-12 md:py-20">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1 text-center">
-            <div className="flex justify-center mb-4">
-              <Heart className="h-12 w-12 text-primary fill-primary" />
-            </div>
-            <CardTitle className="text-2xl">회원가입</CardTitle>
-            <CardDescription>감정을 기록하고 공유할 준비가 되셨나요?</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <Button
-                variant="outline"
-                className="w-full gap-2 bg-[#FEE500] hover:bg-[#FEE500]/90 text-[#000000] border-[#FEE500]"
-              >
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 3c-4.97 0-9 3.582-9 8 0 1.988.78 3.82 2.084 5.267L3 21l5.26-1.867C9.462 19.69 10.693 20 12 20c4.97 0 9-3.582 9-8s-4.03-8-9-8z" />
-                </svg>
-                카카오로 시작하기
-              </Button>
-              <Button variant="outline" className="w-full gap-2 bg-transparent">
-                <svg className="h-5 w-5" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
-                </svg>
-                Google로 시작하기
-              </Button>
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+        <main className="container flex items-center justify-center py-12 md:py-20">
+          <Card className="w-full max-w-md">
+            <CardHeader className="space-y-1 text-center">
+              <div className="flex justify-center mb-4">
+                <Heart className="h-12 w-12 text-primary fill-primary" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">또는</span>
-              </div>
-            </div>
+              <CardTitle className="text-2xl">회원가입</CardTitle>
+              <CardDescription>감정을 기록하고 공유할 준비가 되셨나요?</CardDescription>
+            </CardHeader>
 
-            <div className="space-y-2">
-              <Label htmlFor="nickname">닉네임</Label>
-              <Input id="nickname" placeholder="사용할 닉네임을 입력하세요" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">이메일</Label>
-              <Input id="email" type="email" placeholder="your@email.com" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">비밀번호</Label>
-              <Input id="password" type="password" placeholder="••••••••" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirm-password">비밀번호 확인</Label>
-              <Input id="confirm-password" type="password" placeholder="••••••••" />
-            </div>
-            <Button className="w-full">회원가입</Button>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <div className="text-sm text-center text-muted-foreground">
-              이미 계정이 있으신가요?{" "}
-              <Link href="/login" className="text-primary hover:underline">
-                로그인
-              </Link>
-            </div>
-          </CardFooter>
-        </Card>
-      </main>
-    </div>
+            <CardContent className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="nickname">닉네임</Label>
+                  <Input
+                      id="nickname"
+                      placeholder="사용할 닉네임을 입력하세요"
+                      value={form.nickname}
+                      onChange={handleChange}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">이메일</Label>
+                  <Input
+                      id="email"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={form.email}
+                      onChange={handleChange}
+                  />
+                  <div className="flex gap-2 mt-2">
+                    <Button type="button" variant="outline" onClick={handleSendEmailVerification}>
+                      인증 메일 발송
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        disabled={!emailSent}
+                        onClick={handleCheckEmailVerified}
+                    >
+                      인증 확인
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">비밀번호</Label>
+                  <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={form.password}
+                      onChange={handleChange}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">비밀번호 확인</Label>
+                  <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={form.confirmPassword}
+                      onChange={handleChange}
+                  />
+                </div>
+
+                <Button type="submit" className="w-full">
+                  회원가입
+                </Button>
+              </form>
+            </CardContent>
+
+            <CardFooter className="flex flex-col gap-4">
+              <div className="text-sm text-center text-muted-foreground">
+                이미 계정이 있으신가요?{" "}
+                <Link href="/login" className="text-primary hover:underline">
+                  로그인
+                </Link>
+              </div>
+            </CardFooter>
+          </Card>
+        </main>
+      </div>
   )
 }
