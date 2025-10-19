@@ -44,7 +44,7 @@ export default function HomePage() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
           <Button size="lg" className="w-full sm:w-auto gap-2" asChild>
-            <Link href="/diary/new">
+            <Link href="/diaryEntry/new">
               <PenLine className="h-5 w-5" />
               다이어리 쓰기
             </Link>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DiaryDetailDialog } from "@/components/diary-detail-dialog"
+import { DiaryDetailDialog } from "@/components/diaryEntry-detail-dialog"
 import Link from "next/link"
 import { PenLine, Calendar, ImageIcon } from "lucide-react"
 
@@ -121,8 +121,8 @@ export default function DiaryListPage() {
 
   const weeklyAvgEmotion = "긍정적"
 
-  const openDiaryDetail = (diary: any) => {
-    setSelectedDiary(diary)
+  const openDiaryDetail = (diaryEntry: any) => {
+    setSelectedDiary(diaryEntry)
     setDialogOpen(true)
   }
 
@@ -144,7 +144,7 @@ export default function DiaryListPage() {
               </Link>
             </Button>
             <Button asChild>
-              <Link href="/diary/new">
+              <Link href="/diaryEntry/new">
                 <PenLine className="h-4 w-4 mr-2" />새 다이어리
               </Link>
             </Button>
@@ -225,31 +225,31 @@ export default function DiaryListPage() {
 
             {/* Recent Diaries */}
             <div className="space-y-4">
-              {recentDiaries.map((diary) => (
+              {recentDiaries.map((diaryEntry) => (
                 <Card
-                  key={diary.id}
+                  key={diaryEntry.id}
                   className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => openDiaryDetail(diary)}
+                  onClick={() => openDiaryDetail(diaryEntry)}
                 >
                   <div className="flex gap-4">
-                    <div className="text-4xl">{diary.emotion}</div>
+                    <div className="text-4xl">{diaryEntry.emotion}</div>
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h3 className="font-semibold text-lg mb-1">{diary.title}</h3>
-                          <p className="text-sm text-muted-foreground">{diary.date}</p>
+                          <h3 className="font-semibold text-lg mb-1">{diaryEntry.title}</h3>
+                          <p className="text-sm text-muted-foreground">{diaryEntry.date}</p>
                         </div>
                         <span className="text-xs px-2 py-1 bg-muted rounded-full">
-                          {diary.visibility === "private"
+                          {diaryEntry.visibility === "private"
                             ? "비공개"
-                            : diary.visibility === "friends"
+                            : diaryEntry.visibility === "friends"
                               ? "친구공개"
                               : "전체공개"}
                         </span>
                       </div>
-                      <p className="text-muted-foreground leading-relaxed">{diary.preview}</p>
+                      <p className="text-muted-foreground leading-relaxed">{diaryEntry.preview}</p>
                     </div>
-                    {diary.hasImage && (
+                    {diaryEntry.hasImage && (
                       <div className="flex-shrink-0 w-20 h-20 bg-muted rounded-lg flex items-center justify-center">
                         <ImageIcon className="h-8 w-8 text-muted-foreground" />
                       </div>
@@ -266,30 +266,30 @@ export default function DiaryListPage() {
               <p className="text-sm text-muted-foreground">팔로잉한 친구들이 공유한 감정을 확인하세요</p>
             </div>
 
-            {friendDiaries.map((diary) => (
+            {friendDiaries.map((diaryEntry) => (
               <Card
-                key={diary.id}
+                key={diaryEntry.id}
                 className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => openDiaryDetail(diary)}
+                onClick={() => openDiaryDetail(diaryEntry)}
               >
                 <div className="flex gap-4">
-                  <div className="text-4xl">{diary.emotion}</div>
+                  <div className="text-4xl">{diaryEntry.emotion}</div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <h3 className="font-semibold text-lg mb-1">{diary.title}</h3>
+                        <h3 className="font-semibold text-lg mb-1">{diaryEntry.title}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {diary.author} • {diary.date}
+                          {diaryEntry.author} • {diaryEntry.date}
                         </p>
                       </div>
                     </div>
-                    <p className="text-muted-foreground leading-relaxed mb-4">{diary.preview}</p>
+                    <p className="text-muted-foreground leading-relaxed mb-4">{diaryEntry.preview}</p>
                     <div className="flex items-center gap-4">
-                      <span className="text-sm text-muted-foreground">❤️ {diary.likes}</span>
-                      <span className="text-sm text-muted-foreground">💬 {diary.comments}</span>
+                      <span className="text-sm text-muted-foreground">❤️ {diaryEntry.likes}</span>
+                      <span className="text-sm text-muted-foreground">💬 {diaryEntry.comments}</span>
                     </div>
                   </div>
-                  {diary.hasImage && (
+                  {diaryEntry.hasImage && (
                     <div className="flex-shrink-0 w-20 h-20 bg-muted rounded-lg flex items-center justify-center">
                       <ImageIcon className="h-8 w-8 text-muted-foreground" />
                     </div>
@@ -306,30 +306,30 @@ export default function DiaryListPage() {
               <p className="text-sm text-muted-foreground">최근 일주일 사이 전체 공개된 다이어리를 둘러보세요</p>
             </div>
 
-            {allPublicDiaries.map((diary) => (
+            {allPublicDiaries.map((diaryEntry) => (
               <Card
-                key={diary.id}
+                key={diaryEntry.id}
                 className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => openDiaryDetail(diary)}
+                onClick={() => openDiaryDetail(diaryEntry)}
               >
                 <div className="flex gap-4">
-                  <div className="text-4xl">{diary.emotion}</div>
+                  <div className="text-4xl">{diaryEntry.emotion}</div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <h3 className="font-semibold text-lg mb-1">{diary.title}</h3>
+                        <h3 className="font-semibold text-lg mb-1">{diaryEntry.title}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {diary.author} • {diary.date}
+                          {diaryEntry.author} • {diaryEntry.date}
                         </p>
                       </div>
                     </div>
-                    <p className="text-muted-foreground leading-relaxed mb-4">{diary.preview}</p>
+                    <p className="text-muted-foreground leading-relaxed mb-4">{diaryEntry.preview}</p>
                     <div className="flex items-center gap-4">
-                      <span className="text-sm text-muted-foreground">❤️ {diary.likes}</span>
-                      <span className="text-sm text-muted-foreground">💬 {diary.comments}</span>
+                      <span className="text-sm text-muted-foreground">❤️ {diaryEntry.likes}</span>
+                      <span className="text-sm text-muted-foreground">💬 {diaryEntry.comments}</span>
                     </div>
                   </div>
-                  {diary.hasImage && (
+                  {diaryEntry.hasImage && (
                     <div className="flex-shrink-0 w-20 h-20 bg-muted rounded-lg flex items-center justify-center">
                       <ImageIcon className="h-8 w-8 text-muted-foreground" />
                     </div>
@@ -341,7 +341,7 @@ export default function DiaryListPage() {
         </Tabs>
 
         {/* Diary Detail Dialog */}
-        {selectedDiary && <DiaryDetailDialog open={dialogOpen} onOpenChange={setDialogOpen} diary={selectedDiary} />}
+        {selectedDiary && <DiaryDetailDialog open={dialogOpen} onOpenChange={setDialogOpen} diaryEntry={selectedDiary} />}
       </main>
     </div>
   )
