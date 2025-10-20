@@ -5,13 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.povi.global.entity.BaseEntity;
-import org.example.povi.domain.transcription.entity.Transcription;
 
+import org.example.povi.domain.transcription.entity.Transcription;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.example.povi.auth.enums.AuthProvider;
+import org.example.povi.global.entity.BaseEntity;
 
 @Entity
 @Getter
