@@ -3,6 +3,7 @@ package org.example.povi.domain.diary.entry.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.povi.auth.token.jwt.CustomJwtUser;
 import org.example.povi.domain.diary.entry.dto.request.DiaryCreateReq;
 import org.example.povi.domain.diary.entry.dto.request.DiaryUpdateReq;
 import org.example.povi.domain.diary.entry.dto.response.DiaryCreateRes;
@@ -10,6 +11,7 @@ import org.example.povi.domain.diary.entry.dto.response.DiaryUpdateRes;
 import org.example.povi.domain.diary.entry.service.DiaryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,4 +37,16 @@ public class DiaryController {
         DiaryUpdateRes response = diaryService.update(diaryId, req);
         return ResponseEntity.ok(response);
     }
+
+
+    @DeleteMapping("/{diaryId}")
+    @Operation(summary = "다이어리 삭제")
+    public ResponseEntity<Void> deleteDiary(
+            @PathVariable Long diaryId,
+            @AuthenticationPrincipal CustomJwtUser user
+    ) {
+        diaryService.delete(diaryId, user.getId());
+        return ResponseEntity.noContent().build();
+    }
 }
+

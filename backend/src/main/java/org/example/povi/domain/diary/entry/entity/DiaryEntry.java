@@ -50,10 +50,21 @@ public class DiaryEntry extends BaseEntity {
         this.visibility = (visibility != null) ? visibility : Visibility.PRIVATE;
     }
 
-    public void renameTo(String newTitle) { this.title = newTitle; }
-    public void rewriteContent(String newContent) { this.content = newContent; }
-    public void changeMood(MoodEmoji newMood) { this.moodEmoji = newMood; }
-    public void changeVisibility(Visibility newVisibility) { this.visibility = newVisibility; }
+    public void renameTo(String newTitle) {
+        this.title = newTitle;
+    }
+
+    public void rewriteContent(String newContent) {
+        this.content = newContent;
+    }
+
+    public void changeMood(MoodEmoji newMood) {
+        this.moodEmoji = newMood;
+    }
+
+    public void changeVisibility(Visibility newVisibility) {
+        this.visibility = newVisibility;
+    }
 
     public void addImage(DiaryImage image) {
         images.add(image);
@@ -66,6 +77,5 @@ public class DiaryEntry extends BaseEntity {
             addImage(new DiaryImage(this, url));
         }
     }
-
 }
 

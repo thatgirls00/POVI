@@ -138,4 +138,17 @@ public class DiaryService {
         String t = s.trim();
         return t.isEmpty() ? null : t;
     }
+
+    //다이어리 삭제
+    @Transactional
+    public void delete(Long diaryId, Long userId) {
+
+        DiaryEntry diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 다이어리입니다."));
+
+        if (!diary.getUser().getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인의 다이어리만 삭제할 수 있습니다.");
+        }
+        diaryRepository.delete(diary);
+    }
 }
