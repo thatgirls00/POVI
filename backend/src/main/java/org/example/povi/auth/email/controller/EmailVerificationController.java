@@ -9,12 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 이메일 인증 관련 요청을 처리하는 컨트롤러입니다.
- *
- * <p>주요 기능:
- *  - 인증 메일 전송 요청
- *  - 토큰 기반 이메일 인증 처리
- *  - 이메일 인증 여부 조회
+ * 이메일 인증 관련 요청을 처리하는 컨트롤러
  */
 @RestController
 @RequestMapping("/auth/email")
@@ -24,10 +19,7 @@ public class EmailVerificationController {
     private final EmailVerificationService emailVerificationService;
 
     /**
-     * 인증 메일을 전송합니다.
-     *
-     * @param request 이메일 주소 DTO
-     * @return 200 OK
+     * 인증 메일을 전송
      */
     @PostMapping("/send")
     public ResponseEntity<Void> sendEmailVerification(
@@ -38,31 +30,25 @@ public class EmailVerificationController {
     }
 
     /**
-     * 이메일 인증 토큰을 검증합니다.
-     *
-     * @param token 이메일 인증 토큰
-     * @return 인증 성공 시 200 OK, 실패 시 400 Bad Request
+     * 이메일 인증 토큰을 검증
      */
     @GetMapping("/verify")
-    public ResponseEntity<String> verifyEmail(
+    public ResponseEntity<Void> verifyEmail(
             @RequestParam("token") String token
     ) {
         boolean isVerified = emailVerificationService.verifyEmail(token);
 
         if (isVerified) {
-            return ResponseEntity.ok("이메일 인증이 완료되었습니다.");
+            return ResponseEntity.ok().build();
         }
 
         return ResponseEntity
                 .badRequest()
-                .body("유효하지 않거나 만료된 인증 링크입니다.");
+                .build();
     }
 
     /**
-     * 특정 이메일의 인증 여부를 조회합니다.
-     *
-     * @param email 이메일 주소
-     * @return 인증 상태 정보 DTO
+     * 이메일 인증 여부를 조회
      */
     @GetMapping("/status")
     public ResponseEntity<EmailVerificationStatusResponseDto> checkEmailVerificationStatus(

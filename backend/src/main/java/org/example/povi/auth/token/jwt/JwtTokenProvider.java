@@ -33,8 +33,7 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    // Access Token 생성
-    public String createAccessToken(Long userId, String email) {
+    public String createAccessToken(Object userId, String email) {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("id", userId);
         claims.put("email", email);
@@ -50,7 +49,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // Refresh Token 생성
     public String createRefreshToken(String email) {
         Claims claims = Jwts.claims().setSubject(email);
 
@@ -65,7 +63,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // 토큰 유효성 검사
     public boolean validateToken(String token) {
         try {
             getClaims(token);  // 검증 겸용
@@ -76,12 +73,10 @@ public class JwtTokenProvider {
         }
     }
 
-    // 사용자 이메일 추출
     public String getUserEmail(String token) {
-        return getClaims(token).getSubject(); // subject = email
+        return getClaims(token).getSubject();
     }
 
-    // 사용자 ID 추출 (Integer/Long 모두 처리)
     public Long getUserId(String token) {
         Object id = getClaims(token).get("id");
         if (id instanceof Integer) return ((Integer) id).longValue();
@@ -89,7 +84,6 @@ public class JwtTokenProvider {
         throw new JwtException("JWT에 저장된 사용자 ID 타입이 올바르지 않습니다.");
     }
 
-    // Claims 추출 (공통 처리 메서드)
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
