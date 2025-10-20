@@ -3,10 +3,14 @@ package org.example.povi.auth.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.povi.auth.enums.AuthProvider;
-import org.example.povi.auth.oauthinfo.CustomOAuth2User;
+import org.example.povi.auth.mapper.OAuthUserMapper;
+import org.example.povi.auth.mapper.UserMapper;
+import org.example.povi.auth.oauthinfo.OAuth2UserInfo;
+import org.example.povi.auth.oauthinfo.OAuth2UserInfoFactory;
 import org.example.povi.domain.user.entity.User;
-import org.example.povi.domain.user.entity.UserRole;
 import org.example.povi.domain.user.repository.UserRepository;
+import org.example.povi.global.exception.ex.CustomException;
+import org.example.povi.global.exception.error.ErrorCode;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -15,6 +19,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+/**
+ * OAuth2 로그인 성공 시 사용자 정보를 처리하는 서비스
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -22,32 +29,38 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
 
+    /**
+     * OAuth2 로그인 성공 후 호출되는 메서드
+     * 사용자 정보 로드 및 저장 처리
+     */
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // 기본 OAuth2 사용자 정보 불러오기
         OAuth2User oAuth2User = super.loadUser(userRequest);
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
-        // 소셜 로그인 플랫폼 구분자 추출 (ex: google, kakao)
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        AuthProvider provider = parseProvider(registrationId);
+        OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, attributes);
 
-        // providerId 추출
-        String providerId = extractProviderId(provider, attributes);
+        String providerId = userInfo.getProviderId();
+        String email = userInfo.getEmail();
+        String provider = userInfo.getProvider();
 
-        // DB에 해당 사용자 있는지 확인 후 없으면 생성
-        User user = userRepository.findByProviderAndProviderId(provider, providerId)
-                .orElseGet(() -> createUser(provider, providerId, attributes));
+        userRepository.findByEmail(email).ifPresent(existingUser -> {
+            if (!existingUser.getProvider().equals(provider)) {
+                throw new CustomException(ErrorCode.EMAIL_ALREADY_REGISTERED);
+            }
+        });
 
-        return new CustomOAuth2User(
-                user.getEmail(),
-                provider.name().toLowerCase(),
-                providerId,
-                user.getNickname(),
-                attributes
-        );
+        User user = userRepository.findByProviderAndProviderId(AuthProvider.valueOf(provider), providerId)
+                .orElseGet(() -> userRepository.save(
+                        UserMapper.fromOAuth(AuthProvider.valueOf(provider), providerId, email, attributes)));
+
+        return OAuthUserMapper.toCustomOAuth2User(user, AuthProvider.valueOf(provider), providerId, attributes);
     }
 
+    /**
+     * OAuth2 provider 문자열을 enum으로 변환
+     */
     private AuthProvider parseProvider(String registrationId) {
         try {
             return AuthProvider.valueOf(registrationId.toUpperCase());
@@ -56,6 +69,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
     }
 
+    /**
+     * OAuth2 응답에서 플랫폼 고유 식별자 추출
+     */
     private String extractProviderId(AuthProvider provider, Map<String, Object> attributes) {
         return switch (provider) {
             case KAKAO -> String.valueOf(attributes.get("id"));
@@ -64,29 +80,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         };
     }
 
-    private User createUser(AuthProvider provider, String providerId, Map<String, Object> attributes) {
-        String nickname = extractNickname(provider, attributes);
-        String email = provider.name().toLowerCase() + "_" + providerId + "@socialuser.com";
-
-        return userRepository.save(User.builder()
-                .email(email)
-                .nickname(nickname)
-                .password("")
-                .provider(provider)
-                .providerId(providerId)
-                .userRole(UserRole.USER)
-                .build());
-    }
-
-    private String extractNickname(AuthProvider provider, Map<String, Object> attributes) {
+    /**
+     * OAuth2 응답에서 이메일 주소 추출
+     */
+    private String extractEmail(AuthProvider provider, Map<String, Object> attributes) {
         return switch (provider) {
             case KAKAO -> {
                 Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-                Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
-                yield (String) profile.get("nickname");
+                yield (String) kakaoAccount.get("email");
             }
-            case GOOGLE -> (String) attributes.get("name");
-            default -> throw new OAuth2AuthenticationException("닉네임 추출 실패: " + provider.name());
+            case GOOGLE -> (String) attributes.get("email");
+            default -> throw new OAuth2AuthenticationException("이메일 추출 실패: " + provider.name());
         };
     }
 }

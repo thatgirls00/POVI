@@ -13,9 +13,6 @@ import java.util.Map;
 
 /**
  * - 인증 실패(401 Unauthorized) 시 실행되는 핸들러
- * - 인증되지 않은 사용자가 보호된 리소스에 접근할 때 호출됨
- * - 예: JWT가 없거나, 만료되었거나, 잘못된 형식일 때
- * - SecurityFilterChain 설정에서 .authenticationEntryPoint(...) 로 등록됨
  */
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -24,11 +21,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     /**
      * 인증 실패 시 실행되는 메서드
-     *
-     * @param request       HTTP 요청
-     * @param response      HTTP 응답
-     * @param authException 인증 예외
-     * @throws IOException
      */
     @Override
     public void commence(HttpServletRequest request,
