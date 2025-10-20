@@ -5,6 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import org.example.povi.domain.transcription.entity.Transcription;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.example.povi.auth.enums.AuthProvider;
 import org.example.povi.global.entity.BaseEntity;
 
@@ -42,6 +47,9 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private boolean isEmailVerified = false;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Transcription> transcriptions = new ArrayList<>();
 
     public void verifyEmail() {
         this.isEmailVerified = true;
