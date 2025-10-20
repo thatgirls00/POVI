@@ -1,6 +1,9 @@
 package org.example.povi.global.handler;
 
 import org.example.povi.global.exception.error.ErrorCode;
+import org.example.povi.global.exception.ex.AuthorizationException;
+import org.example.povi.global.exception.ex.DuplicateTranscriptionException;
+import org.example.povi.global.exception.ex.ResourceNotFoundException;
 import org.example.povi.global.exception.error.ErrorResponse;
 import org.example.povi.global.exception.ex.CustomException;
 import org.example.povi.global.exception.ex.UnauthorizedException;
@@ -41,6 +44,29 @@ public class GlobalExceptionHandler {
                 message
         );
         return ResponseEntity.badRequest().body(error);
+    }
+
+
+    @ExceptionHandler(DuplicateTranscriptionException.class)
+    public ResponseEntity<String> handleDuplicateTranscription(DuplicateTranscriptionException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT) // 409 Conflict 상태 코드
+                .body(ex.getMessage()); // "이미 필사한 명언입니다." 메시지
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleResourceNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND) // 404 Not Found 상태 코드
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(AuthorizationException.class)
+    public ResponseEntity<String> handleAuthorizationException(AuthorizationException ex) {
+        // 403 Forbidden 상태 코드와 함께 에러 메시지를 반환
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ex.getMessage());
     }
 
     /**
