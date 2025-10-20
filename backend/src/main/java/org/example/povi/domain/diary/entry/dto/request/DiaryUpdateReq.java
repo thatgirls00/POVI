@@ -1,5 +1,6 @@
 package org.example.povi.domain.diary.entry.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.example.povi.domain.diary.type.MoodEmoji;
 import org.example.povi.domain.diary.type.Visibility;
@@ -16,7 +17,8 @@ public record DiaryUpdateReq(
 
         MoodEmoji moodEmoji,
         Visibility visibility,
+        @Size(max = 3) List<@NotBlank @Size(max = 2048)
+                String> imageUrls
 
-        @Size(max = 3)
-        List<String> imageUrls
-) {}
+) {
+}

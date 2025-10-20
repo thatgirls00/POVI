@@ -42,7 +42,6 @@ public class DiaryEntry extends BaseEntity {
 
     @Builder
     public DiaryEntry(User user, String title, String content, MoodEmoji moodEmoji, Visibility visibility) {
-
         this.user = user;
         this.title = title;
         this.content = content;

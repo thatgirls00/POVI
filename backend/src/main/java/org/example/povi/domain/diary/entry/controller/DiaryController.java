@@ -23,18 +23,23 @@ public class DiaryController {
 
     @PostMapping
     @Operation(summary = "다이어리 생성")
-    public ResponseEntity<DiaryCreateRes> createDiary(@RequestBody @Valid DiaryCreateReq req) {
-        DiaryCreateRes response = diaryService.create(req);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<DiaryCreateRes> createDiary(
+            @RequestBody @Valid DiaryCreateReq req,
+            @AuthenticationPrincipal CustomJwtUser user
+    ) {
+        DiaryCreateRes res = diaryService.create(req, user.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
     @PatchMapping("/{diaryId}")
     @Operation(summary = "다이어리 부분수정")
     public ResponseEntity<DiaryUpdateRes> updateDiary(
             @PathVariable("diaryId") Long diaryId,
-            @RequestBody @Valid DiaryUpdateReq req
+            @RequestBody @Valid DiaryUpdateReq req,
+            @AuthenticationPrincipal CustomJwtUser user
+
     ) {
-        DiaryUpdateRes response = diaryService.update(diaryId, req);
+        DiaryUpdateRes response = diaryService.update(diaryId, req, user.getId());
         return ResponseEntity.ok(response);
     }
 

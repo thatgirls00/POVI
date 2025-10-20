@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record DiaryCreateRes(
-        Long diaryId,
         String title,
         String content,
         MoodEmoji moodEmoji,
@@ -19,7 +18,6 @@ public record DiaryCreateRes(
 ) {
     public static DiaryCreateRes from(DiaryEntry diaryEntry) {
         return new DiaryCreateRes(
-                diaryEntry.getId(),
                 diaryEntry.getTitle(),
                 diaryEntry.getContent(),
                 diaryEntry.getMoodEmoji(),

@@ -11,8 +11,6 @@ import java.util.List;
 
 
 public record DiaryCreateReq(
-        @NotNull
-        Long userId,
         @NotBlank @Size(min = 2, max = 50)
         String title,
         @NotBlank @Size(min = 10, max = 3000)

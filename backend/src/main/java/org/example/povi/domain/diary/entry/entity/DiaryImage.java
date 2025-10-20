@@ -27,7 +27,6 @@ public class DiaryImage extends BaseEntity {
         this.diaryEntry = diaryEntry;
         this.imageUrl = imageUrl;
     }
-
     void setDiaryEntry(DiaryEntry diaryEntry) {
         this.diaryEntry = diaryEntry;
     }
