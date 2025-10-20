@@ -37,3 +37,12 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Spring config (개인 로컬/비밀 설정 무시)
+**/src/main/resources/application.yml
+**/src/main/resources/application-dev.yml
+**/src/main/resources/application-test.yml
+
+### custom ###
+db_dev.mv.db
+db_dev.trace.db
