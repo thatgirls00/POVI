@@ -1,13 +1,12 @@
-package org.example.povi.domain.user;
+package org.example.povi.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.povi.global.entity.BaseEntity;
-
 import org.example.povi.auth.enums.AuthProvider;
+import org.example.povi.global.entity.BaseEntity;
 
 @Entity
 @Getter
