@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.povi.domain.diary.entry.dto.request.DiaryCreateReq;
 import org.example.povi.domain.diary.entry.dto.request.DiaryUpdateReq;
 import org.example.povi.domain.diary.entry.dto.response.DiaryCreateRes;
+import org.example.povi.domain.diary.entry.dto.response.DiaryDetailRes;
 import org.example.povi.domain.diary.entry.dto.response.DiaryUpdateRes;
 import org.example.povi.domain.diary.entry.entity.DiaryEntry;
 import org.example.povi.domain.diary.entry.entity.DiaryImage;
@@ -43,7 +44,6 @@ public class DiaryService {
                 .moodEmoji(req.moodEmoji())
                 .visibility(req.visibility())
                 .build();
-
 
         List<String> urls = normalizeImages(req.imageUrls());
         if (urls != null) {
@@ -91,7 +91,6 @@ public class DiaryService {
     }
 
 
-
     // 공통 이미지 정리: null은 null 유지, 값 있으면 trim + distinct
     private List<String> normalizeImages(List<String> urls) {
         if (urls == null) return null;
@@ -100,7 +99,6 @@ public class DiaryService {
                 .filter(s -> !s.isEmpty())
                 .distinct()
                 .toList();
-
 }
 
     //다이어리 삭제
@@ -114,5 +112,18 @@ public class DiaryService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인의 다이어리만 삭제할 수 있습니다.");
         }
         diaryRepository.delete(diary);
+    }
+
+    //다이어리 조회 - 상세조회
+    @Transactional(readOnly = true)
+    public DiaryDetailRes getDiaryDetail(Long diaryId, Long userId) {
+        DiaryEntry diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 다이어리입니다."));
+
+        if (!diary.getUser().getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인의 다이어리만 조회할 수 있습니다.");
+        }
+
+        return DiaryDetailRes.from(diary);
     }
 }

@@ -7,6 +7,7 @@ import org.example.povi.auth.token.jwt.CustomJwtUser;
 import org.example.povi.domain.diary.entry.dto.request.DiaryCreateReq;
 import org.example.povi.domain.diary.entry.dto.request.DiaryUpdateReq;
 import org.example.povi.domain.diary.entry.dto.response.DiaryCreateRes;
+import org.example.povi.domain.diary.entry.dto.response.DiaryDetailRes;
 import org.example.povi.domain.diary.entry.dto.response.DiaryUpdateRes;
 import org.example.povi.domain.diary.entry.service.DiaryService;
 import org.springframework.http.HttpStatus;
@@ -27,8 +28,8 @@ public class DiaryController {
             @RequestBody @Valid DiaryCreateReq req,
             @AuthenticationPrincipal CustomJwtUser user
     ) {
-        DiaryCreateRes res = diaryService.create(req, user.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+        DiaryCreateRes response = diaryService.create(req, user.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PatchMapping("/{diaryId}")
@@ -52,6 +53,16 @@ public class DiaryController {
     ) {
         diaryService.delete(diaryId, user.getId());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{diaryId}")
+    @Operation(summary = "단일 상세 조회")
+    public ResponseEntity<DiaryDetailRes> getDiaryDetail(
+            @PathVariable Long diaryId,
+            @AuthenticationPrincipal CustomJwtUser user
+    ) {
+        DiaryDetailRes response = diaryService.getDiaryDetail(diaryId, user.getId());
+        return ResponseEntity.ok(response);
     }
 }
 
