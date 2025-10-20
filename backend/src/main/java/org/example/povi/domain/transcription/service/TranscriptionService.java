@@ -36,7 +36,7 @@ public class TranscriptionService {
         Quote quote = quoteRepository.findById(quoteId)
                 .orElseThrow(() -> new ResourceNotFoundException("명언을 찾을 수 없습니다: ID " + quoteId));
 
-        Transcription transcription = new Transcription(transcriptionReq.getContent(), quote, user);
+        Transcription transcription = new Transcription(transcriptionReq.content(), quote, user);
 
         try {
             Transcription savedTranscription = transcriptionRepository.save(transcription);

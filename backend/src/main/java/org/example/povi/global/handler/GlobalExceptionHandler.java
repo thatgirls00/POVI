@@ -66,8 +66,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthorizationException.class)
     public ResponseEntity<String> handleAuthorizationException(AuthorizationException ex) {
-        // 403 Forbidden 상태 코드와 함께 에러 메시지를 반환
-        return ResponseEntity
+        return ResponseEntity  // 403 Forbidden 상태 코드
                 .status(HttpStatus.FORBIDDEN)
                 .body(ex.getMessage());
     }
