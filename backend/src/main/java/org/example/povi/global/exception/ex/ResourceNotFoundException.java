@@ -1,4 +1,4 @@
-package org.example.povi.global.exception;
+package org.example.povi.global.exception.ex;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
