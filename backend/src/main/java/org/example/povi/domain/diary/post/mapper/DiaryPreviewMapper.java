@@ -3,9 +3,9 @@ package org.example.povi.domain.diary.post.mapper;
 import org.example.povi.domain.diary.post.entity.DiaryPost;
 
 
-public final class DiaryViewMapper {
+public final class DiaryPreviewMapper {
 
-    private DiaryViewMapper() {}
+    private DiaryPreviewMapper() {}
 
     // 첫 번째 이미지 URL (없으면 null)
     public static String firstImageUrl(DiaryPost diary) {

@@ -1,4 +1,4 @@
-package org.example.povi.domain.diary.type;
+package org.example.povi.domain.diary.enums;
 
 
 public enum Visibility {

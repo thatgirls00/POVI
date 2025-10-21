@@ -1,7 +1,7 @@
 package org.example.povi.domain.diary.post.dto.response;
 
-import org.example.povi.domain.diary.type.MoodEmoji;
-import org.example.povi.domain.diary.type.Visibility;
+import org.example.povi.domain.diary.enums.MoodEmoji;
+import org.example.povi.domain.diary.enums.Visibility;
 
 import java.time.LocalDate;
 

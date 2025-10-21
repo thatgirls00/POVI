@@ -3,8 +3,8 @@ package org.example.povi.domain.diary.post.dto.response;
 
 import org.example.povi.domain.diary.post.entity.DiaryPost;
 import org.example.povi.domain.diary.post.entity.DiaryImage;
-import org.example.povi.domain.diary.type.MoodEmoji;
-import org.example.povi.domain.diary.type.Visibility;
+import org.example.povi.domain.diary.enums.MoodEmoji;
+import org.example.povi.domain.diary.enums.Visibility;
 
 import java.time.LocalDateTime;
 import java.util.List;

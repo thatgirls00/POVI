@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.povi.domain.diary.type.MoodEmoji;
-import org.example.povi.domain.diary.type.Visibility;
+import org.example.povi.domain.diary.enums.MoodEmoji;
+import org.example.povi.domain.diary.enums.Visibility;
 import org.example.povi.domain.user.entity.User;
 import org.example.povi.global.entity.BaseEntity;
 

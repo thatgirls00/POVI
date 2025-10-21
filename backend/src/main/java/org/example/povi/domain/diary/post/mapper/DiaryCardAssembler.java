@@ -12,8 +12,8 @@ public final class DiaryCardAssembler {
 
     /** 나의 다이어리 카드 변환 */
     public static MyDiaryCardRes toMyCard(DiaryPost post) {
-        String preview   = DiaryViewMapper.buildPreviewText(post.getContent(), PREVIEW_MAX);
-        String thumbnail = DiaryViewMapper.firstImageUrl(post);
+        String preview   = DiaryPreviewMapper.buildPreviewText(post.getContent(), PREVIEW_MAX);
+        String thumbnail = DiaryPreviewMapper.firstImageUrl(post);
 
         return new MyDiaryCardRes(
                 post.getId(),
@@ -28,8 +28,8 @@ public final class DiaryCardAssembler {
 
     /** 친구 다이어리 카드 변환 */
     public static FriendDiaryCardRes toFriendCard(DiaryPost post) {
-        String preview   = DiaryViewMapper.buildPreviewText(post.getContent(), PREVIEW_MAX);
-        String thumbnail = DiaryViewMapper.firstImageUrl(post);
+        String preview   = DiaryPreviewMapper.buildPreviewText(post.getContent(), PREVIEW_MAX);
+        String thumbnail = DiaryPreviewMapper.firstImageUrl(post);
 
         return new FriendDiaryCardRes(
                 post.getId(),

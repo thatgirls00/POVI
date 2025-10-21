@@ -24,63 +24,63 @@ public class DiaryPostController {
 
     @PostMapping
     @Operation(summary = "다이어리 생성")
-    public ResponseEntity<DiaryPostCreateRes> createPost(
-            @RequestBody @Valid DiaryPostCreateReq request,
-            @AuthenticationPrincipal CustomJwtUser user
+    public ResponseEntity<DiaryPostCreateRes> createDiaryPost(
+            @RequestBody @Valid DiaryPostCreateReq createReq,
+            @AuthenticationPrincipal CustomJwtUser currentUser
     ) {
-        DiaryPostCreateRes response = diaryPostService.createPost(request, user.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        DiaryPostCreateRes res = diaryPostService.createDiaryPost(createReq, currentUser.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
-    @PatchMapping("/{postId}")
+    @PatchMapping("/{diaryPostId}")
     @Operation(summary = "다이어리 부분수정")
-    public ResponseEntity<DiaryPostUpdateRes> patchPost(
-            @PathVariable("postId") Long postId,
-            @RequestBody @Valid DiaryPostUpdateReq request,
-            @AuthenticationPrincipal CustomJwtUser user
+    public ResponseEntity<DiaryPostUpdateRes> updateDiaryPost(
+            @PathVariable Long diaryPostId,
+            @RequestBody @Valid DiaryPostUpdateReq updateReq,
+            @AuthenticationPrincipal CustomJwtUser currentUser
 
     ) {
-        DiaryPostUpdateRes response = diaryPostService.patchPost(postId, request, user.getId());
-        return ResponseEntity.ok(response);
+        DiaryPostUpdateRes res = diaryPostService.updateDiaryPost(diaryPostId, updateReq, currentUser.getId());
+        return ResponseEntity.ok(res);
     }
 
 
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/{diaryPostId}")
     @Operation(summary = "다이어리 삭제")
-    public ResponseEntity<Void> deletePost(
-            @PathVariable Long postId,
-            @AuthenticationPrincipal CustomJwtUser user
+    public ResponseEntity<Void> deleteDiaryPost(
+            @PathVariable Long diaryPostId,
+            @AuthenticationPrincipal CustomJwtUser currentUser
     ) {
-        diaryPostService.deletePost(postId, user.getId());
+        diaryPostService.deleteDiaryPost(diaryPostId, currentUser.getId());
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{postId}")
+    @GetMapping("/{diaryPostId}")
     @Operation(summary = "단일 상세 조회")
-    public ResponseEntity<DiaryDetailRes> getPostDetail(
-            @PathVariable Long postId,
-            @AuthenticationPrincipal CustomJwtUser user
+    public ResponseEntity<DiaryDetailRes> getMyDiaryPostDetail(
+            @PathVariable Long diaryPostId,
+            @AuthenticationPrincipal CustomJwtUser currentUser
     ) {
-        DiaryDetailRes response = diaryPostService.getPostDetail(postId, user.getId());
-        return ResponseEntity.ok(response);
+        DiaryDetailRes res = diaryPostService.getMyDiaryPostDetail(diaryPostId, currentUser.getId());
+        return ResponseEntity.ok(res);
     }
 
     @GetMapping("/mine")
-    @Operation(summary = "나의 다이어리 목록 조회")
+    @Operation(summary = "내 다이어리 목록 + 주간 통계")
     public ResponseEntity<MyDiaryListRes> listMyDiaries(
-            @AuthenticationPrincipal CustomJwtUser user
+            @AuthenticationPrincipal CustomJwtUser currentUser
     ) {
-        MyDiaryListRes response = diaryPostService.listMyDiaries(user.getId());
-        return ResponseEntity.ok(response);
+        MyDiaryListRes res = diaryPostService.getMyDiaryPostsWithWeeklyStats(currentUser.getId());
+        return ResponseEntity.ok(res);
     }
 
     @GetMapping("/friends")
     @Operation(summary = "친구 다이어리 - 맞팔이면 FRIEND+PUBLIC, 단방향이면 PUBLIC만")
     public ResponseEntity<List<FriendDiaryCardRes>> listFriendDiaries(
-            @AuthenticationPrincipal CustomJwtUser user
+            @AuthenticationPrincipal CustomJwtUser currentUser
     ) {
-        List<FriendDiaryCardRes> response = diaryPostService.listFriendDiaries(user.getId());
-        return ResponseEntity.ok(response);
+        List<FriendDiaryCardRes> res = diaryPostService.listFriendDiaries(currentUser.getId());
+        return ResponseEntity.ok(res);
 
     }
 
