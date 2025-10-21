@@ -9,7 +9,9 @@ import org.example.povi.domain.diary.post.mapper.DiaryCardAssembler;
 import org.example.povi.domain.diary.post.mapper.DiaryRequestMapper;
 import org.example.povi.domain.diary.post.repository.DiaryPostRepository;
 import org.example.povi.domain.diary.type.MoodEmoji;
+import org.example.povi.domain.diary.type.Visibility;
 import org.example.povi.domain.user.entity.User;
+import org.example.povi.domain.user.follow.service.FollowService;
 import org.example.povi.domain.user.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ public class DiaryPostService {
 
     private final DiaryPostRepository diaryPostRepository;
     private final UserRepository userRepository;
+    private final FollowService followService;
 
     @Transactional
     public DiaryPostCreateRes createPost(DiaryPostCreateReq request, Long authorId) {
@@ -85,19 +88,20 @@ public class DiaryPostService {
     }
 
     //다이어리 조회 - 상세조회
+    //현재 정책: 소유자만 상세 조회 허용 (친구/공개 상세는 처리 예정)
     @Transactional(readOnly = true)
-    public DiaryDetailRes getPostDetail(Long postId, Long requesterId) {
-        DiaryPost post = loadOwnedPost(postId, requesterId);
+    public DiaryDetailRes getPostDetail(Long postId, Long viewerId) {
+        DiaryPost post = loadOwnedPost(postId, viewerId);
         return DiaryDetailRes.from(post);
     }
 
     //나의 다이어리 목록 + 통계 조회
     @Transactional(readOnly = true)
-    public MyDiaryListRes getMyPosts(Long authorId) {
+    public MyDiaryListRes listMyDiaries(Long authorId) {
         List<DiaryPost> posts = diaryPostRepository.findByUserIdOrderByCreatedAtDesc(authorId);
 
-        List<MyDiaryListItemRes> cards = posts.stream()
-                .map(DiaryCardAssembler::toCard)
+        List<MyDiaryCardRes> cards = posts.stream()
+                .map(DiaryCardAssembler::toMyCard)
                 .toList();
 
         //통계 - 총 작성 개수
@@ -133,6 +137,44 @@ public class DiaryPostService {
                 new MoodSummaryRes(averageValence, representativeEmoji),
                 cards
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<FriendDiaryCardRes> listFriendDiaries(Long viewerId) {
+
+        // 팔로우/맞팔 관계는 도메인 서비스에 위임
+        Set<Long> following = followService.getFollowingIds(viewerId);
+        if (following.isEmpty()) return List.of();
+
+        Set<Long> mutual = followService.getMutualFriendIds(viewerId);
+
+        // 단방향 = following - mutual
+        Set<Long> oneWay = new HashSet<>(following);
+        oneWay.removeAll(mutual);
+
+        //가시성 별로 조회 (전체 기간, 최신순)
+        List<DiaryPost> collected = new ArrayList<>();
+
+        if (!mutual.isEmpty()) {
+            collected.addAll(
+                    diaryPostRepository.findByAuthorsAndVisibilityOrderByCreatedAtDesc(
+                            mutual, List.of(Visibility.FRIEND, Visibility.PUBLIC)
+                    )
+            );
+        }
+        if (!oneWay.isEmpty()) {
+            collected.addAll(
+                    diaryPostRepository.findByAuthorsAndVisibilityOrderByCreatedAtDesc(
+                            oneWay, List.of(Visibility.PUBLIC)
+                    )
+            );
+        }
+
+        //최신순으로 최종 정렬(두 리스트 합쳤으니 한 번 정렬) + 카드 변환
+        return collected.stream()
+                .sorted(Comparator.comparing(DiaryPost::getCreatedAt).reversed())
+                .map(DiaryCardAssembler::toFriendCard)
+                .toList();
     }
 
 

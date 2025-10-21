@@ -5,8 +5,8 @@ import org.example.povi.domain.diary.type.Visibility;
 
 import java.time.LocalDate;
 
-public record MyDiaryListItemRes(
-        Long diaryId,
+public record MyDiaryCardRes(
+        Long postId,
         String title,
         String preview,
         MoodEmoji moodEmoji,

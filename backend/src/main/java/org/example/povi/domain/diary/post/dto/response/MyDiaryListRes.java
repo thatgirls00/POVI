@@ -6,7 +6,7 @@ public record MyDiaryListRes(
         long totalCount,
         long thisWeekCount,
         MoodSummaryRes moodSummary,
-        List<MyDiaryListItemRes> myDiaries
+        List<MyDiaryCardRes> myDiaries
 
 ) {
     public MyDiaryListRes {

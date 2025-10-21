@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/diaries")
@@ -65,12 +67,23 @@ public class DiaryPostController {
 
     @GetMapping("/mine")
     @Operation(summary = "나의 다이어리 목록 조회")
-    public ResponseEntity<MyDiaryListRes> getMyPosts(
+    public ResponseEntity<MyDiaryListRes> listMyDiaries(
             @AuthenticationPrincipal CustomJwtUser user
     ) {
-        MyDiaryListRes response = diaryPostService.getMyPosts(user.getId());
+        MyDiaryListRes response = diaryPostService.listMyDiaries(user.getId());
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/friends")
+    @Operation(summary = "친구 다이어리 - 맞팔이면 FRIEND+PUBLIC, 단방향이면 PUBLIC만")
+    public ResponseEntity<List<FriendDiaryCardRes>> listFriendDiaries(
+            @AuthenticationPrincipal CustomJwtUser user
+    ) {
+        List<FriendDiaryCardRes> response = diaryPostService.listFriendDiaries(user.getId());
+        return ResponseEntity.ok(response);
+
+    }
+
 
 }
 
