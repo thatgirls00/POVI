@@ -7,6 +7,8 @@ import org.example.povi.domain.transcription.dto.TranscriptionReq;
 import org.example.povi.domain.transcription.service.TranscriptionService;
 import org.example.povi.domain.transcription.dto.TranscriptionListRes;
 import org.example.povi.domain.transcription.dto.TranscriptionRes;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -41,10 +43,14 @@ public class TranscriptionController {
     }
 
     @GetMapping("/me")  // 본인이 작성한 필사기록 조회
-    public ResponseEntity<?> getMyTranscriptions(@AuthenticationPrincipal CustomJwtUser userDetails
+    public ResponseEntity<?> getMyTranscriptions(
+            @AuthenticationPrincipal CustomJwtUser userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
     ) {
         Long userId = userDetails.getId();
-        TranscriptionListRes responseDto = transcriptionService.getMyTranscriptions(userId);
+        Pageable pageable = PageRequest.of(page, size);
+        TranscriptionListRes responseDto = transcriptionService.getMyTranscriptions(userId,pageable);
         return ResponseEntity.ok(responseDto);
     }
 }

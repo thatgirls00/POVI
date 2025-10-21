@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DiaryRepository extends JpaRepository<DiaryEntry, Long> {
+    long countByUserId(Long userId);
 }

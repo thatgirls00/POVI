@@ -48,9 +48,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private boolean isEmailVerified = false;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Transcription> transcriptions = new ArrayList<>();
-
     public void verifyEmail() {
         this.isEmailVerified = true;
     }

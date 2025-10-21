@@ -138,4 +138,8 @@ public class DiaryService {
         String t = s.trim();
         return t.isEmpty() ? null : t;
     }
+
+    public long getDiaryCountForUser(Long userId) {
+        return diaryRepository.countByUserId(userId);
+    }
 }
