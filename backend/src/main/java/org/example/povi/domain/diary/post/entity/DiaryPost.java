@@ -1,4 +1,4 @@
-package org.example.povi.domain.diary.entry.entity;
+package org.example.povi.domain.diary.post.entity;
 
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -15,9 +15,9 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "diary_entries")
-@AttributeOverride(name = "id", column = @Column(name = "diary_id"))
-public class DiaryEntry extends BaseEntity {
+@Table(name = "diary_posts")
+@AttributeOverride(name = "id", column = @Column(name = "post_id"))
+public class DiaryPost extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
@@ -37,12 +37,12 @@ public class DiaryEntry extends BaseEntity {
     @Column(name = "visibility", nullable = false)
     private Visibility visibility = Visibility.PRIVATE;
 
-    @OneToMany(mappedBy = "diaryEntry", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "diaryPost", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     private List<DiaryImage> images = new ArrayList<>();
 
     @Builder
-    public DiaryEntry(User user, String title, String content, MoodEmoji moodEmoji, Visibility visibility) {
+    public DiaryPost(User user, String title, String content, MoodEmoji moodEmoji, Visibility visibility) {
         this.user = user;
         this.title = title;
         this.content = content;
@@ -68,7 +68,7 @@ public class DiaryEntry extends BaseEntity {
 
     public void addImage(DiaryImage image) {
         images.add(image);
-        image.setDiaryEntry(this);
+        image.setDiaryPost(this);
     }
 
     public void replaceImages(List<String> urls) {

@@ -1,4 +1,4 @@
-package org.example.povi.domain.diary.entry.dto.request;
+package org.example.povi.domain.diary.post.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -8,7 +8,7 @@ import org.example.povi.domain.diary.type.Visibility;
 import java.util.List;
 
 
-public record DiaryUpdateReq(
+public record DiaryPostUpdateReq(
         @Size(min = 2, max = 50)
         String title,
 

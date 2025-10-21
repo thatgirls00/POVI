@@ -1,4 +1,4 @@
-package org.example.povi.domain.diary.entry.dto.request;
+package org.example.povi.domain.diary.post.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +10,7 @@ import java.util.List;
 
 
 
-public record DiaryCreateReq(
+public record DiaryPostCreateReq(
         @NotBlank @Size(min = 2, max = 50)
         String title,
         @NotBlank @Size(min = 10, max = 3000)

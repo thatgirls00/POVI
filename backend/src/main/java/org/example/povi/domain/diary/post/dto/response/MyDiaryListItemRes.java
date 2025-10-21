@@ -1,4 +1,4 @@
-package org.example.povi.domain.diary.entry.dto.response;
+package org.example.povi.domain.diary.post.dto.response;
 
 import org.example.povi.domain.diary.type.MoodEmoji;
 import org.example.povi.domain.diary.type.Visibility;
