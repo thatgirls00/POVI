@@ -76,14 +76,23 @@ public class DiaryPostController {
 
     @GetMapping("/friends")
     @Operation(summary = "친구 다이어리 - 맞팔이면 FRIEND+PUBLIC, 단방향이면 PUBLIC만")
-    public ResponseEntity<List<FriendDiaryCardRes>> listFriendDiaries(
+    public ResponseEntity<List<DiaryPostCardRes>> listFriendDiaries(
             @AuthenticationPrincipal CustomJwtUser currentUser
     ) {
-        List<FriendDiaryCardRes> res = diaryPostService.listFriendDiaries(currentUser.getId());
+        List<DiaryPostCardRes> res = diaryPostService.listFriendDiaries(currentUser.getId());
         return ResponseEntity.ok(res);
 
     }
 
-
+    @GetMapping("/explore")
+    @Operation(summary = "모두의 다이어 - 맞팔: FRIEND+PUBLIC, 그 외: PUBLIC)")
+    public ResponseEntity<List<DiaryPostCardRes>> explore(
+            @AuthenticationPrincipal CustomJwtUser currentUser
+    ) {
+        List<DiaryPostCardRes> res = diaryPostService.listExploreFeed(currentUser.getId());
+        return ResponseEntity.ok(res);
+    }
 }
+
+
 

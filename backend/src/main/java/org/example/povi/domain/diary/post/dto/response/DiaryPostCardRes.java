@@ -5,7 +5,7 @@ import org.example.povi.domain.diary.enums.Visibility;
 
 import java.time.LocalDate;
 
-public record FriendDiaryCardRes(
+public record DiaryPostCardRes(
         Long postId,
         Long authorId,
         String authorName,
