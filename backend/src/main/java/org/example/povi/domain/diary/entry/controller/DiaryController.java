@@ -6,9 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.povi.auth.token.jwt.CustomJwtUser;
 import org.example.povi.domain.diary.entry.dto.request.DiaryCreateReq;
 import org.example.povi.domain.diary.entry.dto.request.DiaryUpdateReq;
-import org.example.povi.domain.diary.entry.dto.response.DiaryCreateRes;
-import org.example.povi.domain.diary.entry.dto.response.DiaryDetailRes;
-import org.example.povi.domain.diary.entry.dto.response.DiaryUpdateRes;
+import org.example.povi.domain.diary.entry.dto.response.*;
 import org.example.povi.domain.diary.entry.service.DiaryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,5 +62,15 @@ public class DiaryController {
         DiaryDetailRes response = diaryService.getDiaryDetail(diaryId, user.getId());
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/mine")
+    @Operation(summary = "나의 다이어리 목록 조회")
+    public ResponseEntity<MyDiaryListRes> getMyDiaryListRes(
+            @AuthenticationPrincipal CustomJwtUser user
+    ) {
+        MyDiaryListRes response = diaryService.getMyDiaries(user.getId());
+        return ResponseEntity.ok(response);
+    }
+
 }
 

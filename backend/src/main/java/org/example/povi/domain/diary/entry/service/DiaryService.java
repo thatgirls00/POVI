@@ -3,12 +3,11 @@ package org.example.povi.domain.diary.entry.service;
 import lombok.RequiredArgsConstructor;
 import org.example.povi.domain.diary.entry.dto.request.DiaryCreateReq;
 import org.example.povi.domain.diary.entry.dto.request.DiaryUpdateReq;
-import org.example.povi.domain.diary.entry.dto.response.DiaryCreateRes;
-import org.example.povi.domain.diary.entry.dto.response.DiaryDetailRes;
-import org.example.povi.domain.diary.entry.dto.response.DiaryUpdateRes;
+import org.example.povi.domain.diary.entry.dto.response.*;
 import org.example.povi.domain.diary.entry.entity.DiaryEntry;
 import org.example.povi.domain.diary.entry.entity.DiaryImage;
 import org.example.povi.domain.diary.entry.repository.DiaryRepository;
+import org.example.povi.domain.diary.type.MoodEmoji;
 import org.example.povi.domain.user.entity.User;
 import org.example.povi.domain.user.repository.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -16,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -99,7 +100,7 @@ public class DiaryService {
                 .filter(s -> !s.isEmpty())
                 .distinct()
                 .toList();
-}
+    }
 
     //다이어리 삭제
     @Transactional
@@ -125,5 +126,71 @@ public class DiaryService {
         }
 
         return DiaryDetailRes.from(diary);
+    }
+
+    //나의 다이어리 목록 + 통계 조회
+    @Transactional(readOnly = true)
+    public MyDiaryListRes getMyDiaries(Long userId) {
+        List<DiaryEntry> diaries = diaryRepository.findByUserIdOrderByCreatedAtDesc(userId);
+
+        List<MyDiaryListItemRes> cards = diaries.stream()
+                .map(d -> new MyDiaryListItemRes(
+                        d.getId(),
+                        d.getTitle(),
+                        buildPreviewText(d.getContent(), 60),
+                        d.getMoodEmoji(),
+                        firstImageUrl(d),
+                        d.getVisibility(),
+                        d.getCreatedAt().toLocalDate()
+                ))
+                .toList();
+
+        //통계 - 총 작성 개수
+        long totalCount = diaries.size();
+
+        //이번 주(월~일)
+        LocalDate today = LocalDate.now();
+        LocalDate weekStart = today.with(DayOfWeek.MONDAY);
+        LocalDate weekEnd = today.with(DayOfWeek.SUNDAY);
+
+        //이번 주 다이어리 필터
+        List<DiaryEntry> thisWeeks = diaries.stream()
+                .filter(d -> {
+                    LocalDate created = d.getCreatedAt().toLocalDate();
+                    return !created.isBefore(weekStart) && !created.isAfter(weekEnd);
+                })
+                .toList();
+
+        //통계 - 이번 주 작성 개수
+        long thisWeekCount = thisWeeks.size();
+
+        //통계 - 이번주 평균 감정 점수
+        double averageScore = thisWeeks.stream()
+                .mapToInt(d -> d.getMoodEmoji().valence())
+                .average()
+                .orElse(0.0);
+
+        MoodEmoji representative = MoodEmoji.fromValence(averageScore);
+
+        return new MyDiaryListRes(
+                totalCount,
+                thisWeekCount,
+                new MoodSummaryRes(averageScore, representative),
+                cards
+        );
+    }
+
+    private static String firstImageUrl(DiaryEntry d) {
+        return d.getImages().isEmpty() ? null : d.getImages().get(0).getImageUrl();
+    }
+
+    private static String buildPreviewText(String content, int maxLength) {
+        if (content == null || content.isBlank()) return "";
+
+        String compact = content.replaceAll("\\s+", " ").trim();
+
+        if (compact.length() <= maxLength) return compact;
+
+        return compact.substring(0, maxLength) + "...";
     }
 }

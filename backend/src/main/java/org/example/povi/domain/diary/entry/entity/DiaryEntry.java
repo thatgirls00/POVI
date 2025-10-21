@@ -38,6 +38,7 @@ public class DiaryEntry extends BaseEntity {
     private Visibility visibility = Visibility.PRIVATE;
 
     @OneToMany(mappedBy = "diaryEntry", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
     private List<DiaryImage> images = new ArrayList<>();
 
     @Builder
@@ -72,6 +73,8 @@ public class DiaryEntry extends BaseEntity {
 
     public void replaceImages(List<String> urls) {
         images.clear();
+        if (urls == null) return;
+        if (urls.isEmpty()) return;
         for (String url : urls) {
             addImage(new DiaryImage(this, url));
         }
