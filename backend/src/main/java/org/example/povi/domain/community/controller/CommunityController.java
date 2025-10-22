@@ -9,7 +9,6 @@ import org.example.povi.domain.community.dto.request.PostCreateRequest;
 import org.example.povi.domain.community.dto.response.CommentCreateResponse;
 import org.example.povi.domain.community.dto.response.CommentDeleteResponse;
 import org.example.povi.domain.community.dto.response.LikeResponse;
-import org.example.povi.domain.community.dto.response.LikeResponse;
 import org.example.povi.domain.community.dto.response.PostBookmarkResponse;
 import org.example.povi.domain.community.dto.response.PostCreateResponse;
 import org.example.povi.domain.community.dto.response.PostDeleteResponse;
@@ -111,7 +110,7 @@ public class CommunityController {
             @PathVariable Long commentId) {
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
         communityService.deleteComment(userId, commentId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/comments/{commentId}/like")
@@ -123,6 +122,9 @@ public class CommunityController {
     @DeleteMapping("/comments/{commentId}/like")
     public ResponseEntity<LikeResponse> removeLikeFromComment(@PathVariable Long commentId) {
         LikeResponse response = communityService.removeLikeFromComment(commentId);
+        return ResponseEntity.ok(response);
+
+    }
 
     @PostMapping("/{postId}/like")
     public ResponseEntity<LikeResponse> addLikeToPost(@PathVariable Long postId) {
