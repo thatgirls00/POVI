@@ -59,6 +59,7 @@ public class CommunityPost extends BaseEntity {
         @OneToMany(mappedBy = "communityPost", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<CommunityImage> images = new ArrayList<>();
 
+
         @Builder
         public CommunityPost(User user, String title, String content, CommunityEmoticon emoticon) {
             this.user = user;
@@ -73,4 +74,12 @@ public class CommunityPost extends BaseEntity {
 
         }
 
+        public void addLike() {
+                this.likeCount++;
+        }
+        public void removeLike() {
+                if (this.likeCount > 0) {
+                    this.likeCount--;
+                }
+        }
 }

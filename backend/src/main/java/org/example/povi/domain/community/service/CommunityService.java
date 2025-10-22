@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.example.povi.domain.community.dto.request.PostCreateRequest;
+import org.example.povi.domain.community.dto.response.LikeResponse;
 import org.example.povi.domain.community.dto.response.PostCreateResponse;
 import org.example.povi.domain.community.dto.response.PostDeleteResponse;
 import org.example.povi.domain.community.dto.request.PostUpdateRequest;
@@ -90,7 +91,7 @@ public class CommunityService {
 
     private void deleteExistingImages(CommunityPost post) {
         if (post.getImages() != null && !post.getImages().isEmpty()) {
-            post.getImages().forEach(image -> localFileService.deleteFile(image.getImageUrl()));
+            post.getImages().forEach(image -> fileUploadService.deleteFile(image.getImageUrl()));
             communityImageRepository.deleteAllByCommunityPost(post);
             post.getImages().clear();
         }
@@ -133,6 +134,24 @@ public class CommunityService {
         // @Transactional(readOnly = true)에서 readOnly = true를 제거해야 합니다.
 
         return PostDetailResponse.from(post);
+    }
+
+
+
+    @Transactional
+    public LikeResponse addLikeToPost(Long postId) {
+        CommunityPost post = communityRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. ID: " + postId));
+        post.addLike();
+        return new LikeResponse(postId, post.getLikeCount());
+    }
+
+    @Transactional
+    public LikeResponse removeLikeFromPost(Long postId) {
+        CommunityPost post = communityRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. ID: " + postId));
+        post.removeLike();
+        return new LikeResponse(postId, post.getLikeCount());
     }
 
 
