@@ -85,7 +85,7 @@ public class DiaryPostController {
     }
 
     @GetMapping("/explore")
-    @Operation(summary = "모두의 다이어 - 맞팔: FRIEND+PUBLIC, 그 외: PUBLIC)")
+    @Operation(summary = "모두의 다이어리 - 맞팔: FRIEND+PUBLIC, 그 외: PUBLIC)")
     public ResponseEntity<List<DiaryPostCardRes>> explore(
             @AuthenticationPrincipal CustomJwtUser currentUser
     ) {

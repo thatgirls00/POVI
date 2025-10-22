@@ -6,8 +6,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.povi.auth.token.jwt.CustomJwtUser;
 import org.example.povi.domain.diary.comment.dto.request.DiaryCommentCreateReq;
+import org.example.povi.domain.diary.comment.dto.request.DiaryCommentUpdateReq;
 import org.example.povi.domain.diary.comment.dto.response.DiaryCommentCreateRes;
 import org.example.povi.domain.diary.comment.dto.response.DiaryCommentRes;
+import org.example.povi.domain.diary.comment.dto.response.DiaryCommentUpdateRes;
 import org.example.povi.domain.diary.comment.service.DiaryCommentService;
 import org.example.povi.global.dto.PagedResponse;
 import org.springframework.data.domain.Pageable;
@@ -34,20 +36,34 @@ public class DiaryCommentController {
     ){
         DiaryCommentCreateRes res = diaryCommentService.createDiaryComment(postId, createReq, currentUser.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
-
     }
 
     @GetMapping
-    @Operation(summary = "댓글 조회(페이지네이션, 오래된→최신)")
+    @Operation(summary = "댓글 조회")
     public ResponseEntity<PagedResponse<DiaryCommentRes>> getComments(
             @PathVariable Long postId,
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
             @AuthenticationPrincipal CustomJwtUser currentUser
     ) {
-        PagedResponse<DiaryCommentRes>  res = diaryCommentService.getCommentsByPost(postId, pageable, currentUser.getId());
+        PagedResponse<DiaryCommentRes>  res = diaryCommentService.getCommentsByPost(
+                postId, pageable, currentUser.getId()
+        );
         return ResponseEntity.ok(res);
     }
 
+    @PatchMapping("/{commentId}")
+    @Operation(summary = "댓글 수정")
+    public ResponseEntity<DiaryCommentUpdateRes> updateDiaryComment(
+            @PathVariable Long postId,
+            @PathVariable Long commentId,
+            @RequestBody @Valid DiaryCommentUpdateReq updateReq,
+            @AuthenticationPrincipal CustomJwtUser currentUser
+    ) {
+        DiaryCommentUpdateRes res = diaryCommentService.updateDiaryComment(
+                postId, commentId, updateReq, currentUser.getId()
+        );
+        return ResponseEntity.ok(res);
+    }
 
     @DeleteMapping("/{commentId}")
     @Operation(summary = "댓글 삭제")

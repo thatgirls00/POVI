@@ -2,8 +2,10 @@ package org.example.povi.domain.diary.comment.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.povi.domain.diary.comment.dto.request.DiaryCommentCreateReq;
+import org.example.povi.domain.diary.comment.dto.request.DiaryCommentUpdateReq;
 import org.example.povi.domain.diary.comment.dto.response.DiaryCommentCreateRes;
 import org.example.povi.domain.diary.comment.dto.response.DiaryCommentRes;
+import org.example.povi.domain.diary.comment.dto.response.DiaryCommentUpdateRes;
 import org.example.povi.domain.diary.comment.entity.DiaryComment;
 import org.example.povi.domain.diary.comment.mapper.DiaryCommentMapper;
 import org.example.povi.domain.diary.comment.mapper.DiaryCommentRequestMapper;
@@ -87,9 +89,8 @@ public class DiaryCommentService {
         diaryCommentRepository.delete(comment);
     }
 
-
     /**
-     * 댓글 목록 조회 (페이지네이션)
+     * 댓글 목록 조회
      */
     @Transactional(readOnly = true)
     public PagedResponse<DiaryCommentRes> getCommentsByPost(Long postId, Pageable pageable, Long currentUserId) {
@@ -105,6 +106,40 @@ public class DiaryCommentService {
 
         return DiaryCommentMapper.toPagedResponse(commentPage);
     }
+
+    /**
+     * 댓글 수정
+     */
+    @Transactional
+    public DiaryCommentUpdateRes updateDiaryComment(Long postId,
+                                                    Long commentId,
+                                                    DiaryCommentUpdateReq updateReq,
+                                                    Long currentUserId) {
+
+        // 대상 댓글 + 게시글 매칭 검증
+        DiaryComment comment = diaryCommentRepository
+                .findByIdAndPostId(commentId, postId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "해당 댓글이 존재하지 않거나 게시글과 매칭되지 않습니다."
+                ));
+
+        // 접근 권한(게시글 가시성) 확인
+        DiaryPost post = comment.getPost();
+        if (!canAccessPost(currentUserId, post)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "이 게시글에 접근할 수 없습니다.");
+        }
+
+        // 수정 권한 확인: 작성자만 수정 가능
+        if (!comment.getAuthor().getId().equals(currentUserId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "댓글 작성자만 수정할 수 있습니다.");
+        }
+
+        DiaryCommentRequestMapper.applyUpdate(comment, updateReq);
+
+        return DiaryCommentUpdateRes.from(comment);
+    }
+
 
     /**
      * 읽을 수 있는 글에만 댓글 작성 가능
