@@ -4,7 +4,10 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.povi.auth.token.jwt.JwtTokenProvider;
+import org.example.povi.domain.community.dto.request.CommentCreateRequest;
 import org.example.povi.domain.community.dto.request.PostCreateRequest;
+import org.example.povi.domain.community.dto.response.CommentCreateResponse;
+import org.example.povi.domain.community.dto.response.LikeResponse;
 import org.example.povi.domain.community.dto.response.PostCreateResponse;
 import org.example.povi.domain.community.dto.response.PostDeleteResponse;
 import org.example.povi.domain.community.dto.request.PostUpdateRequest;
@@ -87,6 +90,37 @@ public class CommunityController {
     public ResponseEntity<PostDetailResponse> getPostDetail(@PathVariable Long postId) {
         PostDetailResponse postDetail = communityService.getPostDetail(postId);
         return ResponseEntity.ok(postDetail);
+    }
+
+    @PostMapping("/{postId}/comments")
+    public ResponseEntity<CommentCreateResponse> createComment(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable Long postId,
+            @Valid @RequestBody CommentCreateRequest request) {
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        CommentCreateResponse response = communityService.createComment(userId, postId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable Long commentId) {
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        communityService.deleteComment(userId, commentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/comments/{commentId}/like")
+    public ResponseEntity<LikeResponse> addLikeToComment(@PathVariable Long commentId) {
+        LikeResponse response = communityService.addLikeToComment(commentId);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/comments/{commentId}/like")
+    public ResponseEntity<LikeResponse> removeLikeFromComment(@PathVariable Long commentId) {
+        LikeResponse response = communityService.removeLikeFromComment(commentId);
+        return ResponseEntity.ok(response);
     }
 
 }

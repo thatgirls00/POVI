@@ -4,15 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.example.povi.domain.community.dto.request.CommentCreateRequest;
 import org.example.povi.domain.community.dto.request.PostCreateRequest;
+import org.example.povi.domain.community.dto.response.CommentCreateResponse;
+import org.example.povi.domain.community.dto.response.CommentDeleteResponse;
+import org.example.povi.domain.community.dto.response.LikeResponse;
 import org.example.povi.domain.community.dto.response.PostCreateResponse;
 import org.example.povi.domain.community.dto.response.PostDeleteResponse;
 import org.example.povi.domain.community.dto.request.PostUpdateRequest;
 import org.example.povi.domain.community.dto.response.PostDetailResponse;
 import org.example.povi.domain.community.dto.response.PostListResponse;
 import org.example.povi.domain.community.dto.response.PostUpdateResponse;
+import org.example.povi.domain.community.entity.Comment;
 import org.example.povi.domain.community.entity.CommunityImage;
 import org.example.povi.domain.community.entity.CommunityPost;
+import org.example.povi.domain.community.repository.CommentRepository;
 import org.example.povi.domain.community.repository.CommunityImageRepository;
 import org.example.povi.domain.community.repository.CommunityRepository;
 import org.example.povi.domain.user.entity.User;
@@ -31,6 +37,7 @@ public class CommunityService {
     private final CommunityImageRepository communityImageRepository;
     private final UserRepository userRepository;
     private final FileUploadService fileUploadService;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public PostCreateResponse createPost(Long userId, PostCreateRequest request) {
@@ -90,7 +97,7 @@ public class CommunityService {
 
     private void deleteExistingImages(CommunityPost post) {
         if (post.getImages() != null && !post.getImages().isEmpty()) {
-            post.getImages().forEach(image -> localFileService.deleteFile(image.getImageUrl()));
+            post.getImages().forEach(image -> fileUploadService.deleteFile(image.getImageUrl()));
             communityImageRepository.deleteAllByCommunityPost(post);
             post.getImages().clear();
         }
@@ -135,6 +142,53 @@ public class CommunityService {
         return PostDetailResponse.from(post);
     }
 
+    @Transactional
+    public CommentCreateResponse createComment(Long userId, Long postId, CommentCreateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. ID: " + userId));
+        CommunityPost post = communityRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. ID: " + postId));
 
+        Comment comment = Comment.builder()
+                .content(request.content())
+                .user(user)
+                .communityPost(post)
+                .build();
+
+        Comment savedComment = commentRepository.save(comment);
+        return CommentCreateResponse.from(savedComment);
+    }
+
+    @Transactional
+    public CommentDeleteResponse deleteComment(Long userId, Long commentId){
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다. ID: " + commentId));
+
+        Long commentAuthorId = comment.getUser().getId();
+        Long postAuthorId = comment.getCommunityPost().getUser().getId();
+
+        if (!userId.equals(commentAuthorId) && !userId.equals(postAuthorId)) {
+            throw new SecurityException("댓글을 삭제할 권한이 없습니다.");
+        }
+
+        commentRepository.delete(comment);
+        return new CommentDeleteResponse(commentId, "댓글이 성공적으로 삭제되었습니다.");
+    }
+
+    @Transactional
+    public LikeResponse addLikeToComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다. ID: " + commentId));
+        comment.addLike();
+        return new LikeResponse(commentId, comment.getLikeCount());
+    }
+
+    @Transactional
+    public LikeResponse removeLikeFromComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다. ID: " + commentId));
+        comment.removeLike();
+        return new LikeResponse(commentId, comment.getLikeCount());
+    }
 
 }
