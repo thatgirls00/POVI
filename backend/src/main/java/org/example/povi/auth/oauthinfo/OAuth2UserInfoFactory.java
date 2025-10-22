@@ -5,16 +5,13 @@ import org.example.povi.auth.enums.AuthProvider;
 import java.util.Map;
 
 /**
- * OAuth2UserInfo 구현체를 provider별로 반환해주는 Factory 클래스.
+ * OAuth2UserInfo 구현체를 provider별로 반환해주는 Factory 클래스
  */
 public class OAuth2UserInfoFactory {
 
     /**
-     * 소셜 제공자(provider)에 따라 적절한 OAuth2UserInfo 인스턴스를 반환합니다.
-     *
-     * @param provider   "kakao", "google" 등의 소셜 로그인 제공자 이름
-     * @param attributes 소셜 로그인으로부터 받은 사용자 정보
-     * @return OAuth2UserInfo 구현체 (KakaoUserInfo, GoogleUserInfo 등)
+     * 소셜 제공자(provider)에 따라 적절한 OAuth2UserInfo 인스턴스를 반환
+
      */
     public static OAuth2UserInfo getOAuth2UserInfo(String provider, Map<String, Object> attributes) {
         AuthProvider authProvider;

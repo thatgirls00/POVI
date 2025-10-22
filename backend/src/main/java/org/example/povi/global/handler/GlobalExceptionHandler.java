@@ -1,6 +1,12 @@
 package org.example.povi.global.handler;
 
+import org.example.povi.global.exception.error.ErrorCode;
+import org.example.povi.global.exception.ex.AuthorizationException;
+import org.example.povi.global.exception.ex.DuplicateTranscriptionException;
+import org.example.povi.global.exception.ex.ResourceNotFoundException;
 import org.example.povi.global.exception.error.ErrorResponse;
+import org.example.povi.global.exception.ex.CustomException;
+import org.example.povi.global.exception.ex.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -9,17 +15,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * - 전역 예외 처리 핸들러
- *
- * - 모든 컨트롤러에서 발생하는 예외를 한곳에서 처리
- * - 예외 종류에 따라 맞춤 메시지와 HTTP 상태코드를 반환
- * - JSON 기반 ErrorResponse 포맷 사용
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
      * - IllegalArgumentException 처리
-     * - 주로 잘못된 파라미터 또는 내부 로직 오류 시 발생
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
@@ -33,7 +34,6 @@ public class GlobalExceptionHandler {
 
     /**
      * - Bean Validation (DTO @Valid) 실패 처리
-     * - 유효성 검사를 통과하지 못한 경우 발생
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
@@ -46,9 +46,31 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
+
+    @ExceptionHandler(DuplicateTranscriptionException.class)
+    public ResponseEntity<String> handleDuplicateTranscription(DuplicateTranscriptionException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT) // 409 Conflict 상태 코드
+                .body(ex.getMessage()); // "이미 필사한 명언입니다." 메시지
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleResourceNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND) // 404 Not Found 상태 코드
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(AuthorizationException.class)
+    public ResponseEntity<String> handleAuthorizationException(AuthorizationException ex) {
+        // 403 Forbidden 상태 코드와 함께 에러 메시지를 반환
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ex.getMessage());
+    }
+
     /**
      * - 그 외 처리되지 않은 예외 처리
-     * - 예상하지 못한 런타임 에러 등
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
@@ -58,5 +80,37 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    /**
+     * - 인증되지 않은 사용자 요청 예외 처리
+     */
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException e) {
+        ErrorResponse error = ErrorResponse.of(
+                HttpStatus.UNAUTHORIZED.value(),
+                e.getErrorCode().name(),
+                e.getErrorCode().getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(error);
+    }
+
+    /**
+     * - 프로젝트 내에서 사용하는 CustomException 처리
+     */
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
+        ErrorCode code = e.getErrorCode();
+        ErrorResponse error = ErrorResponse.of(
+                HttpStatus.BAD_REQUEST.value(),
+                "요청 처리 실패",
+                code.getMessage()
+        );
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
     }
 }

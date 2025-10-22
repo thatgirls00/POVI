@@ -33,22 +33,22 @@ public class DiaryService {
 
     @Transactional
     public DiaryCreateRes create(DiaryCreateReq req) {
-        User user = userRepository.findById(req.getUserId())
+        User user = userRepository.findById(req.userId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        String title   = normalizeRequired(req.getTitle(), TITLE_MIN, TITLE_MAX, "제목");
-        String content = normalizeRequired(req.getContent(), CONTENT_MIN, CONTENT_MAX, "내용");
+        String title = normalizeRequired(req.title(), TITLE_MIN, TITLE_MAX, "제목");
+        String content = normalizeRequired(req.content(), CONTENT_MIN, CONTENT_MAX, "내용");
 
         DiaryEntry diaryEntry = DiaryEntry.builder()
                 .user(user)
                 .title(title)
                 .content(content)
-                .moodEmoji(req.getMoodEmoji())
-                .visibility(req.getVisibility())
+                .moodEmoji(req.moodEmoji())
+                .visibility(req.visibility())
                 .build();
 
         // 이미지(생성)
-        List<String> urls = normalizeImagesForCreate(req.getImageUrls());
+        List<String> urls = normalizeImagesForCreate(req.imageUrls());
         if (urls != null) {
             urls.forEach(u -> diaryEntry.addImage(new DiaryImage(diaryEntry, u)));
         }
@@ -65,22 +65,22 @@ public class DiaryService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Diary not found"));
 
         // 제목
-        if (req.getTitle() != null) {
-            String title = normalizeRequired(req.getTitle(), TITLE_MIN, TITLE_MAX, "제목");
+        if (req.title() != null) {
+            String title = normalizeRequired(req.title(), TITLE_MIN, TITLE_MAX, "제목");
             diaryEntry.renameTo(title);
         }
         // 내용
-        if (req.getContent() != null) {
-            String content = normalizeRequired(req.getContent(), CONTENT_MIN, CONTENT_MAX, "내용");
+        if (req.content() != null) {
+            String content = normalizeRequired(req.content(), CONTENT_MIN, CONTENT_MAX, "내용");
             diaryEntry.rewriteContent(content);
         }
         // 이모지/공개범위
-        if (req.getMoodEmoji() != null) diaryEntry.changeMood(req.getMoodEmoji());
-        if (req.getVisibility() != null) diaryEntry.changeVisibility(req.getVisibility());
+        if (req.moodEmoji() != null) diaryEntry.changeMood(req.moodEmoji());
+        if (req.visibility() != null) diaryEntry.changeVisibility(req.visibility());
 
         // 이미지: null=미변경 / []=모두삭제 / 값있음=전체교체
-        if (req.getImageUrls() != null) {
-            List<String> normalized = normalizeImagesForPatch(req.getImageUrls());
+        if (req.imageUrls() != null) {
+            List<String> normalized = normalizeImagesForPatch(req.imageUrls());
             diaryEntry.replaceImages(normalized);
         }
 

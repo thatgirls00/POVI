@@ -2,7 +2,6 @@ package org.example.povi.domain.user.repository;
 
 import org.example.povi.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.Optional;
 import org.example.povi.auth.enums.AuthProvider;
 

@@ -9,6 +9,8 @@ import org.example.povi.domain.community.dto.request.PostCreateRequest;
 import org.example.povi.domain.community.dto.response.CommentCreateResponse;
 import org.example.povi.domain.community.dto.response.CommentDeleteResponse;
 import org.example.povi.domain.community.dto.response.LikeResponse;
+import org.example.povi.domain.community.dto.response.LikeResponse;
+import org.example.povi.domain.community.dto.response.PostBookmarkResponse;
 import org.example.povi.domain.community.dto.response.PostCreateResponse;
 import org.example.povi.domain.community.dto.response.PostDeleteResponse;
 import org.example.povi.domain.community.dto.request.PostUpdateRequest;
@@ -19,6 +21,10 @@ import org.example.povi.domain.community.entity.Comment;
 import org.example.povi.domain.community.entity.CommunityImage;
 import org.example.povi.domain.community.entity.CommunityPost;
 import org.example.povi.domain.community.repository.CommentRepository;
+import org.example.povi.domain.community.entity.CommunityBookmark;
+import org.example.povi.domain.community.entity.CommunityImage;
+import org.example.povi.domain.community.entity.CommunityPost;
+import org.example.povi.domain.community.repository.CommunityBookmarkRepository;
 import org.example.povi.domain.community.repository.CommunityImageRepository;
 import org.example.povi.domain.community.repository.CommunityRepository;
 import org.example.povi.domain.user.entity.User;
@@ -38,6 +44,7 @@ public class CommunityService {
     private final UserRepository userRepository;
     private final FileUploadService fileUploadService;
     private final CommentRepository commentRepository;
+    private final CommunityBookmarkRepository bookmarkRepository;
 
     @Transactional
     public PostCreateResponse createPost(Long userId, PostCreateRequest request) {
@@ -190,5 +197,58 @@ public class CommunityService {
         comment.removeLike();
         return new LikeResponse(commentId, comment.getLikeCount());
     }
+
+    @Transactional
+    public LikeResponse addLikeToPost(Long postId) {
+        CommunityPost post = communityRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. ID: " + postId));
+        post.addLike();
+        return new LikeResponse(postId, post.getLikeCount());
+    }
+
+    @Transactional
+    public LikeResponse removeLikeFromPost(Long postId) {
+        CommunityPost post = communityRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. ID: " + postId));
+        post.removeLike();
+        return new LikeResponse(postId, post.getLikeCount());
+    }
+
+    @Transactional
+    public PostBookmarkResponse addBookmark(Long userId, Long postId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        CommunityPost post = communityRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+
+        if (bookmarkRepository.existsByUserAndCommunityPost(user, post)) {
+            throw new IllegalArgumentException("이미 북마크한 게시글입니다.");
+        }
+
+        CommunityBookmark bookmark = CommunityBookmark.builder()
+                .user(user)
+                .communityPost(post)
+                .build();
+
+        bookmarkRepository.save(bookmark);
+
+        return new PostBookmarkResponse(postId, "게시글을 북마크했습니다.");
+    }
+
+    @Transactional
+    public PostBookmarkResponse removeBookmark(Long userId, Long postId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        CommunityPost post = communityRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+
+        CommunityBookmark bookmark = bookmarkRepository.findByUserAndCommunityPost(user, post)
+                .orElseThrow(() -> new IllegalArgumentException("북마크하지 않은 게시글입니다."));
+
+        bookmarkRepository.delete(bookmark);
+
+        return new PostBookmarkResponse(postId, "북마크를 취소했습니다.");
+    }
+
 
 }

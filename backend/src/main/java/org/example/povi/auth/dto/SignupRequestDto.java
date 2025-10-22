@@ -1,18 +1,26 @@
 package org.example.povi.auth.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 /**
  * 회원가입 요청을 위한 DTO.
  */
-@Getter
-@NoArgsConstructor
-public class SignupRequestDto {
+public record SignupRequestDto(
 
-    private String email;
-    private String password;
-    private String nickname;
-    private String provider;      // ex) kakao, google
-    private String providerId;    // 소셜 플랫폼의 유저 고유 ID
-}
+        @NotBlank(message = "이메일은 비워둘 수 없습니다.")
+        @Email(message = "올바른 이메일 형식을 입력해주세요.")
+        String email,
+
+        @NotBlank(message = "비밀번호는 비워둘 수 없습니다.")
+        @Size(min = 8, max = 64, message = "비밀번호는 8자 이상 64자 이하로 입력해주세요.")
+        String password,
+
+        @NotBlank(message = "닉네임은 비워둘 수 없습니다.")
+        String nickname,
+
+        String provider,
+        String providerId
+
+) {}

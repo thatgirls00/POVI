@@ -9,6 +9,8 @@ import org.example.povi.domain.community.dto.request.PostCreateRequest;
 import org.example.povi.domain.community.dto.response.CommentCreateResponse;
 import org.example.povi.domain.community.dto.response.CommentDeleteResponse;
 import org.example.povi.domain.community.dto.response.LikeResponse;
+import org.example.povi.domain.community.dto.response.LikeResponse;
+import org.example.povi.domain.community.dto.response.PostBookmarkResponse;
 import org.example.povi.domain.community.dto.response.PostCreateResponse;
 import org.example.povi.domain.community.dto.response.PostDeleteResponse;
 import org.example.povi.domain.community.dto.request.PostUpdateRequest;
@@ -121,6 +123,36 @@ public class CommunityController {
     @DeleteMapping("/comments/{commentId}/like")
     public ResponseEntity<LikeResponse> removeLikeFromComment(@PathVariable Long commentId) {
         LikeResponse response = communityService.removeLikeFromComment(commentId);
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<LikeResponse> addLikeToPost(@PathVariable Long postId) {
+        LikeResponse response = communityService.addLikeToPost(postId);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{postId}/like")
+    public ResponseEntity<LikeResponse> removeLikeFromPost(@PathVariable Long postId) {
+        LikeResponse response = communityService.removeLikeFromPost(postId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{postId}/bookmark")
+    public ResponseEntity<PostBookmarkResponse> addBookmark(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable Long postId) {
+
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        PostBookmarkResponse response = communityService.addBookmark(userId, postId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @DeleteMapping("/{postId}/bookmark")
+    public ResponseEntity<PostBookmarkResponse> removeBookmark(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable Long postId) {
+
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        PostBookmarkResponse response = communityService.removeBookmark(userId, postId);
         return ResponseEntity.ok(response);
     }
 
