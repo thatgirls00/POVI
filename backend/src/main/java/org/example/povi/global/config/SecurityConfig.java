@@ -59,7 +59,9 @@ public class SecurityConfig {
                                 "/auth/email/send",
                                 "/auth/email/verify",
                                 "/auth/email/status",
-                                "/oauth2/**"
+                                "/oauth2/**",
+                                "/transcriptions/**",
+                                "/me/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/posts/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/comments/**").hasAnyRole("USER", "ADMIN")
