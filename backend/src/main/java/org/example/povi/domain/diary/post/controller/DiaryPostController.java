@@ -32,36 +32,36 @@ public class DiaryPostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
-    @PatchMapping("/{diaryPostId}")
+    @PatchMapping("/{postId}")
     @Operation(summary = "다이어리 부분수정")
     public ResponseEntity<DiaryPostUpdateRes> updateDiaryPost(
-            @PathVariable Long diaryPostId,
+            @PathVariable Long postId,
             @RequestBody @Valid DiaryPostUpdateReq updateReq,
             @AuthenticationPrincipal CustomJwtUser currentUser
 
     ) {
-        DiaryPostUpdateRes res = diaryPostService.updateDiaryPost(diaryPostId, updateReq, currentUser.getId());
+        DiaryPostUpdateRes res = diaryPostService.updateDiaryPost(postId, updateReq, currentUser.getId());
         return ResponseEntity.ok(res);
     }
 
 
-    @DeleteMapping("/{diaryPostId}")
+    @DeleteMapping("/{postId}")
     @Operation(summary = "다이어리 삭제")
     public ResponseEntity<Void> deleteDiaryPost(
-            @PathVariable Long diaryPostId,
+            @PathVariable Long postId,
             @AuthenticationPrincipal CustomJwtUser currentUser
     ) {
-        diaryPostService.deleteDiaryPost(diaryPostId, currentUser.getId());
+        diaryPostService.deleteDiaryPost(postId, currentUser.getId());
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{diaryPostId}")
+    @GetMapping("/{postId}")
     @Operation(summary = "단일 상세 조회")
     public ResponseEntity<DiaryDetailRes> getMyDiaryPostDetail(
-            @PathVariable Long diaryPostId,
+            @PathVariable Long postId,
             @AuthenticationPrincipal CustomJwtUser currentUser
     ) {
-        DiaryDetailRes res = diaryPostService.getMyDiaryPostDetail(diaryPostId, currentUser.getId());
+        DiaryDetailRes res = diaryPostService.getMyDiaryPostDetail(postId, currentUser.getId());
         return ResponseEntity.ok(res);
     }
 

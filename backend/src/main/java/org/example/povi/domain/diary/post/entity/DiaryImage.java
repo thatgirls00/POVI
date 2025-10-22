@@ -15,7 +15,7 @@ public class DiaryImage extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "diary_id", nullable = false)
-    private DiaryPost diaryPost;
+    private DiaryPost post;
 
     @Column(name = "image_url", length = 2048, nullable = false)
     private String imageUrl;
@@ -23,11 +23,11 @@ public class DiaryImage extends BaseEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public DiaryImage(DiaryPost diaryPost, String imageUrl) {
-        this.diaryPost = diaryPost;
+    public DiaryImage(DiaryPost post, String imageUrl) {
+        this.post = post;
         this.imageUrl = imageUrl;
     }
     void setDiaryPost(DiaryPost diaryPost) {
-        this.diaryPost = diaryPost;
+        this.post = diaryPost;
     }
 }

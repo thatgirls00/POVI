@@ -13,16 +13,16 @@ public record DiaryCommentCreateRes(
         String content,
         LocalDateTime createdAt
 ) {
-    public static DiaryCommentCreateRes from(DiaryComment diaryComment) {
-        DiaryPost diaryPost = diaryComment.getDiaryPost();
-        User author = diaryComment.getAuthor();
+    public static DiaryCommentCreateRes from(DiaryComment comment) {
+        DiaryPost post = comment.getPost();
+        User author = comment.getAuthor();
 
         return new DiaryCommentCreateRes(
-                diaryComment.getId(),
-                diaryPost != null ? diaryPost.getId() : null,
+                comment.getId(),
+                post != null ? post.getId() : null,
                 author != null ? author.getId() : null,
-                diaryComment.getContent(),
-                diaryComment.getCreatedAt()
+                comment.getContent(),
+                comment.getCreatedAt()
         );
     }
 }

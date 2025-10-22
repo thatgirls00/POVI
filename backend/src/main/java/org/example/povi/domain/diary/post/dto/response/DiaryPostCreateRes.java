@@ -16,16 +16,16 @@ public record DiaryPostCreateRes(
         List<String> imageUrls,
         LocalDateTime createdAt
 ) {
-    public static DiaryPostCreateRes from(DiaryPost diaryPost) {
+    public static DiaryPostCreateRes from(DiaryPost post) {
         return new DiaryPostCreateRes(
-                diaryPost.getTitle(),
-                diaryPost.getContent(),
-                diaryPost.getMoodEmoji(),
-                diaryPost.getVisibility(),
-                diaryPost.getImages().stream()
+                post.getTitle(),
+                post.getContent(),
+                post.getMoodEmoji(),
+                post.getVisibility(),
+                post.getImages().stream()
                         .map(DiaryImage::getImageUrl)
                         .toList(),
-                diaryPost.getCreatedAt()
+                post.getCreatedAt()
         );
     }
 }

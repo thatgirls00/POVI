@@ -29,41 +29,73 @@ public class DiaryCommentService {
      * 댓글 생성
      */
     @Transactional
-    public DiaryCommentCreateRes createDiaryComment(Long diaryPostId,
+    public DiaryCommentCreateRes createDiaryComment(Long postId,
                                                     DiaryCommentCreateReq createReq,
-                                                    Long commenterId) {
+                                                    Long currentUserId) {
 
         // 댓글 작성자 및 게시글 검증
-        User commenter = userRepository.findById(commenterId)
+        User commenter = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
 
-        DiaryPost diaryPost = diaryPostRepository.findById(diaryPostId)
+        DiaryPost targetPost = diaryPostRepository.findById(postId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
 
         // 접근 권한 확인
-        if (!hasCommentPermission(commenter, diaryPost)) {
+        if (!canAccessPost(currentUserId, targetPost)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "댓글을 작성할 권한이 없습니다.");
         }
 
-        DiaryComment toSave = DiaryCommentRequestMapper.fromCreateRequest(createReq, commenter, diaryPost);
+        DiaryComment toSave = DiaryCommentRequestMapper.fromCreateRequest(createReq, commenter, targetPost);
         DiaryComment saved = diaryCommentRepository.save(toSave);
         return DiaryCommentCreateRes.from(saved);
     }
 
+    /**
+     * 댓글 삭제 (댓글 작성자와 게시글 작성자만 삭제 가능)
+     */
+    @Transactional
+    public void deleteDiaryComment(Long postId, Long commentId, Long currentUserId) {
+
+        // 댓글 + 게시글 매칭 검증
+        DiaryComment comment = diaryCommentRepository
+                .findByIdAndPostId(commentId, postId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "해당 댓글이 존재하지 않거나 게시글과 매칭되지 않습니다."
+                ));
+
+        DiaryPost targetPost = comment.getPost();
+        Long commentAuthorId = comment.getAuthor().getId();
+        Long postAuthorId = targetPost.getUser().getId();
+
+        // 2. 게시글 접근 가능 여부 확인
+        if (!canAccessPost(currentUserId, targetPost)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "이 게시글에 접근할 수 없습니다.");
+        }
+
+        // 3. 삭제 권한 확인 (댓글 작성자 or 게시글 작성자)
+        if (!currentUserId.equals(commentAuthorId) && !currentUserId.equals(postAuthorId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "댓글 작성자 또는 게시글 작성자만 삭제할 수 있습니다.");
+        }
+
+        // 삭제 수행
+        diaryCommentRepository.delete(comment);
+    }
 
 
     /**
      * 읽을 수 있는 글에만 댓글 작성 가능
      */
-    private boolean hasCommentPermission(User commenter, DiaryPost targetPost) {
-        Long commenterId = commenter.getId();
-        Long authorId = targetPost.getUser().getId();
+    private boolean canAccessPost(Long viewerId, DiaryPost post) {
+        Long ownerId = post.getUser().getId();
 
-        if (commenterId.equals(authorId)) return true; // 본인 글은 허용
+        // 1. 본인 글은 항상 허용
+        if (viewerId.equals(ownerId)) return true;
 
-        return switch (targetPost.getVisibility()) {
+        // 2. 공개 범위에 따라 접근 허용 여부 결정
+        return switch (post.getVisibility()) {
             case PUBLIC -> true;
-            case FRIEND -> followService.isMutualFollow(authorId, authorId);
+            case FRIEND -> followService.isMutualFollow(viewerId, ownerId);
             case PRIVATE -> false;
         };
     }

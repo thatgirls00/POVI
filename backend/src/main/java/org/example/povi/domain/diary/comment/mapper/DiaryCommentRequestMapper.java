@@ -12,10 +12,10 @@ public final class DiaryCommentRequestMapper {
     /** DiaryCommentCreateReq → DiaryComment 엔티티 변환 **/
     public static DiaryComment fromCreateRequest(DiaryCommentCreateReq req,
                                                  User author,
-                                                 DiaryPost diaryPost) {
+                                                 DiaryPost post) {
         return DiaryComment.builder()
                 .author(author)
-                .diaryPost(diaryPost)
+                .post(post)
                 .content(req.content().trim())
                 .build();
     }

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/diary-posts/{diaryPostId}/comments")
+@RequestMapping("/diary-posts/{postId}/comments")
 public class DiaryCommentController {
 
     private final DiaryCommentService diaryCommentService;
@@ -23,12 +23,23 @@ public class DiaryCommentController {
     @PostMapping
     @Operation(summary = "댓글 생성")
     public ResponseEntity<DiaryCommentCreateRes> createDiaryComment(
-            @PathVariable Long diaryPostId,
+            @PathVariable Long postId,
             @RequestBody @Valid DiaryCommentCreateReq createReq,
             @AuthenticationPrincipal CustomJwtUser currentUser
     ){
-        DiaryCommentCreateRes res = diaryCommentService.createDiaryComment(diaryPostId, createReq, currentUser.getId());
+        DiaryCommentCreateRes res = diaryCommentService.createDiaryComment(postId, createReq, currentUser.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
 
+    }
+
+    @DeleteMapping("/{commentId}")
+    @Operation(summary = "댓글 삭제")
+    public ResponseEntity<Void> deleteDiaryComment(
+            @PathVariable Long postId,
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal CustomJwtUser currentUser
+    ){
+        diaryCommentService.deleteDiaryComment(postId, commentId, currentUser.getId());
+        return ResponseEntity.noContent().build();
     }
 }

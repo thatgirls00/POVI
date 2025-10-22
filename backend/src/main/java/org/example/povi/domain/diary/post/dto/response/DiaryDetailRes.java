@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record DiaryDetailRes(
-        Long PostId,
+        Long postId,
         String title,
         String content,
         MoodEmoji moodEmoji,
@@ -18,17 +18,17 @@ public record DiaryDetailRes(
         List<String> imageUrls,
         LocalDateTime createdAt
 ) {
-    public static DiaryDetailRes from(DiaryPost diaryPost) {
+    public static DiaryDetailRes from(DiaryPost post) {
         return new DiaryDetailRes(
-                diaryPost.getId(),
-                diaryPost.getTitle(),
-                diaryPost.getContent(),
-                diaryPost.getMoodEmoji(),
-                diaryPost.getVisibility(),
-                diaryPost.getImages().stream()
+                post.getId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getMoodEmoji(),
+                post.getVisibility(),
+                post.getImages().stream()
                         .map(DiaryImage::getImageUrl)
                         .toList(),
-                diaryPost.getCreatedAt()
+                post.getCreatedAt()
         );
     }
 }

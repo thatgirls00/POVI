@@ -20,17 +20,16 @@ public class DiaryComment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", nullable = false)
-    private DiaryPost diaryPost;
+    private DiaryPost post;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
-
     @Builder
-    public DiaryComment(User author, DiaryPost diaryPost, String content) {
+    public DiaryComment(User author, DiaryPost post, String content) {
         this.author = author;
-        this.diaryPost = diaryPost;
+        this.post = post;
         this.content = content;
 
     }

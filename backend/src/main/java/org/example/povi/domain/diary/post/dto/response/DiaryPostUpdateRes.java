@@ -18,18 +18,18 @@ public record DiaryPostUpdateRes(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static DiaryPostUpdateRes from(DiaryPost diaryPost) {
+    public static DiaryPostUpdateRes from(DiaryPost post) {
         return new DiaryPostUpdateRes(
-                diaryPost.getId(),
-                diaryPost.getTitle(),
-                diaryPost.getContent(),
-                diaryPost.getMoodEmoji(),
-                diaryPost.getVisibility(),
-                diaryPost.getImages().stream()
+                post.getId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getMoodEmoji(),
+                post.getVisibility(),
+                post.getImages().stream()
                         .map(DiaryImage::getImageUrl)
                         .toList(),
-                diaryPost.getCreatedAt(),
-                diaryPost.getUpdatedAt()
+                post.getCreatedAt(),
+                post.getUpdatedAt()
         );
     }
 }

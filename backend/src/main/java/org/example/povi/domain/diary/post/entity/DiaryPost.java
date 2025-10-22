@@ -38,11 +38,11 @@ public class DiaryPost extends BaseEntity {
     @Column(name = "visibility", nullable = false)
     private Visibility visibility = Visibility.PRIVATE;
 
-    @OneToMany(mappedBy = "diaryPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     private List<DiaryImage> images = new ArrayList<>();
 
-    @OneToMany(mappedBy = "diaryPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createdAt ASC")
     private List<DiaryComment> comments = new ArrayList<>();
 
