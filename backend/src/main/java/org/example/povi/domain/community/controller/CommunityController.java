@@ -91,13 +91,13 @@ public class CommunityController {
     }
 
 
-    @PostMapping("/posts/{postId}/like")
+    @PostMapping("/{postId}/like")
     public ResponseEntity<LikeResponse> addLikeToPost(@PathVariable Long postId) {
         LikeResponse response = communityService.addLikeToPost(postId);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/posts/{postId}/like")
+    @DeleteMapping("/{postId}/like")
     public ResponseEntity<LikeResponse> removeLikeFromPost(@PathVariable Long postId) {
         LikeResponse response = communityService.removeLikeFromPost(postId);
         return ResponseEntity.ok(response);
