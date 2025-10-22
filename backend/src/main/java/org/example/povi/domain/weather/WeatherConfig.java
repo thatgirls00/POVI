@@ -17,7 +17,7 @@ public class WeatherConfig {
     public WebClient openWeatherWebClient(OpenWeatherProperties props) {
 
         return WebClient.builder()
-                .baseUrl(props.getBaseUrl())
+                .baseUrl(props.baseUrl())
                 .defaultHeaders(h -> h.setAccept(java.util.List.of(MediaType.APPLICATION_JSON)))
                 .exchangeStrategies(ExchangeStrategies.builder()
                         .codecs(c -> c.defaultCodecs().maxInMemorySize(256 * 1024)) // 버퍼 용량(256KB) 조절: 응답 바디가 큰 경우 OutOfMemory 방지.
