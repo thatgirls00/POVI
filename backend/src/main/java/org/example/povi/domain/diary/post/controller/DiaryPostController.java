@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/diaries")
+@RequestMapping("/diary-posts")
 public class DiaryPostController {
 
     private final DiaryPostService diaryPostService;

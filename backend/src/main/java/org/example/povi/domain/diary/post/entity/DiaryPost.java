@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.povi.domain.diary.comment.entity.DiaryComment;
 import org.example.povi.domain.diary.enums.MoodEmoji;
 import org.example.povi.domain.diary.enums.Visibility;
 import org.example.povi.domain.user.entity.User;
@@ -40,6 +41,10 @@ public class DiaryPost extends BaseEntity {
     @OneToMany(mappedBy = "diaryPost", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     private List<DiaryImage> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "diaryPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt ASC")
+    private List<DiaryComment> comments = new ArrayList<>();
 
     @Builder
     public DiaryPost(User user, String title, String content, MoodEmoji moodEmoji, Visibility visibility) {

@@ -44,8 +44,8 @@ public class DiaryPostService {
             diaryPost.replaceImages(normalizedImageUrls);
         }
 
-        diaryPostRepository.save(diaryPost);
-        return DiaryPostCreateRes.from(diaryPost);
+        DiaryPost saved = diaryPostRepository.save(diaryPost);
+        return DiaryPostCreateRes.from(saved);
     }
 
     /** 다이어리 부분 수정 (제목/내용/이모지/공개범위/이미지 선택적 업데이트) */
@@ -146,11 +146,11 @@ public class DiaryPostService {
     public List<DiaryPostCardRes> listFriendDiaries(Long currentUserId) {
 
         // 내가 팔로우 중인 사용자 (없으면 빈 목록)
-        Set<Long> followingUserIds = followService.getFollowingIds(currentUserId);
+        Set<Long> followingUserIds = followService.getFollowingUserIds(currentUserId);
         if (followingUserIds.isEmpty()) return List.of();
 
         // 맞팔 사용자 / 단방향 사용자 분리
-        Set<Long> mutualFriendIds = followService.getMutualFriendIds(currentUserId);
+        Set<Long> mutualFriendIds = followService.getMutualUserIds(currentUserId);
         Set<Long> oneWayFollowingIds = new HashSet<>(followingUserIds);
         oneWayFollowingIds.removeAll(mutualFriendIds);
 
@@ -188,7 +188,7 @@ public class DiaryPostService {
         LocalDateTime endAt = today.plusDays(1).atStartOfDay();
 
         // 맞팔 사용자 집합
-        Set<Long> mutualIds = followService.getMutualFriendIds(currentUserId);
+        Set<Long> mutualIds = followService.getMutualUserIds(currentUserId);
 
         // 맞팔 여부에 따라 조회 분기 (내 글 제외는 쿼리에서 처리)
         List<DiaryPost> posts = mutualIds.isEmpty()

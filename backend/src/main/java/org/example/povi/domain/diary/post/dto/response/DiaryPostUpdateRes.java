@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record DiaryPostUpdateRes(
-        Long diaryId,
+        Long postId,
         String title,
         String content,
         MoodEmoji moodEmoji,
