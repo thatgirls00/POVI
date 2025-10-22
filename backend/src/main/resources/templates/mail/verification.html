@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>POVI 이메일 인증</title>
+</head>
+<body>
+<p>안녕하세요. <strong>POVI</strong>입니다.</p>
+<p>아래 버튼을 클릭하여 이메일 인증을 완료해주세요:</p>
+
+<p>
+    <a th:href="${verificationLink}" style="padding: 10px 20px; background-color: #0055ff; color: white; text-decoration: none; border-radius: 4px;">
+        이메일 인증하기
+    </a>
+</p>
+
+<p style="color: gray; font-size: 12px;">
+    ※ 이 링크는 60분 뒤 만료됩니다.<br>
+    ※ 본 메일은 발신전용입니다.
+</p>
+</body>
+</html>

@@ -1,16 +1,17 @@
 package org.example.povi.auth.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
 
 /**
- * 클라이언트가 accessToken + refreshToken을 전달하여
+ * 클라이언트가 accessToken과 refreshToken을 전달
  * accessToken 재발급을 요청할 때 사용하는 DTO.
  */
-@Getter
-@NoArgsConstructor
-public class TokenReissueRequestDto {
+public record TokenReissueRequestDto(
 
-    private String accessToken;
-    private String refreshToken;
-}
+        @NotBlank
+        String accessToken,
+
+        @NotBlank
+        String refreshToken
+
+) {}

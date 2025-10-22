@@ -7,8 +7,6 @@ import java.time.LocalDateTime;
 
 /**
  * 이메일 인증 토큰 엔티티
- * <p>
- * 특정 이메일 주소에 대한 인증 토큰과 만료 여부, 인증 상태를 관리합니다.
  */
 @Entity
 @Getter
@@ -18,7 +16,7 @@ import java.time.LocalDateTime;
 public class EmailVerificationToken {
 
     /**
-     * PK (Auto Increment)
+     * PK
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

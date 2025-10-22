@@ -15,8 +15,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * JWT 토큰을 검증하고 인증 객체를 SecurityContext 에 저장하는 필터.
- * Spring Security 필터 체인에서 매 요청마다 실행됩니다.
+ * JWT 토큰을 검증하고 인증 객체를 SecurityContext 에 저장하는 필터
+ * Spring Security 필터 체인에서 매 요청마다 실행
  */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -50,7 +50,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } catch (JwtException e) {
-            // 유효하지 않은 토큰 처리 (401 혹은 403)
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{ \"message\": \"유효하지 않은 토큰입니다.\" }");
