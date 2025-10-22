@@ -3,6 +3,7 @@ package org.example.povi.domain.mission.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.povi.domain.mission.dto.response.MissionResponse;
+import org.example.povi.domain.mission.dto.response.MissionHistoryResponse;
 import org.example.povi.domain.mission.entity.Mission;
 import org.example.povi.domain.mission.entity.UserMission;
 import org.example.povi.domain.mission.repository.MissionRepository;
@@ -16,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -61,8 +64,6 @@ public class MissionService {
             // 1) 정상 경로: 실시간 날씨 결정 → 정확 매칭만
             var snap = weatherClient.fetchSnapshot(latitude, longitude);
             var decided = weatherTypeMapper.decide(snap.weatherMain(), snap.temperatureC(), snap.windMs());
-            log.info("[OW] main={}, tempC={}, windMs={}", snap.weatherMain(), snap.temperatureC(), snap.windMs());
-            log.info("[OW] decidedWeather={}", decided);
 
             candidates = missionRepository.findByEmotionTypeAndWeatherTypeIn(
                     emotionType, java.util.List.of(decided));
@@ -116,5 +117,27 @@ public class MissionService {
         } else {
             throw new IllegalArgumentException("허용되지 않는 상태값입니다: " + status);
         }
+    }
+
+    /** 미션 이력 조회 */
+    @Transactional(readOnly = true)
+    public List<MissionHistoryResponse> getMissionHistory(Long userId) {
+        User user = findUser(userId);
+        List<UserMission> userMissions = userMissionRepository.findAllByUserOrderByMissionDateDesc(user);
+        
+        // 날짜별로 그룹화
+        Map<LocalDate, List<UserMission>> missionsByDate = userMissions.stream()
+                .collect(Collectors.groupingBy(UserMission::getMissionDate));
+        
+        return missionsByDate.entrySet().stream()
+                .map(entry -> {
+                    LocalDate date = entry.getKey();
+                    List<MissionResponse> missionDetails = entry.getValue().stream()
+                            .map(um -> new MissionResponse(um.getMission(), um.getStatus()))
+                            .toList();
+                    return new MissionHistoryResponse(date, missionDetails);
+                })
+                .sorted((a, b) -> b.missionDate().compareTo(a.missionDate())) // 최신 날짜부터
+                .toList();
     }
 }
