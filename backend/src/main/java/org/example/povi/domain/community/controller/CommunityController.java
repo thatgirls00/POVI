@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.povi.auth.token.jwt.JwtTokenProvider;
 import org.example.povi.domain.community.dto.request.PostCreateRequest;
 import org.example.povi.domain.community.dto.response.LikeResponse;
+import org.example.povi.domain.community.dto.response.PostBookmarkResponse;
 import org.example.povi.domain.community.dto.response.PostCreateResponse;
 import org.example.povi.domain.community.dto.response.PostDeleteResponse;
 import org.example.povi.domain.community.dto.request.PostUpdateRequest;
@@ -103,5 +104,24 @@ public class CommunityController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{postId}/bookmark")
+    public ResponseEntity<PostBookmarkResponse> addBookmark(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable Long postId) {
+
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        PostBookmarkResponse response = communityService.addBookmark(userId, postId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @DeleteMapping("/{postId}/bookmark")
+    public ResponseEntity<PostBookmarkResponse> removeBookmark(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable Long postId) {
+
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        PostBookmarkResponse response = communityService.removeBookmark(userId, postId);
+        return ResponseEntity.ok(response);
+    }
 
 }
