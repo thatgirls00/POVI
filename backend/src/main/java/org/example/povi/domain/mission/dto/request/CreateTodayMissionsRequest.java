@@ -5,9 +5,6 @@ import org.example.povi.domain.mission.entity.Mission;
 
 public record CreateTodayMissionsRequest(
         @NotNull
-        Long userId,
-
-        @NotNull
         Mission.EmotionType emotionType,
 
         @NotNull
