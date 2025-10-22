@@ -7,6 +7,7 @@ import org.example.povi.auth.token.jwt.JwtTokenProvider;
 import org.example.povi.domain.community.dto.request.CommentCreateRequest;
 import org.example.povi.domain.community.dto.request.PostCreateRequest;
 import org.example.povi.domain.community.dto.response.CommentCreateResponse;
+import org.example.povi.domain.community.dto.response.CommentDeleteResponse;
 import org.example.povi.domain.community.dto.response.LikeResponse;
 import org.example.povi.domain.community.dto.response.PostCreateResponse;
 import org.example.povi.domain.community.dto.response.PostDeleteResponse;
@@ -103,7 +104,7 @@ public class CommunityController {
     }
 
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<Void> deleteComment(
+    public ResponseEntity<CommentDeleteResponse> deleteComment(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable Long commentId) {
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
