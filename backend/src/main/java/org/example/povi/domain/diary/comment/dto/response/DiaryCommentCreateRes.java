@@ -10,6 +10,7 @@ public record DiaryCommentCreateRes(
         Long commentId,
         Long postId,
         Long authorId,
+        String authorName,
         String content,
         LocalDateTime createdAt
 ) {
@@ -19,8 +20,9 @@ public record DiaryCommentCreateRes(
 
         return new DiaryCommentCreateRes(
                 comment.getId(),
-                post != null ? post.getId() : null,
-                author != null ? author.getId() : null,
+                post.getId(),
+                author.getId(),
+                author.getNickname(),
                 comment.getContent(),
                 comment.getCreatedAt()
         );

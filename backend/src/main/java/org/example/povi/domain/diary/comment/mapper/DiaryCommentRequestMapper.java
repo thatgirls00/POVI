@@ -7,9 +7,12 @@ import org.example.povi.domain.user.entity.User;
 
 public final class DiaryCommentRequestMapper {
 
-    private DiaryCommentRequestMapper() {}
+    private DiaryCommentRequestMapper() {
+    }
 
-    /** DiaryCommentCreateReq → DiaryComment 엔티티 변환 **/
+    /**
+     * DiaryCommentCreateReq → DiaryComment 엔티티 변환
+     **/
     public static DiaryComment fromCreateRequest(DiaryCommentCreateReq req,
                                                  User author,
                                                  DiaryPost post) {

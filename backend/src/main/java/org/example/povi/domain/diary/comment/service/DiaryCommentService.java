@@ -3,7 +3,9 @@ package org.example.povi.domain.diary.comment.service;
 import lombok.RequiredArgsConstructor;
 import org.example.povi.domain.diary.comment.dto.request.DiaryCommentCreateReq;
 import org.example.povi.domain.diary.comment.dto.response.DiaryCommentCreateRes;
+import org.example.povi.domain.diary.comment.dto.response.DiaryCommentRes;
 import org.example.povi.domain.diary.comment.entity.DiaryComment;
+import org.example.povi.domain.diary.comment.mapper.DiaryCommentMapper;
 import org.example.povi.domain.diary.comment.mapper.DiaryCommentRequestMapper;
 import org.example.povi.domain.diary.comment.repository.DiaryCommentRepository;
 import org.example.povi.domain.diary.post.entity.DiaryPost;
@@ -11,6 +13,9 @@ import org.example.povi.domain.diary.post.repository.DiaryPostRepository;
 import org.example.povi.domain.user.entity.User;
 import org.example.povi.domain.user.follow.service.FollowService;
 import org.example.povi.domain.user.repository.UserRepository;
+import org.example.povi.global.dto.PagedResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,6 +89,24 @@ public class DiaryCommentService {
 
 
     /**
+     * 댓글 목록 조회 (페이지네이션)
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<DiaryCommentRes> getCommentsByPost(Long postId, Pageable pageable, Long currentUserId) {
+
+        DiaryPost post = diaryPostRepository.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
+
+        if (!canAccessPost(currentUserId, post)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "이 게시글에 접근할 수 없습니다.");
+        }
+
+        Page<DiaryComment> commentPage = diaryCommentRepository.findByPostId(postId, pageable);
+
+        return DiaryCommentMapper.toPagedResponse(commentPage);
+    }
+
+    /**
      * 읽을 수 있는 글에만 댓글 작성 가능
      */
     private boolean canAccessPost(Long viewerId, DiaryPost post) {
@@ -99,4 +122,5 @@ public class DiaryCommentService {
             case PRIVATE -> false;
         };
     }
+
 }

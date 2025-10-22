@@ -7,7 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.example.povi.auth.token.jwt.CustomJwtUser;
 import org.example.povi.domain.diary.comment.dto.request.DiaryCommentCreateReq;
 import org.example.povi.domain.diary.comment.dto.response.DiaryCommentCreateRes;
+import org.example.povi.domain.diary.comment.dto.response.DiaryCommentRes;
 import org.example.povi.domain.diary.comment.service.DiaryCommentService;
+import org.example.povi.global.dto.PagedResponse;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,6 +36,18 @@ public class DiaryCommentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
 
     }
+
+    @GetMapping
+    @Operation(summary = "댓글 조회(페이지네이션, 오래된→최신)")
+    public ResponseEntity<PagedResponse<DiaryCommentRes>> getComments(
+            @PathVariable Long postId,
+            @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
+            @AuthenticationPrincipal CustomJwtUser currentUser
+    ) {
+        PagedResponse<DiaryCommentRes>  res = diaryCommentService.getCommentsByPost(postId, pageable, currentUser.getId());
+        return ResponseEntity.ok(res);
+    }
+
 
     @DeleteMapping("/{commentId}")
     @Operation(summary = "댓글 삭제")
