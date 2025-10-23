@@ -1,5 +1,7 @@
 package org.example.povi.domain.community.entity;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -21,6 +23,10 @@ import org.example.povi.global.entity.BaseEntity;
                         columnNames = {"user_id", "post_id"}
                 )
         }
+)
+@AttributeOverride(
+        name = "id",
+        column = @Column(name = "bookmark_id")
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

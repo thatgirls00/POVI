@@ -1,5 +1,6 @@
 package org.example.povi.domain.community.entity;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,6 +17,10 @@ import org.example.povi.global.entity.BaseEntity;
 @Entity
 @Table(name = "comments")
 @Getter
+@AttributeOverride(
+        name = "id",
+        column = @Column(name = "comment_id")
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseEntity {
     @Column(nullable = false, length = 1500)
