@@ -12,6 +12,9 @@ public record PostListResponse(
         @Schema(description = "게시글 제목", example = "오늘 날씨가 정말 좋네요!")
         String title,
 
+        @Schema(description = "게시글 본문 미리보기", example = "집에만 있기 아까운 날씨입니다. 다들 즐거운 하루 보내세요.")
+        String content,
+
         @Schema(description = "작성자 닉네임", example = "행복한개발자")
         String authorNickname,
 
@@ -34,6 +37,7 @@ public record PostListResponse(
                 post.getId(),
                 post.getTitle(),
                 post.getUser().getNickname(),
+                post.getContent(),
                 post.getCreatedAt(),
                 post.getEmoticon(),
                 post.getLikeCount(),
