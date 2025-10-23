@@ -7,6 +7,8 @@ import org.example.povi.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface CommunityBookmarkRepository extends JpaRepository<CommunityBookmark, Long> {
 
@@ -14,6 +16,6 @@ public interface CommunityBookmarkRepository extends JpaRepository<CommunityBook
 
     boolean existsByUserAndCommunityPost(User user, CommunityPost communityPost);
 
-    //특정 사용자의 모든 북마크를 페이징하여 조회
-    //Page<CommunityBookmark> findByUserId(Long userId, Pageable pageable);
+    @Query("SELECT b.communityPost FROM CommunityBookmark b WHERE b.user.id = :userId ORDER BY b.createdAt DESC")
+    Page<CommunityPost> findBookmarkedPostsByUserId(@Param("userId") Long userId, Pageable pageable);
 }
