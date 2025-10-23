@@ -12,9 +12,6 @@ public record CommentListResponse(
         @Schema(description = "댓글 내용")
         String content,
 
-        @Schema(description = "댓글 좋아요 수")
-        int likeCount,
-
         @Schema(description = "댓글 작성일")
         LocalDateTime createdAt,
 
@@ -26,13 +23,21 @@ public record CommentListResponse(
 )
     {
     public static CommentListResponse from(Comment comment) {
+        String summaryTitle = comment.getCommunityPost().getTitle();
+        String summaryContent = comment.getContent();
+
+        if (summaryTitle != null && summaryTitle.length() > 20) {
+            summaryTitle = summaryTitle.substring(0, 20);
+        }
+        if (summaryContent != null && summaryContent.length() > 20) {
+            summaryContent = summaryContent.substring(0, 20) + "...";
+        }
         return new CommentListResponse(
                 comment.getId(),
-                comment.getContent(),
-                comment.getLikeCount(),
+                summaryContent,
                 comment.getCreatedAt(),
                 comment.getCommunityPost().getId(),
-                comment.getCommunityPost().getTitle()
+                summaryTitle
         );
     } }
 

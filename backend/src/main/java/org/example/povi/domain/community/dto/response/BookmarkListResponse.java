@@ -14,10 +14,19 @@ public record BookmarkListResponse(
         LocalDateTime postCreatedAt)
 {
     public static BookmarkListResponse from(CommunityPost post) {
+        String summaryTitle = post.getTitle();
+        String summaryContent = post.getContent();
+
+        if (summaryTitle != null && summaryTitle.length() > 20) {
+            summaryTitle = summaryTitle.substring(0, 20) + "...";
+        }
+        if (summaryContent != null && summaryContent.length() > 20) {
+            summaryContent = summaryContent.substring(0, 20) + "...";
+        }
         return new BookmarkListResponse(
                 post.getId(),
-                post.getTitle(),
-                post.getContent(),
+                summaryTitle,
+                summaryContent,
                 post.getUser().getNickname(),
                 post.getEmoticon(),
                 post.getCreatedAt()

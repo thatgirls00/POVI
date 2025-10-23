@@ -245,9 +245,17 @@ public class CommunityService {
         return new PostBookmarkResponse(postId, "북마크를 취소했습니다.");
     }
 
+    @Transactional(readOnly = true)
     public Page<BookmarkListResponse> getMyBookmarks(Long userId, Pageable pageable) {
         Page<CommunityPost> bookmarkedPosts = communityRepository.findAllByUserId(userId, pageable);
         Page<BookmarkListResponse> dtoPage = bookmarkedPosts.map(BookmarkListResponse::from);
+        return dtoPage;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CommentListResponse> getMyComments(Long userId, Pageable pageable) {
+        Page<Comment> comments = commentRepository.findAllByUserId(userId, pageable);
+        Page<CommentListResponse> dtoPage = comments.map(CommentListResponse::from);
         return dtoPage;
     }
 }

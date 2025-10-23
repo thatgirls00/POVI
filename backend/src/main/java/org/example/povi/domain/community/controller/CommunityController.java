@@ -116,6 +116,16 @@ public class CommunityController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/comments/me")
+    public ResponseEntity<Page<CommentListResponse>> getMyComments(
+            @RequestHeader("Authorization") String bearerToken,
+            @PageableDefault(size = 3, sort = "createdAt,desc") Pageable pageable
+    ) {
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        communityService.getMyComments(userId, pageable);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/comments/{commentId}/like")
     public ResponseEntity<LikeResponse> addLikeToComment(@PathVariable Long commentId) {
         LikeResponse response = communityService.addLikeToComment(commentId);
