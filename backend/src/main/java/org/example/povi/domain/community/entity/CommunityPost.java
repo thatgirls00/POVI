@@ -61,6 +61,14 @@ public class CommunityPost extends BaseEntity {
         @Column(name = "like_count", nullable = false)
         private int likeCount = 0; // 기본값을 0으로 설정
 
+        @OneToMany(
+                mappedBy = "communityPost",
+                fetch = FetchType.LAZY,
+                cascade = CascadeType.ALL,
+                orphanRemoval = true
+        )
+        private List<Comment> comments = new ArrayList<>();
+
         @Formula("(SELECT COUNT(1) FROM comment c WHERE c.post_id = id)")
         private int commentCount;
 

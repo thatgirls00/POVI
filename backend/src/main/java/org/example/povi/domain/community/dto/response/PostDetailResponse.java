@@ -28,6 +28,9 @@ public record PostDetailResponse(
         @Schema(description = "작성일시")
         LocalDateTime createdAt,
 
+        @Schema(description = "댓글 목록")
+        List<CommentResponse> comments,
+
         @Schema(description = "첨부된 사진 URL 목록")
         List<String> photoUrls
         // 필요하다면 여기에 댓글 목록을 추가할 수 있습니다.
@@ -47,6 +50,9 @@ public record PostDetailResponse(
                 post.getEmoticon(),
                 post.getUser().getNickname(),
                 post.getCreatedAt(),
+                post.getComments().stream()
+                        .map(CommentResponse::from)
+                        .collect(Collectors.toList()),
                 urls
         );
     }
