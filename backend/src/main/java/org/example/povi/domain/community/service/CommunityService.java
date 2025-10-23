@@ -9,7 +9,6 @@ import org.example.povi.domain.community.dto.request.PostCreateRequest;
 import org.example.povi.domain.community.dto.response.CommentCreateResponse;
 import org.example.povi.domain.community.dto.response.CommentDeleteResponse;
 import org.example.povi.domain.community.dto.response.LikeResponse;
-import org.example.povi.domain.community.dto.response.LikeResponse;
 import org.example.povi.domain.community.dto.response.PostBookmarkResponse;
 import org.example.povi.domain.community.dto.response.PostCreateResponse;
 import org.example.povi.domain.community.dto.response.PostDeleteResponse;
@@ -22,8 +21,6 @@ import org.example.povi.domain.community.entity.CommunityImage;
 import org.example.povi.domain.community.entity.CommunityPost;
 import org.example.povi.domain.community.repository.CommentRepository;
 import org.example.povi.domain.community.entity.CommunityBookmark;
-import org.example.povi.domain.community.entity.CommunityImage;
-import org.example.povi.domain.community.entity.CommunityPost;
 import org.example.povi.domain.community.repository.CommunityBookmarkRepository;
 import org.example.povi.domain.community.repository.CommunityImageRepository;
 import org.example.povi.domain.community.repository.CommunityRepository;
@@ -132,8 +129,8 @@ public class CommunityService {
     @Transactional(readOnly = true)
     public Page<PostListResponse> getPostList(Pageable pageable) {
         Page<CommunityPost> posts = communityRepository.findAll(pageable);
-        // Page 객체의 map 기능을 사용하여 Page<CommunityPost>를 Page<PostSummaryResponse>로 변환
-        return posts.map(PostListResponse::from);
+        Page<PostListResponse> dtoPage = posts.map(PostListResponse::from);
+        return dtoPage;
     }
 
 

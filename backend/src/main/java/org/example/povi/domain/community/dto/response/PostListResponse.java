@@ -2,6 +2,7 @@ package org.example.povi.domain.community.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import org.example.povi.domain.community.entity.CommunityEmoticon;
 import org.example.povi.domain.community.entity.CommunityPost;
 
 public record PostListResponse(
@@ -15,15 +16,28 @@ public record PostListResponse(
         String authorNickname,
 
         @Schema(description = "작성일시")
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+
+        @Schema(description = "감정 이모티콘", example = "HAPPY")
+        CommunityEmoticon emoticon,
+
+        @Schema(description = "좋아요 수", example = "25")
+        int likeCount,
+
+        @Schema(description = "댓글 수", example = "10")
+        int commentCount
+
 
 ) {
     public static PostListResponse from(CommunityPost post) {
         return new PostListResponse(
                 post.getId(),
                 post.getTitle(),
-                post.getUser().getNickname(), // User 엔티티에 getNickname()이 있다고 가정
-                post.getCreatedAt()
+                post.getUser().getNickname(),
+                post.getCreatedAt(),
+                post.getEmoticon(),
+                post.getLikeCount(),
+                post.getCommentCount()
         );
     }
 }
