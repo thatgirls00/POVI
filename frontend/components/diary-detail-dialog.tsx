@@ -9,7 +9,6 @@ import {Textarea} from "@/components/ui/textarea"
 import {
     Heart,
     MessageCircle,
-    Share2,
     ImageIcon,
     Pencil,
     Trash2,
@@ -221,9 +220,6 @@ export function DiaryDetailDialog({open, onOpenChange, diary}: DiaryDetailDialog
                         <Button variant="ghost" size="sm" className="gap-2">
                             <MessageCircle className="h-4 w-4"/>
                             {comments.length}
-                        </Button>
-                        <Button variant="ghost" size="sm" className="gap-2 ml-auto">
-                            <Share2 className="h-4 w-4"/>
                         </Button>
                     </div>
 
