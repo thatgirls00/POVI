@@ -55,17 +55,19 @@ public class CommunityPost extends BaseEntity {
         @Column(name = "emoticon", nullable = false)
         private CommunityEmoticon emoticon;
 
-        @ManyToMany
-        @JoinTable(
-                name = "post_user_likes",
-                joinColumns = @JoinColumn(name = "post_id"),
-                inverseJoinColumns = @JoinColumn(name = "user_id")
-        )
-        private Set<User> likedByUsers = new HashSet<>();
+        @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
+        private Set<PostLike> likes = new HashSet<>();
 
-        @Formula("(SELECT COUNT(1) FROM post_user_likes pul WHERE pul.post_id = id)")
         @Column(name = "like_count", nullable = false)
         private int likeCount = 0; // 기본값을 0으로 설정
+
+        @OneToMany(
+                mappedBy = "communityPost",
+                fetch = FetchType.LAZY,
+                cascade = CascadeType.ALL,
+                orphanRemoval = true
+        )
+        private List<Comment> comments = new ArrayList<>();
 
         @Formula("(SELECT COUNT(1) FROM comment c WHERE c.post_id = id)")
         private int commentCount;

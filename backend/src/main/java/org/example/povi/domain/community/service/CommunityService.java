@@ -11,11 +11,13 @@ import org.example.povi.domain.community.dto.request.PostUpdateRequest;
 import org.example.povi.domain.community.entity.Comment;
 import org.example.povi.domain.community.entity.CommunityImage;
 import org.example.povi.domain.community.entity.CommunityPost;
+import org.example.povi.domain.community.entity.PostLike;
 import org.example.povi.domain.community.repository.CommentRepository;
 import org.example.povi.domain.community.entity.CommunityBookmark;
 import org.example.povi.domain.community.repository.CommunityBookmarkRepository;
 import org.example.povi.domain.community.repository.CommunityImageRepository;
 import org.example.povi.domain.community.repository.CommunityRepository;
+import org.example.povi.domain.community.repository.PostLikeRepository;
 import org.example.povi.domain.user.entity.User;
 import org.example.povi.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -34,6 +36,7 @@ public class CommunityService {
     private final FileUploadService fileUploadService;
     private final CommentRepository commentRepository;
     private final CommunityBookmarkRepository bookmarkRepository;
+    private final PostLikeRepository likeRepository;
 
     @Transactional
     public PostCreateResponse createPost(Long userId, PostCreateRequest request) {
@@ -137,10 +140,6 @@ public class CommunityService {
         CommunityPost post = communityRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
-        // TODO: 만약 상세 조회가 조회수 증가를 포함해야 한다면,
-        // post.increaseViewCount(); 같은 메서드를 호출하고
-        // @Transactional(readOnly = true)에서 readOnly = true를 제거해야 합니다.
-
         return PostDetailResponse.from(post);
     }
 
@@ -194,20 +193,45 @@ public class CommunityService {
     }
 
     @Transactional
-    public LikeResponse addLikeToPost(Long postId) {
+    public LikeResponse addLikeToPost(Long userId, Long postId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다. ID: " + userId));
         CommunityPost post = communityRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. ID: " + postId));
         post.addLike();
+
+        if (likeRepository.findByUserIdAndPostId(userId, postId).isPresent()) {
+            throw new IllegalStateException("이미 좋아요를 누른 게시글입니다.");
+        }
+        PostLike newLike = new PostLike(user, post);
+        likeRepository.save(newLike);
+
+        post.addLike();
+
         return new LikeResponse(postId, post.getLikeCount());
     }
 
     @Transactional
-    public LikeResponse removeLikeFromPost(Long postId) {
+    public LikeResponse removeLikeFromPost(Long userId, Long postId) {
         CommunityPost post = communityRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. ID: " + postId));
+        PostLike like = likeRepository.findByUserIdAndPostId(userId, postId)
+                .orElseThrow(() -> new IllegalStateException("좋아요 내역을 찾을 수 없습니다."));
+
+        likeRepository.delete(like);
+
         post.removeLike();
+
         return new LikeResponse(postId, post.getLikeCount());
     }
+
+    @Transactional(readOnly = true)
+    public Page<PostListResponse> getMyLikedPosts(Long userId, Pageable pageable) {
+        Page<CommunityPost> likedPostPage = likeRepository.findLikedPostsByUserId(userId, pageable);
+        return likedPostPage.map(PostListResponse::from);
+    }
+
+
 
     @Transactional
     public PostBookmarkResponse addBookmark(Long userId, Long postId) {
@@ -243,6 +267,11 @@ public class CommunityService {
         bookmarkRepository.delete(bookmark);
 
         return new PostBookmarkResponse(postId, "북마크를 취소했습니다.");
+    }
+    @Transactional(readOnly = true)
+    public Page<PostListResponse> getMyBookmarkedPosts(Long userId, Pageable pageable) {
+        Page<CommunityPost> bookmarkedPostPage = bookmarkRepository.findBookmarkedPostsByUserId(userId, pageable);
+        return bookmarkedPostPage.map(PostListResponse::from);
     }
 
     @Transactional(readOnly = true)
