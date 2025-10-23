@@ -127,14 +127,20 @@ public class CommunityController {
     }
 
     @PostMapping("/{postId}/like")
-    public ResponseEntity<LikeResponse> addLikeToPost(@PathVariable Long postId) {
-        LikeResponse response = communityService.addLikeToPost(postId);
+    public ResponseEntity<LikeResponse> addLikeToPost(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable Long postId) {
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        LikeResponse response = communityService.addLikeToPost(userId, postId);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{postId}/like")
-    public ResponseEntity<LikeResponse> removeLikeFromPost(@PathVariable Long postId) {
-        LikeResponse response = communityService.removeLikeFromPost(postId);
+    public ResponseEntity<LikeResponse> removeLikeFromPost(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable Long postId) {
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        LikeResponse response = communityService.removeLikeFromPost(userId, postId);
         return ResponseEntity.ok(response);
     }
 

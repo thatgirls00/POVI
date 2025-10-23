@@ -1,11 +1,14 @@
 package org.example.povi.domain.user.entity;
 
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import org.example.povi.domain.community.entity.PostLike;
 import org.example.povi.domain.transcription.entity.Transcription;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +53,9 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Transcription> transcriptions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private Set<PostLike> likes = new HashSet<>();
 
     public void verifyEmail() {
         this.isEmailVerified = true;
