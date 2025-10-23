@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.example.povi.domain.community.entity.CommunityEmoticon;
 import org.example.povi.domain.community.entity.CommunityImage;
 import org.example.povi.domain.community.entity.CommunityPost;
 
@@ -17,6 +18,9 @@ public record PostDetailResponse(
 
         @Schema(description = "게시글 본문", example = "집에만 있기 아까운 날씨입니다. 다들 즐거운 하루 보내세요.")
         String content,
+
+        @Schema(description = "감정 이모티콘", example = "HAPPY")
+        CommunityEmoticon emoticon,
 
         @Schema(description = "작성자 닉네임", example = "행복한개발자")
         String authorNickname,
@@ -40,6 +44,7 @@ public record PostDetailResponse(
                 post.getId(),
                 post.getTitle(),
                 post.getContent(),
+                post.getEmoticon(),
                 post.getUser().getNickname(),
                 post.getCreatedAt(),
                 urls
