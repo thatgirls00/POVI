@@ -44,7 +44,6 @@ public record PostListResponse(
                 post.getTitle(),
                 summaryContent,
                 post.getUser().getNickname(),
-                post.getContent(),
                 post.getCreatedAt(),
                 post.getEmoticon(),
                 post.getLikeCount(),

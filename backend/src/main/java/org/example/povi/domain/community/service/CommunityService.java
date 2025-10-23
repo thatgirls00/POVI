@@ -226,9 +226,9 @@ public class CommunityService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostListResponse> getMyLikedPosts(Long userId, Pageable pageable) {
+    public Page<LikeListResponse> getMyLikedPosts(Long userId, Pageable pageable) {
         Page<CommunityPost> likedPostPage = likeRepository.findLikedPostsByUserId(userId, pageable);
-        return likedPostPage.map(PostListResponse::from);
+        return likedPostPage.map(LikeListResponse::from);
     }
 
 
@@ -269,22 +269,14 @@ public class CommunityService {
         return new PostBookmarkResponse(postId, "북마크를 취소했습니다.");
     }
     @Transactional(readOnly = true)
-    public Page<PostListResponse> getMyBookmarkedPosts(Long userId, Pageable pageable) {
-        Page<CommunityPost> bookmarkedPostPage = bookmarkRepository.findBookmarkedPostsByUserId(userId, pageable);
-        return bookmarkedPostPage.map(PostListResponse::from);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<BookmarkListResponse> getMyBookmarks(Long userId, Pageable pageable) {
-        Page<CommunityPost> bookmarkedPosts = communityRepository.findAllByUserId(userId, pageable);
-        Page<BookmarkListResponse> dtoPage = bookmarkedPosts.map(BookmarkListResponse::from);
-        return dtoPage;
+    public Page<BookmarkListResponse> getMyBookmarkedPosts(Long userId, Pageable pageable) {
+        Page<CommunityPost> bookmarkedPosts = bookmarkRepository.findBookmarkedPostsByUserId(userId, pageable);
+        return bookmarkedPosts.map(BookmarkListResponse::from);
     }
 
     @Transactional(readOnly = true)
     public Page<CommentListResponse> getMyComments(Long userId, Pageable pageable) {
         Page<Comment> comments = commentRepository.findAllByUserId(userId, pageable);
-        Page<CommentListResponse> dtoPage = comments.map(CommentListResponse::from);
-        return dtoPage;
+        return comments.map(CommentListResponse::from);
     }
 }

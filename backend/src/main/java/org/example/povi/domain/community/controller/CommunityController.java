@@ -116,14 +116,16 @@ public class CommunityController {
         return ResponseEntity.ok().build();
     }
 
+    // 내 댓글내역
     @GetMapping("/comments/me")
     public ResponseEntity<Page<CommentListResponse>> getMyComments(
             @RequestHeader("Authorization") String bearerToken,
-            @PageableDefault(size = 3, sort = "createdAt,desc") Pageable pageable
+            @PageableDefault(size = 2, sort = "createdAt,desc") Pageable pageable
     ) {
+
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
-        communityService.getMyComments(userId, pageable);
-        return ResponseEntity.ok().build();
+        Page<CommentListResponse> response = communityService.getMyComments(userId, pageable);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/comments/{commentId}/like")
@@ -157,15 +159,14 @@ public class CommunityController {
         return ResponseEntity.ok(response);
     }
 
+    // 내가 좋아요 누른 게시글
     @GetMapping("/likes/me")
-    public ResponseEntity<Page<PostListResponse>> getMyLikedPosts(
+    public ResponseEntity<Page<LikeListResponse>> getMyLikedPosts(
             @RequestHeader("Authorization") String bearerToken,
-            Pageable pageable) {
+            @PageableDefault(size = 2, sort = "createdAt,desc") Pageable pageable) {
 
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
-
-        Page<PostListResponse> response = communityService.getMyLikedPosts(userId, pageable);
-
+        Page<LikeListResponse> response = communityService.getMyLikedPosts(userId, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -190,25 +191,14 @@ public class CommunityController {
     }
 
     // 내가 북마크한 글 목록
-    @GetMapping("/me/bookmarks")
+    @GetMapping("/bookmarks/me")
     public ResponseEntity<Page<BookmarkListResponse>> getMyBookmarks(
             @RequestHeader("Authorization") String bearerToken,
             @PageableDefault(size = 4, sort = "createdAt,desc") Pageable pageable
     ) {
-        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
-        Page<BookmarkListResponse> response = communityService.getMyBookmarks(userId, pageable);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/bookmarks/me")
-    public ResponseEntity<Page<PostListResponse>> getMyBookmarkedPosts(
-            @RequestHeader("Authorization") String bearerToken,
-            Pageable pageable) {
 
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
-        Page<PostListResponse> response = communityService.getMyBookmarkedPosts(userId, pageable);
-
+        Page<BookmarkListResponse> response = communityService.getMyBookmarkedPosts(userId, pageable);
         return ResponseEntity.ok(response);
     }
-
 }

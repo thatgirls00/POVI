@@ -1,7 +1,7 @@
 package org.example.povi.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.povi.domain.diary.entry.service.DiaryService;
+import org.example.povi.domain.diary.post.service.DiaryPostService;
 import org.example.povi.domain.transcription.dto.TranscriptionListRes;
 import org.example.povi.domain.transcription.service.TranscriptionService;
 import org.example.povi.domain.user.dto.MyPageRes;
@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final DiaryService diaryService;
+    private final DiaryPostService diaryPostService;
     private final TranscriptionService transcriptionService;
     private final FileStorageService fileStorageService;
     private final UserMapper userMapper;
@@ -33,7 +33,7 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("사용자를 찾을 수 없습니다."));
         ProfileRes profileRes = userMapper.toProfileRes(user);
 
-        long diaryCount = diaryService.getDiaryCountForUser(userId);
+        long diaryCount = diaryPostService.getDiaryPostCountForUser(userId);
         Pageable previewPageable = PageRequest.of(0, 4);
         TranscriptionListRes transcriptionList = transcriptionService.getMyTranscriptions(userId, previewPageable);
 

@@ -77,5 +77,6 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
             """)
     List<Object[]> countCommentsInPostIds(@Param("postIds") List<Long> postIds);
 
+    long countByUserId(Long userId);
 }
 

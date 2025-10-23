@@ -1,11 +1,11 @@
 package org.example.povi.domain.community.dto.response;
 
-import java.time.LocalDateTime;
-import org.example.povi.domain.community.entity.CommunityBookmark;
 import org.example.povi.domain.community.entity.CommunityEmoticon;
 import org.example.povi.domain.community.entity.CommunityPost;
 
-public record BookmarkListResponse(
+import java.time.LocalDateTime;
+
+public record LikeListResponse (
         Long postId,
         String postTitle,
         String content,
@@ -13,7 +13,7 @@ public record BookmarkListResponse(
         CommunityEmoticon emoticon,
         LocalDateTime postCreatedAt
 ) {
-    public static BookmarkListResponse from(CommunityPost post) {
+    public static LikeListResponse from(CommunityPost post) {
         String summaryTitle = post.getTitle();
         String summaryContent = post.getContent();
 
@@ -23,7 +23,7 @@ public record BookmarkListResponse(
         if (summaryContent != null && summaryContent.length() > 20) {
             summaryContent = summaryContent.substring(0, 20) + "...";
         }
-        return new BookmarkListResponse(
+        return new LikeListResponse(
                 post.getId(),
                 summaryTitle,
                 summaryContent,
