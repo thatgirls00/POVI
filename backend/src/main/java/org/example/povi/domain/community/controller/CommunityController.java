@@ -127,14 +127,32 @@ public class CommunityController {
     }
 
     @PostMapping("/{postId}/like")
-    public ResponseEntity<LikeResponse> addLikeToPost(@PathVariable Long postId) {
-        LikeResponse response = communityService.addLikeToPost(postId);
+    public ResponseEntity<LikeResponse> addLikeToPost(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable Long postId) {
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        LikeResponse response = communityService.addLikeToPost(userId, postId);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{postId}/like")
-    public ResponseEntity<LikeResponse> removeLikeFromPost(@PathVariable Long postId) {
-        LikeResponse response = communityService.removeLikeFromPost(postId);
+    public ResponseEntity<LikeResponse> removeLikeFromPost(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable Long postId) {
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        LikeResponse response = communityService.removeLikeFromPost(userId, postId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/likes/me")
+    public ResponseEntity<Page<PostListResponse>> getMyLikedPosts(
+            @RequestHeader("Authorization") String bearerToken,
+            Pageable pageable) {
+
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+
+        Page<PostListResponse> response = communityService.getMyLikedPosts(userId, pageable);
+
         return ResponseEntity.ok(response);
     }
 
@@ -155,6 +173,17 @@ public class CommunityController {
 
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
         PostBookmarkResponse response = communityService.removeBookmark(userId, postId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/bookmarks/me")
+    public ResponseEntity<Page<PostListResponse>> getMyBookmarkedPosts(
+            @RequestHeader("Authorization") String bearerToken,
+            Pageable pageable) {
+
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        Page<PostListResponse> response = communityService.getMyBookmarkedPosts(userId, pageable);
+
         return ResponseEntity.ok(response);
     }
 
