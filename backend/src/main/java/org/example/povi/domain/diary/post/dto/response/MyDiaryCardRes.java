@@ -12,5 +12,7 @@ public record MyDiaryCardRes(
         MoodEmoji moodEmoji,
         String thumbnailUrl,
         Visibility visibility,
-        LocalDate createdDate
+        LocalDate createdDate,
+        long commentCount
+
 ) { }

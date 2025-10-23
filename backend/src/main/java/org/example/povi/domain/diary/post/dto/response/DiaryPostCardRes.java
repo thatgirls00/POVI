@@ -12,9 +12,10 @@ public record DiaryPostCardRes(
         String title,
         String preview,
         String thumbnailUrl,
-
         MoodEmoji moodEmoji,
         Visibility visibility,
-        LocalDate createdDate
+        LocalDate createdDate,
+        long commentCount
+
 ) {
 }

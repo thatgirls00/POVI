@@ -11,9 +11,9 @@ import java.util.List;
 
 
 public record DiaryPostCreateReq(
-        @NotBlank @Size(min = 2, max = 50)
+        @NotBlank @Size(min = 1, max = 50)
         String title,
-        @NotBlank @Size(min = 10, max = 3000)
+        @NotBlank @Size(min = 1, max = 3000)
         String content,
         @NotNull
         MoodEmoji moodEmoji,

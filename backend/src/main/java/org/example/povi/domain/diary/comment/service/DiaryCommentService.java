@@ -104,7 +104,7 @@ public class DiaryCommentService {
 
         Page<DiaryComment> commentPage = diaryCommentRepository.findByPostId(postId, pageable);
 
-        return DiaryCommentMapper.toPagedResponse(commentPage);
+        return DiaryCommentMapper.toPagedResponse(commentPage, currentUserId);
     }
 
     /**

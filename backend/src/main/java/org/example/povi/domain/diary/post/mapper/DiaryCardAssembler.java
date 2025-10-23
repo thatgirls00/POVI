@@ -11,7 +11,7 @@ public final class DiaryCardAssembler {
     private DiaryCardAssembler() {}
 
     /** 나의 다이어리 카드 변환 */
-    public static MyDiaryCardRes toMyCard(DiaryPost diaryPost) {
+    public static MyDiaryCardRes toMyCard(DiaryPost diaryPost, long commentCount) {
         String preview   = DiaryPreviewMapper.buildPreviewText(diaryPost.getContent(), PREVIEW_MAX);
         String thumbnail = DiaryPreviewMapper.firstImageUrl(diaryPost);
 
@@ -22,12 +22,13 @@ public final class DiaryCardAssembler {
                 diaryPost.getMoodEmoji(),
                 thumbnail,
                 diaryPost.getVisibility(),
-                diaryPost.getCreatedAt().toLocalDate()
+                diaryPost.getCreatedAt().toLocalDate(),
+                commentCount
         );
     }
 
     /** 공용 카드 변환 (친구 피드 / 모두의 다이어리) */
-    public static DiaryPostCardRes toDiaryCard(DiaryPost diaryPost) {
+    public static DiaryPostCardRes toDiaryCard(DiaryPost diaryPost, long commentCount) {
         String preview   = DiaryPreviewMapper.buildPreviewText(diaryPost.getContent(), PREVIEW_MAX);
         String thumbnail = DiaryPreviewMapper.firstImageUrl(diaryPost);
 
@@ -40,7 +41,8 @@ public final class DiaryCardAssembler {
                 thumbnail,
                 diaryPost.getMoodEmoji(),
                 diaryPost.getVisibility(),
-                diaryPost.getCreatedAt().toLocalDate()
+                diaryPost.getCreatedAt().toLocalDate(),
+                commentCount
         );
     }
 }

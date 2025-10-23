@@ -67,5 +67,15 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
             @Param("startAt") java.time.LocalDateTime startAt,
             @Param("endAt") java.time.LocalDateTime endAt
     );
+
+    //댓글 집계
+    @Query("""
+              select c.post.id as postId, count(c) as cnt
+              from DiaryComment c
+              where c.post.id in :postIds
+              group by c.post.id
+            """)
+    List<Object[]> countCommentsInPostIds(@Param("postIds") List<Long> postIds);
+
 }
 

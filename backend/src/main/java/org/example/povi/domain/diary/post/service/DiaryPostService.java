@@ -8,6 +8,7 @@ import org.example.povi.domain.diary.post.dto.request.DiaryPostUpdateReq;
 import org.example.povi.domain.diary.post.dto.response.*;
 import org.example.povi.domain.diary.post.entity.DiaryPost;
 import org.example.povi.domain.diary.post.mapper.DiaryCardAssembler;
+import org.example.povi.domain.diary.post.mapper.DiaryQueryMapper;
 import org.example.povi.domain.diary.post.mapper.DiaryRequestMapper;
 import org.example.povi.domain.diary.post.repository.DiaryPostRepository;
 import org.example.povi.domain.user.entity.User;
@@ -31,7 +32,9 @@ public class DiaryPostService {
     private final UserRepository userRepository;
     private final FollowService followService;
 
-    /** 다이어리 생성 */
+    /**
+     * 다이어리 생성
+     */
     @Transactional
     public DiaryPostCreateRes createDiaryPost(DiaryPostCreateReq createReq, Long currentUserId) {
         User author = userRepository.findById(currentUserId)
@@ -48,7 +51,9 @@ public class DiaryPostService {
         return DiaryPostCreateRes.from(saved);
     }
 
-    /** 다이어리 부분 수정 (제목/내용/이모지/공개범위/이미지 선택적 업데이트) */
+    /**
+     * 다이어리 부분 수정 (제목/내용/이모지/공개범위/이미지 선택적 업데이트)
+     */
     @Transactional
     public DiaryPostUpdateRes updateDiaryPost(Long diaryPostId, DiaryPostUpdateReq updateReq, Long currentUserId) {
         DiaryPost diaryPost = getOwnedDiaryPostOrThrow(diaryPostId, currentUserId);
@@ -84,29 +89,56 @@ public class DiaryPostService {
         return DiaryPostUpdateRes.from(diaryPost);
     }
 
-    /** 다이어리 삭제 (소유자만) */
+    /**
+     * 다이어리 삭제 (소유자만)
+     */
     @Transactional
     public void deleteDiaryPost(Long diaryPostId, Long currentUserId) {
         DiaryPost diaryPost = getOwnedDiaryPostOrThrow(diaryPostId, currentUserId);
         diaryPostRepository.delete(diaryPost);
     }
 
-    /** 단일 상세 조회 (소유자 전용) */
-    //현재 정책: 소유자만 상세 조회 허용 (친구/공개 상세는 처리 예정)
+    /**
+     * 단일 상세 조회 (소유자 전용)
+     */
     @Transactional(readOnly = true)
-    public DiaryDetailRes getMyDiaryPostDetail(Long diaryPostId, Long currentUserId) {
-        DiaryPost diaryPost = getOwnedDiaryPostOrThrow(diaryPostId, currentUserId);
-        return DiaryDetailRes.from(diaryPost);
+    public DiaryDetailRes getDiaryPostDetail(Long diaryPostId, Long currentUserId) {
+        DiaryPost post = diaryPostRepository.findById(diaryPostId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 다이어리입니다."));
+
+        Long authorId = post.getUser().getId();
+        Visibility visibility = post.getVisibility();
+
+        if (authorId.equals(currentUserId)) return DiaryDetailRes.from(post);
+        if (visibility == Visibility.PUBLIC) return DiaryDetailRes.from(post);
+        if (visibility == Visibility.FRIEND && followService.isMutualFollow(currentUserId, authorId))
+            return DiaryDetailRes.from(post);
+
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "열람 권한이 없습니다.");
     }
 
-    /** 내 다이어리 목록 + 이번 주 통계(월~일) */
+    /**
+     * 내 다이어리 목록 + 이번 주 통계(월~일)
+     */
     @Transactional(readOnly = true)
     public MyDiaryListRes getMyDiaryPostsWithWeeklyStats(Long currentUserId) {
-        // 최신순 목록
+        // 내 글 최신순
         List<DiaryPost> myPostsNewestFirst = diaryPostRepository.findByUserIdOrderByCreatedAtDesc(currentUserId);
 
+        // 댓글 수 배치 집계
+        List<Long> postIds = myPostsNewestFirst.stream().map(DiaryPost::getId).toList();
+        Map<Long, Long> commentCnt = postIds.isEmpty()
+                ? Map.of()
+                : DiaryQueryMapper.toCountMap(
+                diaryPostRepository.countCommentsInPostIds(postIds)
+        );
+
+        // 카드 변환 (댓글 수 주입)
         List<MyDiaryCardRes> myDiaryCards = myPostsNewestFirst.stream()
-                .map(DiaryCardAssembler::toMyCard)
+                .map(p -> DiaryCardAssembler.toMyCard(
+                        p,
+                        commentCnt.getOrDefault(p.getId(), 0L)
+                ))
                 .toList();
 
         // 총 개수
@@ -141,7 +173,9 @@ public class DiaryPostService {
         );
     }
 
-    /** 친구 피드: 맞팔=FRIEND+PUBLIC, 단방향=PUBLIC (최신순) */
+    /**
+     * 친구 피드: 맞팔=FRIEND+PUBLIC, 단방향=PUBLIC (최신순)
+     */
     @Transactional(readOnly = true)
     public List<DiaryPostCardRes> listFriendDiaries(Long currentUserId) {
 
@@ -171,14 +205,26 @@ public class DiaryPostService {
             );
         }
 
-        // 최신순 정렬 → 카드 변환
+        friendPosts.sort(Comparator.comparing(DiaryPost::getCreatedAt).reversed());
+        if (friendPosts.isEmpty()) return List.of();
+
+        // 댓글 수 배치 집계
+        List<Long> postIds = friendPosts.stream().map(DiaryPost::getId).toList();
+        Map<Long, Long> commentCnt = DiaryQueryMapper.toCountMap(
+                diaryPostRepository.countCommentsInPostIds(postIds)
+        );
+
         return friendPosts.stream()
-                .sorted(Comparator.comparing(DiaryPost::getCreatedAt).reversed())
-                .map(DiaryCardAssembler::toDiaryCard)
+                .map(p -> DiaryCardAssembler.toDiaryCard(
+                        p,
+                        commentCnt.getOrDefault(p.getId(), 0L)
+                ))
                 .toList();
     }
 
-    /** 모두의 다이어리(Explore): 맞팔=FRIEND+PUBLIC, 그 외=PUBLIC (최근 7일, 최신순) */
+    /**
+     * 모두의 다이어리(Explore): 맞팔=FRIEND+PUBLIC, 그 외=PUBLIC (최근 7일, 최신순)
+     */
     @Transactional(readOnly = true)
     public List<DiaryPostCardRes> listExploreFeed(Long currentUserId) {
 
@@ -207,8 +253,19 @@ public class DiaryPostService {
                 endAt
         );
 
+        if (posts.isEmpty()) return List.of();
+
+        // 댓글 수 배치 집계
+        List<Long> postIds = posts.stream().map(DiaryPost::getId).toList();
+        Map<Long, Long> commentCnt = DiaryQueryMapper.toCountMap(
+                diaryPostRepository.countCommentsInPostIds(postIds)
+        );
+
         return posts.stream()
-                .map(DiaryCardAssembler::toDiaryCard)
+                .map(p -> DiaryCardAssembler.toDiaryCard(
+                        p,
+                        commentCnt.getOrDefault(p.getId(), 0L)
+                ))
                 .toList();
     }
 
@@ -216,7 +273,9 @@ public class DiaryPostService {
     // Private Helpers
     // =========================================================
 
-    /** 이미지 URL 정리: trim → 빈값 제거 → 중복 제거 */
+    /**
+     * 이미지 URL 정리: trim → 빈값 제거 → 중복 제거
+     */
     private List<String> sanitizeImageUrls(List<String> urls) {
         if (urls == null) return null;
         return urls.stream()
@@ -226,7 +285,9 @@ public class DiaryPostService {
                 .toList();
     }
 
-    /** 소유자 검증 포함한 단건 조회 */
+    /**
+     * 소유자 검증 포함한 단건 조회
+     */
     private DiaryPost getOwnedDiaryPostOrThrow(Long diaryPostId, Long currentUserId) {
         DiaryPost diaryPost = diaryPostRepository.findById(diaryPostId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 다이어리입니다."));
