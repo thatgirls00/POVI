@@ -3,19 +3,12 @@ package org.example.povi.domain.community.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.example.povi.auth.token.jwt.CustomJwtUser;
 import org.example.povi.auth.token.jwt.JwtTokenProvider;
 import org.example.povi.domain.community.dto.request.CommentCreateRequest;
 import org.example.povi.domain.community.dto.request.PostCreateRequest;
-import org.example.povi.domain.community.dto.response.CommentCreateResponse;
-import org.example.povi.domain.community.dto.response.CommentDeleteResponse;
-import org.example.povi.domain.community.dto.response.LikeResponse;
-import org.example.povi.domain.community.dto.response.PostBookmarkResponse;
-import org.example.povi.domain.community.dto.response.PostCreateResponse;
-import org.example.povi.domain.community.dto.response.PostDeleteResponse;
+import org.example.povi.domain.community.dto.response.*;
 import org.example.povi.domain.community.dto.request.PostUpdateRequest;
-import org.example.povi.domain.community.dto.response.PostDetailResponse;
-import org.example.povi.domain.community.dto.response.PostListResponse;
-import org.example.povi.domain.community.dto.response.PostUpdateResponse;
 import org.example.povi.domain.community.service.CommunityService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -85,6 +78,16 @@ public class CommunityController {
     public ResponseEntity<Page<PostListResponse>> getPostList(
             @PageableDefault(size = 10, sort = "createdAt,desc") Pageable pageable) {
         Page<PostListResponse> postList = communityService.getPostList(pageable);
+        return ResponseEntity.ok(postList);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<Page<PostListResponse>> getMyPostList(
+            @RequestHeader("Authorization") String bearerToken,
+            @PageableDefault(size = 4, sort = "createdAt,desc") Pageable pageable) {
+
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        Page<PostListResponse> postList = communityService.getMyPostList(userId, pageable);
         return ResponseEntity.ok(postList);
     }
 
@@ -158,4 +161,14 @@ public class CommunityController {
         return ResponseEntity.ok(response);
     }
 
+    // 내가 북마크한 글 목록
+    @GetMapping("/me/bookmarks")
+    public ResponseEntity<Page<BookmarkListResponse>> getMyBookmarks(
+            @RequestHeader("Authorization") String bearerToken,
+            @PageableDefault(size = 4, sort = "createdAt,desc") Pageable pageable
+    ) {
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        Page<BookmarkListResponse> response = communityService.getMyBookmarks(userId, pageable);
+        return ResponseEntity.ok(response);
+    }
 }
