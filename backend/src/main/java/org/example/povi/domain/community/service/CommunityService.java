@@ -203,11 +203,8 @@ public class CommunityService {
         post.addLike();
 
         if (likeRepository.findByUserIdAndPostId(userId, postId).isPresent()) {
-            // 이미 좋아요를 눌렀다면 아무것도 하지 않거나 예외 처리
             throw new IllegalStateException("이미 좋아요를 누른 게시글입니다.");
-            // return new LikeResponse(postId, post.getLikeCount()); // 혹은 현재 카운트만 반환
         }
-
         PostLike newLike = new PostLike(user, post);
         likeRepository.save(newLike);
 
@@ -220,16 +217,23 @@ public class CommunityService {
     public LikeResponse removeLikeFromPost(Long userId, Long postId) {
         CommunityPost post = communityRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다. ID: " + postId));
-        post.removeLike();
-
         PostLike like = likeRepository.findByUserIdAndPostId(userId, postId)
                 .orElseThrow(() -> new IllegalStateException("좋아요 내역을 찾을 수 없습니다."));
 
         likeRepository.delete(like);
+
         post.removeLike();
 
         return new LikeResponse(postId, post.getLikeCount());
     }
+
+    @Transactional(readOnly = true)
+    public Page<PostListResponse> getMyLikedPosts(Long userId, Pageable pageable) {
+        Page<CommunityPost> likedPostPage = likeRepository.findLikedPostsByUserId(userId, pageable);
+        return likedPostPage.map(PostListResponse::from);
+    }
+
+
 
     @Transactional
     public PostBookmarkResponse addBookmark(Long userId, Long postId) {
@@ -265,6 +269,11 @@ public class CommunityService {
         bookmarkRepository.delete(bookmark);
 
         return new PostBookmarkResponse(postId, "북마크를 취소했습니다.");
+    }
+    @Transactional(readOnly = true)
+    public Page<PostListResponse> getMyBookmarkedPosts(Long userId, Pageable pageable) {
+        Page<CommunityPost> bookmarkedPostPage = bookmarkRepository.findBookmarkedPostsByUserId(userId, pageable);
+        return bookmarkedPostPage.map(PostListResponse::from);
     }
 
 

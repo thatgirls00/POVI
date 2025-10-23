@@ -144,6 +144,18 @@ public class CommunityController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/likes/me")
+    public ResponseEntity<Page<PostListResponse>> getMyLikedPosts(
+            @RequestHeader("Authorization") String bearerToken,
+            Pageable pageable) {
+
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+
+        Page<PostListResponse> response = communityService.getMyLikedPosts(userId, pageable);
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{postId}/bookmark")
     public ResponseEntity<PostBookmarkResponse> addBookmark(
             @RequestHeader("Authorization") String bearerToken,
@@ -161,6 +173,17 @@ public class CommunityController {
 
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
         PostBookmarkResponse response = communityService.removeBookmark(userId, postId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/bookmarks/me")
+    public ResponseEntity<Page<PostListResponse>> getMyBookmarkedPosts(
+            @RequestHeader("Authorization") String bearerToken,
+            Pageable pageable) {
+
+        Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
+        Page<PostListResponse> response = communityService.getMyBookmarkedPosts(userId, pageable);
+
         return ResponseEntity.ok(response);
     }
 
