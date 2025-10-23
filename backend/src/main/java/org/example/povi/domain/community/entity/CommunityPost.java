@@ -9,18 +9,23 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.povi.domain.user.entity.User;
 import org.example.povi.global.entity.BaseEntity;
+import org.hibernate.annotations.Formula;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -50,8 +55,20 @@ public class CommunityPost extends BaseEntity {
         @Column(name = "emoticon", nullable = false)
         private CommunityEmoticon emoticon;
 
+        @ManyToMany
+        @JoinTable(
+                name = "post_user_likes",
+                joinColumns = @JoinColumn(name = "post_id"),
+                inverseJoinColumns = @JoinColumn(name = "user_id")
+        )
+        private Set<User> likedByUsers = new HashSet<>();
+
+        @Formula("(SELECT COUNT(1) FROM post_user_likes pul WHERE pul.post_id = id)")
         @Column(name = "like_count", nullable = false)
         private int likeCount = 0; // 기본값을 0으로 설정
+
+        @Formula("(SELECT COUNT(1) FROM comment c WHERE c.post_id = id)")
+        private int commentCount;
 
         @CreatedDate
         @Column(name = "created_at", updatable = false)
