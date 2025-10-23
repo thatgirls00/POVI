@@ -139,10 +139,6 @@ public class CommunityService {
         CommunityPost post = communityRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
-        // TODO: 만약 상세 조회가 조회수 증가를 포함해야 한다면,
-        // post.increaseViewCount(); 같은 메서드를 호출하고
-        // @Transactional(readOnly = true)에서 readOnly = true를 제거해야 합니다.
-
         return PostDetailResponse.from(post);
     }
 
