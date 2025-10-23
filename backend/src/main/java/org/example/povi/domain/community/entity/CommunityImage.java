@@ -1,5 +1,6 @@
 package org.example.povi.domain.community.entity;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,6 +17,10 @@ import org.example.povi.global.entity.BaseEntity;
 @Table(name = "community_images")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AttributeOverride(
+        name = "id",
+        column = @Column(name = "image_id")
+)
 public class CommunityImage extends BaseEntity {
 
     @Column(name = "image_url", nullable = false)
