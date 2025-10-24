@@ -117,7 +117,7 @@ public class CommunityController {
     }
 
     // 내 댓글내역
-    @GetMapping("/comments/me")
+    @GetMapping("/me/comments")
     public ResponseEntity<Page<CommentListResponse>> getMyComments(
             @RequestHeader("Authorization") String bearerToken,
             @PageableDefault(size = 2, sort = "createdAt,desc") Pageable pageable
@@ -160,7 +160,7 @@ public class CommunityController {
     }
 
     // 내가 좋아요 누른 게시글
-    @GetMapping("/likes/me")
+    @GetMapping("/me/likes")
     public ResponseEntity<Page<LikeListResponse>> getMyLikedPosts(
             @RequestHeader("Authorization") String bearerToken,
             @PageableDefault(size = 2, sort = "createdAt,desc") Pageable pageable) {
@@ -191,7 +191,7 @@ public class CommunityController {
     }
 
     // 내가 북마크한 글 목록
-    @GetMapping("/bookmarks/me")
+    @GetMapping("/me/bookmarks")
     public ResponseEntity<Page<BookmarkListResponse>> getMyBookmarks(
             @RequestHeader("Authorization") String bearerToken,
             @PageableDefault(size = 4, sort = "createdAt,desc") Pageable pageable
