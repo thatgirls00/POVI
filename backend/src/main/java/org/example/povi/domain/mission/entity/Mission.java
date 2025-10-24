@@ -27,16 +27,9 @@ public class Mission extends BaseEntity {
     @Column(name = "weather_type")   // 필요하면 nullable 설정
     private WeatherType weatherType;
 
-    // 생성자(필요한 값만 받기)
-    public Mission(String title, String description, EmotionType emotionType, WeatherType weatherType) {
-        this.title = title;
-        this.description = description;
-        this.emotionType = emotionType;
-        this.weatherType = weatherType;
-    }
 
     public enum EmotionType {
-        HAPPY, SAD, CALM, GRATEFUL, EXCITED, ANXIOUS, LONELY, STRESSED
+        HAPPY, JOYFUL, CALM, NEUTRAL, DEPRESSED, SAD, TIRED, ANGRY
     }
 
     public enum WeatherType {
