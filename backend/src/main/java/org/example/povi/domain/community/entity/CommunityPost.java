@@ -69,7 +69,7 @@ public class CommunityPost extends BaseEntity {
         )
         private List<Comment> comments = new ArrayList<>();
 
-        @Formula("(SELECT COUNT(1) FROM comment c WHERE c.post_id = id)")
+        @Formula("(SELECT COUNT(1) FROM comments c WHERE c.post_id = post_id)")
         private int commentCount;
 
         @CreatedDate

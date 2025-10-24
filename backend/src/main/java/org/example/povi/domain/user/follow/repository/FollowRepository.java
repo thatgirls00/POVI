@@ -1,5 +1,6 @@
 package org.example.povi.domain.user.follow.repository;
 
+import org.example.povi.domain.user.entity.User;
 import org.example.povi.domain.user.follow.entity.Follow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Set;
 @Repository
 public interface FollowRepository extends JpaRepository<Follow, Long> {
+    void deleteAllByFollowerOrFollowing(User follower, User following);
 
     // 내가 팔로우 중인 사용자들
     @Query("""

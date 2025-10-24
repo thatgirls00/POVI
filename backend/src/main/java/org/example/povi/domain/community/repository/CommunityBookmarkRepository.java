@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface CommunityBookmarkRepository extends JpaRepository<CommunityBookmark, Long> {
+    void deleteAllByUser(User user);
 
     Optional<CommunityBookmark> findByUserAndCommunityPost(User user, CommunityPost communityPost);
 

@@ -1,12 +1,19 @@
 package org.example.povi.auth.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.povi.auth.dto.*;
 import org.example.povi.auth.enums.AuthProvider;
 import org.example.povi.auth.mapper.UserMapper;
 import org.example.povi.auth.token.jwt.JwtTokenProvider;
 import org.example.povi.auth.token.jwt.RefreshTokenService;
+import org.example.povi.domain.community.repository.*;
+import org.example.povi.domain.diary.comment.repository.DiaryCommentRepository;
+import org.example.povi.domain.diary.post.repository.DiaryPostRepository;
+import org.example.povi.domain.mission.repository.UserMissionRepository;
+import org.example.povi.domain.transcription.repository.TranscriptionRepository;
 import org.example.povi.domain.user.entity.User;
+import org.example.povi.domain.user.follow.repository.FollowRepository;
 import org.example.povi.domain.user.repository.UserRepository;
 import org.example.povi.global.exception.error.ErrorCode;
 import org.example.povi.global.exception.ex.*;
@@ -21,6 +28,17 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
+
+    private final PostLikeRepository postLikeRepository;
+    private final CommunityBookmarkRepository bookmarkRepository;
+    private final CommentRepository commentRepository;
+    private final DiaryCommentRepository diaryCommentRepository;
+    private final TranscriptionRepository transcriptionRepository;
+    private final UserMissionRepository userMissionRepository;
+    private final FollowRepository followRepository;
+
+    private final DiaryPostRepository diaryPostRepository;
+    private final CommunityRepository communityRepository;
 
     /**
      * 회원가입 처리
@@ -77,5 +95,30 @@ public class AuthService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         refreshTokenService.delete(user.getEmail());
+    }
+
+    /**
+     * 회원 탈퇴 처리
+     */
+    @Transactional
+    public void withdraw(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 하위 엔티티 수동 삭제
+        postLikeRepository.deleteAllByUser(user);
+        bookmarkRepository.deleteAllByUser(user);
+        commentRepository.deleteAllByUser(user);
+        diaryCommentRepository.deleteAllByAuthor(user);
+        transcriptionRepository.deleteAllByUser(user);
+        userMissionRepository.deleteAllByUser(user);
+        followRepository.deleteAllByFollowerOrFollowing(user, user);
+
+        // cascade 설정된 엔티티 삭제
+        diaryPostRepository.deleteAllByUser(user);
+        communityRepository.deleteAllByUser(user);
+
+        // 사용자 최종 삭제
+        userRepository.delete(user);
     }
 }

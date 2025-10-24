@@ -58,4 +58,11 @@ public class AuthController implements AuthControllerDocs {
         TokenReissueResponseDto response = new TokenReissueResponseDto(accessToken, refreshToken);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/withdraw")
+    public ResponseEntity<Void> withdraw() {
+        CustomJwtUser user = getCurrentUserOrThrow();
+        authService.withdraw(user.getId());
+        return ResponseEntity.noContent().build();
+    }
 }
