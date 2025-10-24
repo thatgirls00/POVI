@@ -3,6 +3,7 @@ package org.example.povi.domain.user.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.povi.auth.token.jwt.JwtTokenProvider;
+import org.example.povi.domain.user.controller.docs.UserControllerDocs;
 import org.example.povi.domain.user.dto.MyPageRes;
 import org.example.povi.domain.user.dto.ProfileRes;
 import org.example.povi.domain.user.dto.ProfileUpdateReq;
@@ -14,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/me")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserControllerDocs {
 
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
