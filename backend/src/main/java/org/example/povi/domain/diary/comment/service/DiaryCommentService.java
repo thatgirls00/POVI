@@ -52,7 +52,7 @@ public class DiaryCommentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "댓글을 작성할 권한이 없습니다.");
         }
 
-        DiaryComment toSave = DiaryCommentRequestMapper.fromCreateRequest(createReq, commenter, targetPost);
+        DiaryComment toSave = DiaryCommentRequestMapper.toEntity(createReq, commenter, targetPost);
         DiaryComment saved = diaryCommentRepository.save(toSave);
         return DiaryCommentCreateRes.from(saved);
     }
@@ -135,7 +135,7 @@ public class DiaryCommentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "댓글 작성자만 수정할 수 있습니다.");
         }
 
-        DiaryCommentRequestMapper.applyUpdate(comment, updateReq);
+        DiaryCommentRequestMapper.updateEntity(comment, updateReq);
 
         return DiaryCommentUpdateRes.from(comment);
     }
@@ -157,5 +157,4 @@ public class DiaryCommentService {
             case PRIVATE -> false;
         };
     }
-
 }

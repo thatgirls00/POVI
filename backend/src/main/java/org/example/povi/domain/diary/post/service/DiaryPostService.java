@@ -1,8 +1,10 @@
 package org.example.povi.domain.diary.post.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.povi.domain.diary.comment.repository.DiaryCommentRepository;
 import org.example.povi.domain.diary.enums.MoodEmoji;
 import org.example.povi.domain.diary.enums.Visibility;
+import org.example.povi.domain.diary.like.repository.DiaryPostLikeRepository;
 import org.example.povi.domain.diary.post.dto.request.DiaryPostCreateReq;
 import org.example.povi.domain.diary.post.dto.request.DiaryPostUpdateReq;
 import org.example.povi.domain.diary.post.dto.response.*;
@@ -31,6 +33,8 @@ public class DiaryPostService {
     private final DiaryPostRepository diaryPostRepository;
     private final UserRepository userRepository;
     private final FollowService followService;
+    private final DiaryPostLikeRepository diaryPostLikeRepository;
+    private final DiaryCommentRepository diaryCommentRepository;
 
     /**
      * 다이어리 생성
@@ -109,12 +113,25 @@ public class DiaryPostService {
         Long authorId = post.getUser().getId();
         Visibility visibility = post.getVisibility();
 
-        if (authorId.equals(currentUserId)) return DiaryDetailRes.from(post);
-        if (visibility == Visibility.PUBLIC) return DiaryDetailRes.from(post);
-        if (visibility == Visibility.FRIEND && followService.isMutualFollow(currentUserId, authorId))
-            return DiaryDetailRes.from(post);
+        // 접근 권한 확인
+        boolean canAccess = authorId.equals(currentUserId)
+                || visibility == Visibility.PUBLIC
+                || (visibility == Visibility.FRIEND && followService.isMutualFollow(currentUserId, authorId));
 
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "열람 권한이 없습니다.");
+        if (!canAccess) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "열람 권한이 없습니다.");
+        }
+
+        // 좋아요/댓글 데이터 계산
+        boolean liked = diaryPostLikeRepository.existsByPostIdAndUserId(diaryPostId, currentUserId);
+        long likeCount = diaryPostLikeRepository.countByPostId(diaryPostId);
+        long commentCount = diaryCommentRepository.countByPostIds(List.of(diaryPostId))
+                .stream()
+                .mapToLong(row -> (Long) row[1])
+                .findFirst()
+                .orElse(0L);
+
+        return DiaryDetailRes.of(post, liked, likeCount, commentCount);
     }
 
     /**
@@ -125,18 +142,28 @@ public class DiaryPostService {
         // 내 글 최신순
         List<DiaryPost> myPostsNewestFirst = diaryPostRepository.findByUserIdOrderByCreatedAtDesc(currentUserId);
 
-        // 댓글 수 배치 집계
-        List<Long> postIds = myPostsNewestFirst.stream().map(DiaryPost::getId).toList();
-        Map<Long, Long> commentCnt = postIds.isEmpty()
-                ? Map.of()
-                : DiaryQueryMapper.toCountMap(
-                diaryPostRepository.countCommentsInPostIds(postIds)
-        );
+        List<Long> postIds = myPostsNewestFirst.stream()
+                .map(DiaryPost::getId)
+                .toList();
 
-        // 카드 변환 (댓글 수 주입)
+        // 댓글 수
+        Map<Long, Long> commentCnt = postIds.isEmpty() ? Map.of()
+                : DiaryQueryMapper.toCountMap(diaryCommentRepository.countByPostIds(postIds));
+
+        // 좋아요 수
+        Map<Long, Long> likeCnt = postIds.isEmpty() ? Map.of()
+                : DiaryQueryMapper.toCountMap(diaryPostLikeRepository.countByPostIds(postIds));
+
+        // 내가 좋아요한 게시글
+        Set<Long> likedByMe = postIds.isEmpty() ? Set.of()
+                : new HashSet<>(diaryPostLikeRepository.findPostIdsLikedByUser(postIds, currentUserId));
+
+        // 카드 변환
         List<MyDiaryCardRes> myDiaryCards = myPostsNewestFirst.stream()
                 .map(p -> DiaryCardAssembler.toMyCard(
                         p,
+                        likedByMe.contains(p.getId()),
+                        likeCnt.getOrDefault(p.getId(), 0L),
                         commentCnt.getOrDefault(p.getId(), 0L)
                 ))
                 .toList();
@@ -214,9 +241,19 @@ public class DiaryPostService {
                 diaryPostRepository.countCommentsInPostIds(postIds)
         );
 
+        // 좋아요 및 좋아요 수 배치 집계
+        Map<Long, Long> likeCnt = DiaryQueryMapper.toCountMap(
+                diaryPostLikeRepository.countByPostIds(postIds)
+        );
+        Set<Long> likedByMe = new HashSet<>(
+                diaryPostLikeRepository.findPostIdsLikedByUser(postIds, currentUserId)
+        );
+
         return friendPosts.stream()
                 .map(p -> DiaryCardAssembler.toDiaryCard(
                         p,
+                        likedByMe.contains(p.getId()),
+                        likeCnt.getOrDefault(p.getId(), 0L),
                         commentCnt.getOrDefault(p.getId(), 0L)
                 ))
                 .toList();
@@ -261,9 +298,19 @@ public class DiaryPostService {
                 diaryPostRepository.countCommentsInPostIds(postIds)
         );
 
+        // 좋아요 및 좋아요 수 배치 집계
+        Map<Long, Long> likeCnt = DiaryQueryMapper.toCountMap(
+                diaryPostLikeRepository.countByPostIds(postIds)
+        );
+        Set<Long> likedByMe = new HashSet<>(
+                diaryPostLikeRepository.findPostIdsLikedByUser(postIds, currentUserId)
+        );
+
         return posts.stream()
                 .map(p -> DiaryCardAssembler.toDiaryCard(
                         p,
+                        likedByMe.contains(p.getId()),
+                        likeCnt.getOrDefault(p.getId(), 0L),
                         commentCnt.getOrDefault(p.getId(), 0L)
                 ))
                 .toList();

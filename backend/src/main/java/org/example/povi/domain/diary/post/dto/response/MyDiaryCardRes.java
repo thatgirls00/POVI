@@ -15,6 +15,7 @@ public record MyDiaryCardRes(
         String thumbnailUrl,
         Visibility visibility,
         LocalDate createdDate,
+        boolean liked,
+        long likeCount,
         long commentCount
-
 ) { }

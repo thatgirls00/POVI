@@ -17,7 +17,10 @@ public record DiaryPostCardRes(
         MoodEmoji moodEmoji,
         Visibility visibility,
         LocalDate createdDate,
+        boolean liked,
+        long likeCount,
         long commentCount
 
-) {
+
+        ) {
 }

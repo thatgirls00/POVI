@@ -7,11 +7,14 @@ import lombok.NoArgsConstructor;
 import org.example.povi.domain.diary.comment.entity.DiaryComment;
 import org.example.povi.domain.diary.enums.MoodEmoji;
 import org.example.povi.domain.diary.enums.Visibility;
+import org.example.povi.domain.diary.like.entity.DiaryPostLike;
 import org.example.povi.domain.user.entity.User;
 import org.example.povi.global.entity.BaseEntity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -45,6 +48,9 @@ public class DiaryPost extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createdAt ASC")
     private List<DiaryComment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Set<DiaryPostLike> likes = new HashSet<>();
 
     @Builder
     public DiaryPost(User user, String title, String content, MoodEmoji moodEmoji, Visibility visibility) {

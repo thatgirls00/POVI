@@ -8,40 +8,56 @@ public final class DiaryCardAssembler {
 
     private static final int PREVIEW_MAX = 100;
 
-    private DiaryCardAssembler() {}
+    private DiaryCardAssembler() {
+    }
 
-    /** 나의 다이어리 카드 변환 */
-    public static MyDiaryCardRes toMyCard(DiaryPost diaryPost, long commentCount) {
-        String preview   = DiaryPreviewMapper.buildPreviewText(diaryPost.getContent(), PREVIEW_MAX);
-        String thumbnail = DiaryPreviewMapper.firstImageUrl(diaryPost);
+    /**
+     * 나의 다이어리 카드 변환
+     */
+    public static MyDiaryCardRes toMyCard(
+            DiaryPost post,
+            boolean liked,
+            long likeCount,
+            long commentCount
+    ) {
+        String preview = DiaryPreviewMapper.buildPreviewText(post.getContent(), PREVIEW_MAX);
+        String thumbnail = DiaryPreviewMapper.firstImageUrl(post);
 
         return new MyDiaryCardRes(
-                diaryPost.getId(),
-                diaryPost.getTitle(),
+                post.getId(),
+                post.getTitle(),
                 preview,
-                diaryPost.getMoodEmoji(),
+                post.getMoodEmoji(),
                 thumbnail,
-                diaryPost.getVisibility(),
-                diaryPost.getCreatedAt().toLocalDate(),
+                post.getVisibility(),
+                post.getCreatedAt().toLocalDate(),
+                liked,
+                likeCount,
                 commentCount
         );
     }
 
-    /** 공용 카드 변환 (친구 피드 / 모두의 다이어리) */
-    public static DiaryPostCardRes toDiaryCard(DiaryPost diaryPost, long commentCount) {
-        String preview   = DiaryPreviewMapper.buildPreviewText(diaryPost.getContent(), PREVIEW_MAX);
-        String thumbnail = DiaryPreviewMapper.firstImageUrl(diaryPost);
+    public static DiaryPostCardRes toDiaryCard(
+            DiaryPost post,
+            boolean liked,
+            long likeCount,
+            long commentCount
+    ) {
+        String preview = DiaryPreviewMapper.buildPreviewText(post.getContent(), PREVIEW_MAX);
+        String thumbnail = DiaryPreviewMapper.firstImageUrl(post);
 
         return new DiaryPostCardRes(
-                diaryPost.getId(),
-                diaryPost.getUser().getId(),
-                diaryPost.getUser().getNickname(),
-                diaryPost.getTitle(),
+                post.getId(),
+                post.getUser().getId(),
+                post.getUser().getNickname(),
+                post.getTitle(),
                 preview,
                 thumbnail,
-                diaryPost.getMoodEmoji(),
-                diaryPost.getVisibility(),
-                diaryPost.getCreatedAt().toLocalDate(),
+                post.getMoodEmoji(),
+                post.getVisibility(),
+                post.getCreatedAt().toLocalDate(),
+                liked,
+                likeCount,
                 commentCount
         );
     }
