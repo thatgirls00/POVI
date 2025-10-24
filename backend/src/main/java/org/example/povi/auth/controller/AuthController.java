@@ -2,6 +2,7 @@ package org.example.povi.auth.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.povi.auth.controller.docs.AuthControllerDocs;
 import org.example.povi.auth.dto.*;
 import org.example.povi.auth.service.AuthService;
 import org.example.povi.auth.token.jwt.CustomJwtUser;
@@ -14,7 +15,7 @@ import static org.example.povi.auth.util.SecurityUtil.getCurrentUserOrThrow;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
-public class AuthController {
+public class AuthController implements AuthControllerDocs {
 
     private final AuthService authService;
     private final TokenService tokenService;
@@ -38,10 +39,8 @@ public class AuthController {
 
     @PostMapping("/token/reissue")
     public ResponseEntity<TokenReissueResponseDto> reissueAccessToken(
-            @Valid @RequestBody TokenReissueRequestDto requestDto
-    ) {
-        TokenReissueResponseDto response = tokenService.reissueAccessToken(requestDto);
-        return ResponseEntity.ok(response);
+            @Valid @RequestBody TokenReissueRequestDto requestDto) {
+        return ResponseEntity.ok(tokenService.reissueAccessToken(requestDto));
     }
 
     @PostMapping("/logout")
@@ -52,9 +51,10 @@ public class AuthController {
     }
 
     @GetMapping("/oauth/callback/{provider}")
-    public ResponseEntity<TokenReissueResponseDto> oauthCallback(@PathVariable String provider,
-                                                                 @RequestParam("accessToken") String accessToken,
-                                                                 @RequestParam("refreshToken") String refreshToken) {
+    public ResponseEntity<TokenReissueResponseDto> oauthCallback(
+            @PathVariable String provider,
+            @RequestParam("accessToken") String accessToken,
+            @RequestParam("refreshToken") String refreshToken) {
         TokenReissueResponseDto response = new TokenReissueResponseDto(accessToken, refreshToken);
         return ResponseEntity.ok(response);
     }

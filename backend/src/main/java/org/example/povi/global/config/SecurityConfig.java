@@ -61,7 +61,12 @@ public class SecurityConfig {
                                 "/auth/email/status",
                                 "/oauth2/**",
                                 "/transcriptions/**",
-                                "/me/**"
+                                "/me/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/swagger-ui.html",
+                                "/webjars/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/posts/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/comments/**").hasAnyRole("USER", "ADMIN")

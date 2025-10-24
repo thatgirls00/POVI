@@ -3,6 +3,7 @@ package org.example.povi.domain.transcription.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.povi.auth.token.jwt.JwtTokenProvider;
+import org.example.povi.domain.transcription.controller.docs.TranscriptionControllerDocs;
 import org.example.povi.domain.transcription.dto.TranscriptionReq;
 import org.example.povi.domain.transcription.service.TranscriptionService;
 import org.example.povi.domain.transcription.dto.TranscriptionListRes;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/transcriptions")
 @RequiredArgsConstructor
-public class TranscriptionController {
+public class TranscriptionController implements TranscriptionControllerDocs {
 
     private final TranscriptionService transcriptionService;
     private final JwtTokenProvider jwtTokenProvider;

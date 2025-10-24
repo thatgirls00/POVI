@@ -2,6 +2,7 @@ package org.example.povi.auth.email.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.povi.auth.email.controller.docs.EmailVerificationControllerDocs;
 import org.example.povi.auth.email.dto.EmailVerificationRequestDto;
 import org.example.povi.auth.email.dto.EmailVerificationStatusResponseDto;
 import org.example.povi.auth.email.service.EmailVerificationService;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth/email")
 @RequiredArgsConstructor
-public class EmailVerificationController {
+public class EmailVerificationController implements EmailVerificationControllerDocs {
 
     private final EmailVerificationService emailVerificationService;
 
