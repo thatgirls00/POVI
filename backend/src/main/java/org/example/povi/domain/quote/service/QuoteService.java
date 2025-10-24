@@ -6,6 +6,7 @@ import org.example.povi.domain.quote.dto.QuoteDto;
 import org.example.povi.domain.quote.dto.QuoteRes;
 import org.example.povi.domain.quote.entity.Quote;
 import org.example.povi.domain.quote.repository.QuoteRepository;
+import org.example.povi.global.exception.ex.QuoteFetchFailedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -37,7 +38,7 @@ public class QuoteService {
             }
 
         } catch (RestClientException e) {
-            log.error("외부 명언 API 호출에 실패했습니다: {}", e.getMessage());
+            throw new QuoteFetchFailedException("외부 명언 API 호출에 실패했습니다.", e);
         }
     }
 
@@ -50,6 +51,6 @@ public class QuoteService {
         Optional<Quote> optionalQuote = quoteRepository.findFirstByCreatedAtBetweenOrderByCreatedAtDesc(startOfDay, endOfDay);
 
         // Entity를 DTO로 변환하여 반환
-        return optionalQuote.map(quote -> new QuoteRes(quote.getId(), quote.getAuthor(), quote.getContent()));
+        return optionalQuote.map(QuoteRes::fromEntity);
     }
 }

@@ -13,9 +13,7 @@ public class QuoteScheduler {
 
     private final QuoteService quoteService;
 
-    /*
-     * 매일 자정(00:00:00)에 실행되는 스케줄러
-     */
+    // 매일 자정(00:00:00)에 실행되는 스케줄러
     @Scheduled(cron = "0 0 0 * * *")
     public void fetchAndSaveDailyQuote() {
         log.info("매일 명언 스케줄러 실행: 외부 API를 통해 새로운 명언을 가져옵니다.");

@@ -6,16 +6,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.example.povi.domain.community.dto.request.CommentCreateRequest;
 import org.example.povi.domain.community.dto.request.PostCreateRequest;
-import org.example.povi.domain.community.dto.response.CommentCreateResponse;
-import org.example.povi.domain.community.dto.response.CommentDeleteResponse;
-import org.example.povi.domain.community.dto.response.LikeResponse;
-import org.example.povi.domain.community.dto.response.PostBookmarkResponse;
-import org.example.povi.domain.community.dto.response.PostCreateResponse;
-import org.example.povi.domain.community.dto.response.PostDeleteResponse;
+import org.example.povi.domain.community.dto.response.*;
 import org.example.povi.domain.community.dto.request.PostUpdateRequest;
-import org.example.povi.domain.community.dto.response.PostDetailResponse;
-import org.example.povi.domain.community.dto.response.PostListResponse;
-import org.example.povi.domain.community.dto.response.PostUpdateResponse;
 import org.example.povi.domain.community.entity.Comment;
 import org.example.povi.domain.community.entity.CommunityImage;
 import org.example.povi.domain.community.entity.CommunityPost;
@@ -136,6 +128,12 @@ public class CommunityService {
         return dtoPage;
     }
 
+    @Transactional(readOnly = true)
+    public Page<PostListResponse> getMyPostList(Long userId, Pageable pageable) {
+        Page<CommunityPost> posts = communityRepository.findAllByUserId(userId, pageable);
+        Page<PostListResponse> dtoPage = posts.map(PostListResponse::from);
+        return dtoPage;
+    }
 
     @Transactional(readOnly = true)
     public PostDetailResponse getPostDetail(Long postId) {
@@ -228,9 +226,9 @@ public class CommunityService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostListResponse> getMyLikedPosts(Long userId, Pageable pageable) {
+    public Page<LikeListResponse> getMyLikedPosts(Long userId, Pageable pageable) {
         Page<CommunityPost> likedPostPage = likeRepository.findLikedPostsByUserId(userId, pageable);
-        return likedPostPage.map(PostListResponse::from);
+        return likedPostPage.map(LikeListResponse::from);
     }
 
 
@@ -271,10 +269,14 @@ public class CommunityService {
         return new PostBookmarkResponse(postId, "북마크를 취소했습니다.");
     }
     @Transactional(readOnly = true)
-    public Page<PostListResponse> getMyBookmarkedPosts(Long userId, Pageable pageable) {
-        Page<CommunityPost> bookmarkedPostPage = bookmarkRepository.findBookmarkedPostsByUserId(userId, pageable);
-        return bookmarkedPostPage.map(PostListResponse::from);
+    public Page<BookmarkListResponse> getMyBookmarkedPosts(Long userId, Pageable pageable) {
+        Page<CommunityPost> bookmarkedPosts = bookmarkRepository.findBookmarkedPostsByUserId(userId, pageable);
+        return bookmarkedPosts.map(BookmarkListResponse::from);
     }
 
-
+    @Transactional(readOnly = true)
+    public Page<CommentListResponse> getMyComments(Long userId, Pageable pageable) {
+        Page<Comment> comments = commentRepository.findAllByUserId(userId, pageable);
+        return comments.map(CommentListResponse::from);
+    }
 }

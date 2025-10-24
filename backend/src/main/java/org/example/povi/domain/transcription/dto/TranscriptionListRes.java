@@ -4,8 +4,5 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 
-@Getter
-@RequiredArgsConstructor
-public class TranscriptionListRes {
-    private final List<TranscriptionDetail> transcriptionList;
+public record TranscriptionListRes(List<TranscriptionDetail> transcriptionList) {
 }

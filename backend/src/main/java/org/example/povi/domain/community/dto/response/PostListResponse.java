@@ -33,11 +33,17 @@ public record PostListResponse(
 
 ) {
     public static PostListResponse from(CommunityPost post) {
+        String summaryContent = post.getContent();
+        // 내용이 20자보다 클 경우, "..."을 붙임
+        if (summaryContent != null && summaryContent.length() > 20) {
+            summaryContent = summaryContent.substring(0, 20) + "...";
+        }
+
         return new PostListResponse(
                 post.getId(),
                 post.getTitle(),
+                summaryContent,
                 post.getUser().getNickname(),
-                post.getContent(),
                 post.getCreatedAt(),
                 post.getEmoticon(),
                 post.getLikeCount(),

@@ -1,13 +1,13 @@
 package org.example.povi.domain.quote.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import org.example.povi.domain.quote.entity.Quote;
 
-@Getter
-@AllArgsConstructor
-public class QuoteRes{
-    private Long quoteId;
-    private String author;
-    private String message;
+public record QuoteRes(Long quoteId, String author, String message) {
+    public static QuoteRes fromEntity(Quote quote) {
+        return new QuoteRes(
+                quote.getId(),
+                quote.getAuthor(),
+                quote.getContent()
+        );
+    }
 }

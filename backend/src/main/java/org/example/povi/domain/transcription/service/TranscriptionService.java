@@ -15,6 +15,7 @@ import org.example.povi.domain.transcription.dto.TranscriptionRes;
 import org.example.povi.domain.transcription.repository.TranscriptionRepository;
 import org.example.povi.domain.user.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,7 @@ public class TranscriptionService {
         Quote quote = quoteRepository.findById(quoteId)
                 .orElseThrow(() -> new ResourceNotFoundException("명언을 찾을 수 없습니다: ID " + quoteId));
 
-        Transcription transcription = new Transcription(transcriptionReq.getContent(), quote, user);
+        Transcription transcription = new Transcription(transcriptionReq.content(), quote, user);
 
         try {
             Transcription savedTranscription = transcriptionRepository.save(transcription);
@@ -62,9 +63,9 @@ public class TranscriptionService {
 
     // 필사기록 조회
     @Transactional(readOnly = true)
-    public TranscriptionListRes getMyTranscriptions(Long userId) {
+    public TranscriptionListRes getMyTranscriptions(Long userId, Pageable pageable) {
 
-        List<Transcription> transcriptions = transcriptionRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+        List<Transcription> transcriptions = transcriptionRepository.findAllByUser_IdOrderByCreatedAtDesc(userId,pageable);
 
         List<TranscriptionDetail> dtoList = transcriptions.stream()
                 .map(TranscriptionDetail::fromEntity)

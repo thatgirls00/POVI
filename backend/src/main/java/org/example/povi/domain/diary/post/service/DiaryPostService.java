@@ -297,4 +297,8 @@ public class DiaryPostService {
 
         return diaryPost;
     }
+
+    public long getDiaryPostCountForUser(Long userId) {
+        return diaryPostRepository.countByUserId(userId);
+    }
 }
