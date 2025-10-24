@@ -15,7 +15,7 @@ import java.util.UUID;
 public class FileStorageService {
     
     // 파일 외부 저장 경로
-    @Value("${file.upload-dir}")
+    @Value("${file.upload.profile.dir}")
     private String uploadDir;
 
     public String storeFile(MultipartFile file) {

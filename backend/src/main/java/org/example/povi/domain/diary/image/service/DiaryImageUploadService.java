@@ -16,7 +16,7 @@ import java.util.*;
 @Service
 public class DiaryImageUploadService {
 
-    @Value("${file.upload.dir}")
+    @Value("${file.upload.diary.dir}")
     private String uploadDir; // 예: /Users/you/povi-uploads
 
     /**
