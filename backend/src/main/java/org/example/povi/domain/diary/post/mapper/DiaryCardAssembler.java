@@ -3,46 +3,87 @@ package org.example.povi.domain.diary.post.mapper;
 import org.example.povi.domain.diary.post.dto.response.DiaryPostCardRes;
 import org.example.povi.domain.diary.post.dto.response.MyDiaryCardRes;
 import org.example.povi.domain.diary.post.entity.DiaryPost;
+import org.example.povi.domain.diary.post.view.PostViewStats;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public final class DiaryCardAssembler {
 
     private static final int PREVIEW_MAX = 100;
 
-    private DiaryCardAssembler() {}
+    private DiaryCardAssembler() {
+    }
 
-    /** 나의 다이어리 카드 변환 */
-    public static MyDiaryCardRes toMyCard(DiaryPost diaryPost, long commentCount) {
-        String preview   = DiaryPreviewMapper.buildPreviewText(diaryPost.getContent(), PREVIEW_MAX);
-        String thumbnail = DiaryPreviewMapper.firstImageUrl(diaryPost);
+    /**
+     * 단일 카드 변환 (나의 다이어리용)
+     */
+    public static MyDiaryCardRes toMyCard(
+            DiaryPost post,
+            boolean liked,
+            long likeCount,
+            long commentCount
+    ) {
+        String preview = DiaryPreviewMapper.buildPreviewText(post.getContent(), PREVIEW_MAX);
+        String thumbnail = DiaryPreviewMapper.firstImageUrl(post);
 
         return new MyDiaryCardRes(
-                diaryPost.getId(),
-                diaryPost.getTitle(),
+                post.getId(),
+                post.getTitle(),
                 preview,
-                diaryPost.getMoodEmoji(),
+                post.getMoodEmoji(),
                 thumbnail,
-                diaryPost.getVisibility(),
-                diaryPost.getCreatedAt().toLocalDate(),
+                post.getVisibility(),
+                post.getCreatedAt().toLocalDate(),
+                liked,
+                likeCount,
                 commentCount
         );
     }
 
-    /** 공용 카드 변환 (친구 피드 / 모두의 다이어리) */
-    public static DiaryPostCardRes toDiaryCard(DiaryPost diaryPost, long commentCount) {
-        String preview   = DiaryPreviewMapper.buildPreviewText(diaryPost.getContent(), PREVIEW_MAX);
-        String thumbnail = DiaryPreviewMapper.firstImageUrl(diaryPost);
+    /**
+     * 단일 카드 변환 (친구/전체 다이어리용)
+     */
+    public static DiaryPostCardRes toDiaryCard(
+            DiaryPost post,
+            boolean liked,
+            long likeCount,
+            long commentCount
+    ) {
+        String preview = DiaryPreviewMapper.buildPreviewText(post.getContent(), PREVIEW_MAX);
+        String thumbnail = DiaryPreviewMapper.firstImageUrl(post);
 
         return new DiaryPostCardRes(
-                diaryPost.getId(),
-                diaryPost.getUser().getId(),
-                diaryPost.getUser().getNickname(),
-                diaryPost.getTitle(),
+                post.getId(),
+                post.getUser().getId(),
+                post.getUser().getNickname(),
+                post.getTitle(),
                 preview,
                 thumbnail,
-                diaryPost.getMoodEmoji(),
-                diaryPost.getVisibility(),
-                diaryPost.getCreatedAt().toLocalDate(),
+                post.getMoodEmoji(),
+                post.getVisibility(),
+                post.getCreatedAt().toLocalDate(),
+                liked,
+                likeCount,
                 commentCount
         );
+    }
+
+    /**
+     * 여러 게시글을 한 번에 DTO 리스트로 변환 (PostViewStats와 함께)
+     */
+    public static List<DiaryPostCardRes> toCards(
+            List<DiaryPost> posts,
+            Set<Long> likedSet,
+            Map<Long, Long> likeCnt,
+            Map<Long, Long> cmtCnt
+    ) {
+        return posts.stream()
+                .map(p -> DiaryPostCardRes.from(
+                        p,
+                        PostViewStats.of(likedSet, likeCnt, cmtCnt, p.getId())
+                ))
+                .toList();
     }
 }

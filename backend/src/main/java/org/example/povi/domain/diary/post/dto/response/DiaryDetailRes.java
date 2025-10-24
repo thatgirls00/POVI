@@ -18,19 +18,25 @@ public record DiaryDetailRes(
         MoodEmoji moodEmoji,
         Visibility visibility,
         List<String> imageUrls,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        boolean liked,
+        long likeCount,
+        long commentCount
 ) {
-    public static DiaryDetailRes from(DiaryPost post) {
+    public static DiaryDetailRes of(
+            DiaryPost post, boolean liked, long likeCount, long commentCount
+    ) {
         return new DiaryDetailRes(
                 post.getId(),
                 post.getTitle(),
                 post.getContent(),
                 post.getMoodEmoji(),
                 post.getVisibility(),
-                post.getImages().stream()
-                        .map(DiaryImage::getImageUrl)
-                        .toList(),
-                post.getCreatedAt()
+                post.getImages().stream().map(DiaryImage::getImageUrl).toList(),
+                post.getCreatedAt(),
+                liked,
+                likeCount,
+                commentCount
         );
     }
 }
