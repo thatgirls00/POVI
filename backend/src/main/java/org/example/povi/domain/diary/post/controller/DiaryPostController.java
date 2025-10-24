@@ -1,6 +1,12 @@
 package org.example.povi.domain.diary.post.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.povi.domain.diary.post.dto.request.DiaryPostCreateReq;
@@ -17,12 +23,19 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/diary-posts")
-public class DiaryPostController {
+@Tag(name = "Diary Posts", description = "일기 게시글 API")
+public class DiaryPostController{
 
     private final DiaryPostService diaryPostService;
 
     @PostMapping
     @Operation(summary = "다이어리 생성")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "일기 생성 성공", content =
+            @Content(schema = @Schema(implementation = DiaryPostCreateRes.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "401", description = "인증 실패")
+    })
     public ResponseEntity<DiaryPostCreateRes> createDiaryPost(
             @AuthenticationPrincipal(expression = "id") Long userId,
             @RequestBody @Valid DiaryPostCreateReq createReq
@@ -33,6 +46,14 @@ public class DiaryPostController {
 
     @PatchMapping("/{postId}")
     @Operation(summary = "다이어리 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "일기 수정 성공", content =
+            @Content(schema = @Schema(implementation = DiaryPostUpdateRes.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+            @ApiResponse(responseCode = "403", description = "권한 없음"),
+            @ApiResponse(responseCode = "404", description = "일기를 찾을 수 없음")
+    })
     public ResponseEntity<DiaryPostUpdateRes> updateDiaryPost(
             @AuthenticationPrincipal(expression = "id") Long userId,
             @PathVariable Long postId,
@@ -44,6 +65,12 @@ public class DiaryPostController {
 
     @DeleteMapping("/{postId}")
     @Operation(summary = "다이어리 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "일기 삭제 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+            @ApiResponse(responseCode = "403", description = "권한 없음"),
+            @ApiResponse(responseCode = "404", description = "일기를 찾을 수 없음")
+    })
     public ResponseEntity<Void> deleteDiaryPost(
             @AuthenticationPrincipal(expression = "id") Long userId,
             @PathVariable Long postId
@@ -53,7 +80,14 @@ public class DiaryPostController {
     }
 
     @GetMapping("/{postId}")
-    @Operation(summary = "다이어리 상세 조회 (권한 규칙 적용)")
+    @Operation(summary = "다이어리 상세 조회 (권한 규칙 적용)", description = "본인 다이어리, 친구의 FRIEND/PUBLIC, 타인의 PUBLIC 다이어리를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content =
+            @Content(schema = @Schema(implementation = DiaryDetailRes.class))),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+            @ApiResponse(responseCode = "403", description = "조회 권한 없음"),
+            @ApiResponse(responseCode = "404", description = "일기를 찾을 수 없음")
+    })
     public ResponseEntity<DiaryDetailRes> getMyDiaryPostDetail(
             @AuthenticationPrincipal(expression = "id") Long userId,
             @PathVariable Long postId
@@ -63,7 +97,12 @@ public class DiaryPostController {
     }
 
     @GetMapping("/mine")
-    @Operation(summary = "내 다이어리 목록 + 주간 통계")
+    @Operation(summary = "내 다이어리 목록 + 주간 감정 통계", description = "내 다이어리 목록과 최근 7일간의 감정 통계를 함께 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content =
+            @Content(schema = @Schema(implementation = MyDiaryListRes.class))),
+            @ApiResponse(responseCode = "401", description = "인증 실패")
+    })
     public ResponseEntity<MyDiaryListRes> listMyDiaries(
             @AuthenticationPrincipal(expression = "id") Long userId
     ) {
@@ -72,7 +111,13 @@ public class DiaryPostController {
     }
 
     @GetMapping("/friends")
-    @Operation(summary = "친구 다이어리 - 맞팔이면 FRIEND+PUBLIC, 단방향이면 PUBLIC만")
+    @Operation(summary = "친구 다이어리 - 맞팔이면 FRIEND+PUBLIC, 단방향이면 PUBLIC만",
+            description = "맞팔 친구(FRIEND, PUBLIC) 및 단방향 팔로우 친구(PUBLIC)의 다이어리를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content =
+            @Content(array = @ArraySchema(schema = @Schema(implementation = DiaryPostCardRes.class)))),
+            @ApiResponse(responseCode = "401", description = "인증 실패")
+    })
     public ResponseEntity<List<DiaryPostCardRes>> listFriendDiaries(
             @AuthenticationPrincipal(expression = "id") Long userId
     ) {
@@ -81,7 +126,13 @@ public class DiaryPostController {
     }
 
     @GetMapping("/explore")
-    @Operation(summary = "모두의 다이어리 - 맞팔: FRIEND+PUBLIC, 그 외: PUBLIC")
+    @Operation(summary = "모두의 다이어리 - 맞팔: FRIEND+PUBLIC, 그 외: PUBLIC",
+            description = "모든 사용자의 PUBLIC 다이어리 및 맞팔 친구의 FRIEND 다이어리를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content =
+            @Content(array = @ArraySchema(schema = @Schema(implementation = DiaryPostCardRes.class)))),
+            @ApiResponse(responseCode = "401", description = "인증 실패")
+    })
     public ResponseEntity<List<DiaryPostCardRes>> explore(
             @AuthenticationPrincipal(expression = "id") Long userId
     ) {

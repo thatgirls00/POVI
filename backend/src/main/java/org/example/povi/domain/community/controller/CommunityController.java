@@ -1,9 +1,14 @@
 package org.example.povi.domain.community.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.example.povi.auth.token.jwt.CustomJwtUser;
 import org.example.povi.auth.token.jwt.JwtTokenProvider;
 import org.example.povi.domain.community.dto.request.CommentCreateRequest;
 import org.example.povi.domain.community.dto.request.PostCreateRequest;
@@ -30,10 +35,11 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/posts")
 @RequiredArgsConstructor
-public class CommunityController {
+public class CommunityController implements CommunityControllerDocs{
 
     private final CommunityService communityService;
     private final JwtTokenProvider jwtUtil;
+
 
     @PostMapping
     public ResponseEntity<PostCreateResponse> createPost(
@@ -47,6 +53,7 @@ public class CommunityController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
     @DeleteMapping("/{postId}")
     public ResponseEntity<PostDeleteResponse> deletePost(
             @RequestHeader("Authorization") String bearerToken,
@@ -58,6 +65,7 @@ public class CommunityController {
         PostDeleteResponse response = communityService.deletePost(userId, postId);
         return ResponseEntity.ok(response);
     }
+
 
     @PutMapping("/{postId}")
     public ResponseEntity<PostUpdateResponse> updatePost(
@@ -81,6 +89,7 @@ public class CommunityController {
         return ResponseEntity.ok(postList);
     }
 
+
     @GetMapping("/me")
     public ResponseEntity<Page<PostListResponse>> getMyPostList(
             @RequestHeader("Authorization") String bearerToken,
@@ -91,6 +100,18 @@ public class CommunityController {
         return ResponseEntity.ok(postList);
     }
 
+
+    @Operation(summary = "커뮤니티 글 상세보기", description = "커뮤니티에 익명 글을 클릭했을때 .")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공", content = {
+                    @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(
+                                    schema = @Schema(implementation = PostDetailResponse.class)
+                            ))
+            }),
+            @ApiResponse(responseCode = "400", description = "실패")
+    })
     @GetMapping("/{postId}")
     public ResponseEntity<PostDetailResponse> getPostDetail(@PathVariable Long postId) {
         PostDetailResponse postDetail = communityService.getPostDetail(postId);
@@ -108,9 +129,7 @@ public class CommunityController {
     }
 
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<CommentDeleteResponse> deleteComment(
-            @RequestHeader("Authorization") String bearerToken,
-            @PathVariable Long commentId) {
+    public ResponseEntity<CommentDeleteResponse> deleteComment(String bearerToken, Long commentId) {
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
         communityService.deleteComment(userId, commentId);
         return ResponseEntity.ok().build();
@@ -122,7 +141,6 @@ public class CommunityController {
             @RequestHeader("Authorization") String bearerToken,
             @PageableDefault(size = 2, sort = "createdAt,desc") Pageable pageable
     ) {
-
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
         Page<CommentListResponse> response = communityService.getMyComments(userId, pageable);
         return ResponseEntity.ok(response);
