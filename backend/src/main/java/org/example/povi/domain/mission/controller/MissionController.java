@@ -3,6 +3,7 @@ package org.example.povi.domain.mission.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.povi.auth.token.jwt.JwtTokenProvider;
+import org.example.povi.domain.mission.controller.docs.MissionControllerDocs;
 import org.example.povi.domain.mission.dto.request.CreateTodayMissionsRequest;
 import org.example.povi.domain.mission.dto.request.UpdateStatusRequest;
 import org.example.povi.domain.mission.dto.response.MissionResponse;
@@ -18,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/missions")
 @RequiredArgsConstructor
-public class MissionController {
+public class MissionController implements MissionControllerDocs {
 
     private final MissionService missionService;
     private final JwtTokenProvider jwtTokenProvider;

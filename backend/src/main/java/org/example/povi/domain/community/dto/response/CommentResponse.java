@@ -1,8 +1,10 @@
 package org.example.povi.domain.community.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import org.example.povi.domain.community.entity.Comment;
 
+@Schema(description = "댓글 응답 DTO")
 public record CommentResponse(
         Long commentId,
         String authorName,

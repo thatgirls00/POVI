@@ -2,6 +2,7 @@ package org.example.povi.domain.diary.post.repository;
 
 import org.example.povi.domain.diary.post.entity.DiaryPost;
 import org.example.povi.domain.diary.enums.Visibility;
+import org.example.povi.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Repository
 public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
+    void deleteAllByUser(User user);
 
     //특정 사용자의 다이어리 전체 조회 (최신순)
     List<DiaryPost> findByUserIdOrderByCreatedAtDesc(Long userId);

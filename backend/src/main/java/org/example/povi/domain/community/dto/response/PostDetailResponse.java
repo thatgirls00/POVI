@@ -8,6 +8,7 @@ import org.example.povi.domain.community.entity.CommunityEmoticon;
 import org.example.povi.domain.community.entity.CommunityImage;
 import org.example.povi.domain.community.entity.CommunityPost;
 
+
 @Schema(description = "게시글 상세 조회 응답 DTO")
 public record PostDetailResponse(
         @Schema(description = "게시글 ID", example = "101")
@@ -33,11 +34,9 @@ public record PostDetailResponse(
 
         @Schema(description = "첨부된 사진 URL 목록")
         List<String> photoUrls
-        // 필요하다면 여기에 댓글 목록을 추가할 수 있습니다.
+
 ) {
-    /**
-     * CommunityPost 엔티티를 DTO로 변환하는 정적 팩토리 메소드
-     */
+
     public static PostDetailResponse from(CommunityPost post) {
         List<String> urls = post.getImages().stream()
                 .map(CommunityImage::getImageUrl) // Photo 엔티티에 getFileUrl()이 있다고 가정

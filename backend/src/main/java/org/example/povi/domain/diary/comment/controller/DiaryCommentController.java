@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/diary-posts/{postId}/comments")
-public class DiaryCommentController {
+public class DiaryCommentController implements DiaryCommentControllerDocs {
 
     private final DiaryCommentService diaryCommentService;
 

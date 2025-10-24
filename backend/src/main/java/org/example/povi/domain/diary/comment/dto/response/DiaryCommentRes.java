@@ -1,15 +1,13 @@
 package org.example.povi.domain.diary.comment.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.example.povi.domain.diary.comment.entity.DiaryComment;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * 댓글 응답 DTO
- * - 단건 조회 및 목록 조회 공용으로 사용
- */
+@Schema(description = "다이어리 댓글 응답 DTO")
 public record DiaryCommentRes(
         Long commentId,
         Long authorId,

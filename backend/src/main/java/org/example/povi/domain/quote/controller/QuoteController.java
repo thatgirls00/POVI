@@ -1,6 +1,7 @@
 package org.example.povi.domain.quote.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.povi.domain.quote.controller.docs.QuoteControllerDocs;
 import org.example.povi.domain.quote.service.QuoteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("quotes")
 @RequiredArgsConstructor
-public class QuoteController {
+public class QuoteController implements QuoteControllerDocs {
 
     private final QuoteService quoteService;
 

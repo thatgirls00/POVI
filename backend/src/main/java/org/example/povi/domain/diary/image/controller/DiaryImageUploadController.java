@@ -11,7 +11,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/diary-images")
-public class DiaryImageUploadController {
+public class DiaryImageUploadController implements DiaryImageUploadControllerDocs {
 
     private final DiaryImageUploadService diaryImageUploadService;
 
