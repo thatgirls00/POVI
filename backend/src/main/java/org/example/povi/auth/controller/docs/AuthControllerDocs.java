@@ -59,4 +59,12 @@ public interface AuthControllerDocs {
             @Parameter(description = "OAuth Provider 이름 (예: google, kakao)") String provider,
             @Parameter(description = "Access Token") @RequestParam("accessToken") String accessToken,
             @Parameter(description = "Refresh Token") @RequestParam("refreshToken") String refreshToken);
+
+    @Operation(summary = "회원 탈퇴", description = "로그인한 사용자의 계정을 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "회원 탈퇴 성공"),
+            @ApiResponse(responseCode = "401", description = "JWT 토큰이 없거나 유효하지 않음", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content)
+    })
+    ResponseEntity<Void> withdraw();
 }

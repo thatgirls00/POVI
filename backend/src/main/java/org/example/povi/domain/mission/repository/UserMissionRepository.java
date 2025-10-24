@@ -11,6 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface UserMissionRepository extends JpaRepository<UserMission, Long> {
+    void deleteAllByUser(User user);
+
     boolean existsByUserAndMissionDate(User user, LocalDate missionDate);
 
     // 일일미션을 화면에 항상 같은 순서로 보여주기 위해 정렬
