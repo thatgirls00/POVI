@@ -42,7 +42,7 @@ public class MissionService {
         return userMissionRepository
                 .findAllByUserAndMissionDateOrderByIdAsc(user, today)
                 .stream()
-                .map(um -> new MissionResponse(um.getMission(), um.getStatus()))
+                .map(um -> new MissionResponse(um.getMission(), um.getStatus(), um.getId()))
                 .toList();
     }
 
@@ -95,7 +95,7 @@ public class MissionService {
         userMissionRepository.saveAll(saved);
 
         return saved.stream()
-                .map(um -> new MissionResponse(um.getMission(), um.getStatus()))
+                .map(um -> new MissionResponse(um.getMission(), um.getStatus(), um.getId()))
                 .toList();
     }
 
@@ -133,7 +133,7 @@ public class MissionService {
                 .map(entry -> {
                     LocalDate date = entry.getKey();
                     List<MissionResponse> missionDetails = entry.getValue().stream()
-                            .map(um -> new MissionResponse(um.getMission(), um.getStatus()))
+                            .map(um -> new MissionResponse(um.getMission(), um.getStatus(), um.getId()))
                             .toList();
                     return new MissionHistoryResponse(date, missionDetails);
                 })
