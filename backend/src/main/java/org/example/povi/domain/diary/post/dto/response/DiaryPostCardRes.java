@@ -3,6 +3,9 @@ package org.example.povi.domain.diary.post.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.example.povi.domain.diary.enums.MoodEmoji;
 import org.example.povi.domain.diary.enums.Visibility;
+import org.example.povi.domain.diary.post.entity.DiaryPost;
+import org.example.povi.domain.diary.post.mapper.DiaryPreviewMapper;
+import org.example.povi.domain.diary.post.view.PostViewStats;
 
 import java.time.LocalDate;
 
@@ -21,6 +24,21 @@ public record DiaryPostCardRes(
         long likeCount,
         long commentCount
 
-
-        ) {
+) {
+    public static DiaryPostCardRes from(DiaryPost post, PostViewStats stats) {
+        return new DiaryPostCardRes(
+                post.getId(),
+                post.getUser().getId(),
+                post.getUser().getNickname(),
+                post.getTitle(),
+                DiaryPreviewMapper.buildPreviewText(post.getContent(), 100),
+                DiaryPreviewMapper.firstImageUrl(post),
+                post.getMoodEmoji(),
+                post.getVisibility(),
+                post.getCreatedAt().toLocalDate(),
+                stats.likedByMe(),
+                stats.likeCount(),
+                stats.commentCount()
+        );
+    }
 }

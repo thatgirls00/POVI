@@ -26,15 +26,15 @@ public class StaticResourceConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        // ✅ 다이어리 이미지
+        // 다이어리 이미지
         registry.addResourceHandler("/images/diary/**")
                 .addResourceLocations("file:" + diaryDir + "/");
 
-        // ✅ 커뮤니티 이미지
+        // 커뮤니티 이미지
         registry.addResourceHandler("/images/community/**")
                 .addResourceLocations("file:" + communityDir + "/");
 
-        // ✅ 프로필 이미지
+        // 프로필 이미지
         registry.addResourceHandler("/images/profile/**")
                 .addResourceLocations("file:" + profileDir + "/");
     }

@@ -57,7 +57,6 @@ public class DiaryPostLikeService {
         return new DiaryPostLikeRes(liked, count);
     }
 
-
     /**
      * 좋아요 수
      */
@@ -69,8 +68,6 @@ public class DiaryPostLikeService {
         return countLikesByPostId(postId);
     }
 
-
-    // ===== 내부 유틸 =====
 
     private long countLikesByPostId(Long postId) {
         return diaryPostLikeRepository.countByPostId(postId);

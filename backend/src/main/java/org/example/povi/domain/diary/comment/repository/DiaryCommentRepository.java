@@ -24,6 +24,9 @@ public interface DiaryCommentRepository extends JpaRepository<DiaryComment, Long
     // 여러 게시글 댓글 수 한 번에
     @Query("select c.post.id, count(c) from DiaryComment c where c.post.id in :postIds group by c.post.id")
     List<Object[]> countByPostIds(@Param("postIds") List<Long> postIds);
+
+    //특정 게시글의 댓글 개수
+    long countByPostId(Long postId);
 }
 
 

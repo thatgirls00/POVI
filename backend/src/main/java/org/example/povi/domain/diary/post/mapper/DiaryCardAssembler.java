@@ -3,6 +3,11 @@ package org.example.povi.domain.diary.post.mapper;
 import org.example.povi.domain.diary.post.dto.response.DiaryPostCardRes;
 import org.example.povi.domain.diary.post.dto.response.MyDiaryCardRes;
 import org.example.povi.domain.diary.post.entity.DiaryPost;
+import org.example.povi.domain.diary.post.view.PostViewStats;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public final class DiaryCardAssembler {
 
@@ -12,7 +17,7 @@ public final class DiaryCardAssembler {
     }
 
     /**
-     * 나의 다이어리 카드 변환
+     * 단일 카드 변환 (나의 다이어리용)
      */
     public static MyDiaryCardRes toMyCard(
             DiaryPost post,
@@ -37,6 +42,9 @@ public final class DiaryCardAssembler {
         );
     }
 
+    /**
+     * 단일 카드 변환 (친구/전체 다이어리용)
+     */
     public static DiaryPostCardRes toDiaryCard(
             DiaryPost post,
             boolean liked,
@@ -60,5 +68,22 @@ public final class DiaryCardAssembler {
                 likeCount,
                 commentCount
         );
+    }
+
+    /**
+     * 여러 게시글을 한 번에 DTO 리스트로 변환 (PostViewStats와 함께)
+     */
+    public static List<DiaryPostCardRes> toCards(
+            List<DiaryPost> posts,
+            Set<Long> likedSet,
+            Map<Long, Long> likeCnt,
+            Map<Long, Long> cmtCnt
+    ) {
+        return posts.stream()
+                .map(p -> DiaryPostCardRes.from(
+                        p,
+                        PostViewStats.of(likedSet, likeCnt, cmtCnt, p.getId())
+                ))
+                .toList();
     }
 }
