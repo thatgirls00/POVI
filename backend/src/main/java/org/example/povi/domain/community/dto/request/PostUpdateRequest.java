@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import org.example.povi.domain.community.entity.CommunityEmoticon;
-
+@Schema(description = "게시글 수정 요청 DTO")
 public record PostUpdateRequest(
         @NotBlank(message = "제목은 필수 입력 항목입니다.")
         @Schema(description = "게시글 제목", example = "수정된 제목")

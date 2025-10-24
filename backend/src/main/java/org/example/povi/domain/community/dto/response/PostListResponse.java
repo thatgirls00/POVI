@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.example.povi.domain.community.entity.CommunityEmoticon;
 import org.example.povi.domain.community.entity.CommunityPost;
 
+@Schema(description = "게시글 목록 응답 DTO")
 public record PostListResponse(
         @Schema(description = "게시글 ID", example = "101")
         Long postId,

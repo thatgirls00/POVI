@@ -1,10 +1,11 @@
 package org.example.povi.domain.community.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
-import org.example.povi.domain.community.entity.CommunityBookmark;
 import org.example.povi.domain.community.entity.CommunityEmoticon;
 import org.example.povi.domain.community.entity.CommunityPost;
 
+@Schema(description = "북마크한 커뮤니티 게시글 목록 응답 DTO")
 public record BookmarkListResponse(
         Long postId,
         String postTitle,
