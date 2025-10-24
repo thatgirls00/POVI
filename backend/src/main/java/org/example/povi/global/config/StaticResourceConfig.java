@@ -1,5 +1,6 @@
 package org.example.povi.global.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -13,11 +14,28 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class StaticResourceConfig implements WebMvcConfigurer {
 
+    @Value("${file.upload.diary.dir}")
+    private String diaryDir;
+
+    @Value("${file.upload.community.dir}")
+    private String communityDir;
+
+    @Value("${file.upload.profile.dir}")
+    private String profileDir;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // /images/** 요청을 로컬 uploadDir 경로에 매핑
-        registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:" + System.getProperty("user.home") + "/povi-uploads/");
+
+        // ✅ 다이어리 이미지
+        registry.addResourceHandler("/images/diary/**")
+                .addResourceLocations("file:" + diaryDir + "/");
+
+        // ✅ 커뮤니티 이미지
+        registry.addResourceHandler("/images/community/**")
+                .addResourceLocations("file:" + communityDir + "/");
+
+        // ✅ 프로필 이미지
+        registry.addResourceHandler("/images/profile/**")
+                .addResourceLocations("file:" + profileDir + "/");
     }
 }
-
