@@ -1,19 +1,22 @@
 package org.example.povi.domain.user.entity;
 
 import jakarta.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.povi.auth.enums.AuthProvider;
 import org.example.povi.domain.community.entity.PostLike;
+import org.example.povi.domain.diary.comment.entity.DiaryComment;
+import org.example.povi.domain.diary.like.entity.DiaryPostLike;
+import org.example.povi.domain.diary.post.entity.DiaryPost;
 import org.example.povi.domain.transcription.entity.Transcription;
 import org.example.povi.global.entity.BaseEntity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -55,6 +58,16 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private Set<PostLike> likes = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<DiaryPost> diaryPosts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<DiaryComment> diaryComments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Set<DiaryPostLike> diaryPostLikes = new HashSet<>();
+
 
     public void verifyEmail() {
         this.isEmailVerified = true;

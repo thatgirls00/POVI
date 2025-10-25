@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class FileUploadService {
 
-    @Value("${file.upload.dir}")
+    @Value("${file.upload.community.dir}")
     private String uploadDir;
 
     public List<String> uploadFiles(List<MultipartFile> multipartFiles) {

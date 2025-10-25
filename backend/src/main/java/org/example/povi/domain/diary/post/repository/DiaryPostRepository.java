@@ -15,10 +15,14 @@ import java.util.List;
 public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
     void deleteAllByUser(User user);
 
-    //특정 사용자의 다이어리 전체 조회 (최신순)
+    /**
+     * 특정 사용자의 다이어리 전체 조회 (최신순)
+     */
     List<DiaryPost> findByUserIdOrderByCreatedAtDesc(Long userId);
 
-    //여러 작성자 다이어리 조회 (가시성 필터 + 최신순)
+    /**
+     * 여러 작성자의 다이어리를 가시성 조건으로 조회 (최신순)
+     */
     @Query("""
             select p
             from DiaryPost p
@@ -31,7 +35,9 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
             @Param("visibilities") Collection<Visibility> visibilities
     );
 
-    //Explore 피드 (맞팔: FRIEND+PUBLIC, 그 외: PUBLIC)
+    /**
+     * Explore 피드 조회 - 맞팔 사용자(FRIEND+PUBLIC), 그 외 사용자(PUBLIC)
+     */
     @Query("""
             select p
             from DiaryPost p
@@ -53,7 +59,9 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
             @Param("endAt") java.time.LocalDateTime endAt
     );
 
-    //Explore 피드 (맞팔 없는 경우 → PUBLIC만)
+    /**
+     * Explore 피드 조회 - 맞팔 사용자가 없는 경우 (PUBLIC만 조회)
+     */
     @Query("""
             select p
             from DiaryPost p
@@ -70,7 +78,9 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
             @Param("endAt") java.time.LocalDateTime endAt
     );
 
-    //댓글 집계
+    /**
+     * 여러 게시글에 대한 댓글 수 집계
+     */
     @Query("""
               select c.post.id as postId, count(c) as cnt
               from DiaryComment c
@@ -79,6 +89,10 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
             """)
     List<Object[]> countCommentsInPostIds(@Param("postIds") List<Long> postIds);
 
+
+    /**
+     * 특정 사용자의 전체 다이어리 개수
+     */
     long countByUserId(Long userId);
 }
 
