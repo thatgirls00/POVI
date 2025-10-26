@@ -45,7 +45,7 @@ public class DiaryImageUploadService {
 
             try {
                 file.transferTo(new File(fullPath(stored)));
-                imageUrls.add("/images/" + stored); // 정적 매핑으로 서빙
+                imageUrls.add("/images/diary/" + stored);
             } catch (IOException e) {
                 log.error("Diary image upload failed: {}", e.getMessage());
                 throw new RuntimeException("다이어리 이미지 업로드 실패", e);

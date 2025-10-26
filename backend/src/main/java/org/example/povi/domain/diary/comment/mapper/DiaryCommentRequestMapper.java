@@ -14,7 +14,7 @@ public final class DiaryCommentRequestMapper {
     /**
      * DiaryCommentCreateReq → DiaryComment 엔티티 변환
      **/
-    public static DiaryComment fromCreateRequest(DiaryCommentCreateReq req,
+    public static DiaryComment toEntity(DiaryCommentCreateReq req,
                                                  User author,
                                                  DiaryPost post) {
         return DiaryComment.builder()
@@ -28,7 +28,7 @@ public final class DiaryCommentRequestMapper {
      * 댓글 수정 요청 적용 (엔티티 변경)
      * - Dirty Checking으로 자동 반영됨
      */
-    public static void applyUpdate(DiaryComment comment, DiaryCommentUpdateReq req) {
+    public static void updateEntity(DiaryComment comment, DiaryCommentUpdateReq req) {
         comment.updateContent(req.content().trim());
     }
 }

@@ -17,15 +17,19 @@ public record MissionResponse(
         String description,
 
         @Schema(description = "미션 상태", example = "IN_PROGRESS")
-        UserMission.MissionStatus status
+        UserMission.MissionStatus status,
+
+        @Schema(description = "미션 개인화 ID", example = "1")
+        Long userMissionId
 
 ) {
-    public MissionResponse(Mission mission, UserMission.MissionStatus status) {
+    public MissionResponse(Mission mission, UserMission.MissionStatus status, Long userMissionId) {
         this(
                 mission.getId(),
                 mission.getTitle(),
                 mission.getDescription(),
-                status
+                status,
+                userMissionId
         );
     }
 }
