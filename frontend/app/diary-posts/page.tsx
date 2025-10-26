@@ -162,7 +162,10 @@ export default function DiaryPostsPage(): JSX.Element {
             if (year) q.set("year", String(year));
             if (month) q.set("month", String(month));
             q.set("page", String(page));
-            router.replace(`/diary-posts?${q.toString()}`)
+            q.set("size", String(PAGE_SIZE));
+
+            router.replace(`/diary-posts?${q.toString()}`);
+
             const { data } = await api.get(`/diary-posts/mine?${q.toString()}`);
             if (!cancelled) setMyData(toMyDiaryListVM(data));
         };
