@@ -13,16 +13,19 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+                                     children,
+                                   }: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="ko">
-      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
-        <Suspense fallback={null}>{children}</Suspense>
-        <Analytics />
+      <html lang="ko">
+      <body className="bg-[#fffaf5] text-gray-900">
+      <ThemeProvider attribute="class" defaultTheme="light">
+        <div className="flex justify-center">
+          <main className="w-full max-w-5xl px-4 sm:px-6 md:px-8">{children}</main>
+        </div>
+      </ThemeProvider>
       </body>
-    </html>
-  )
+      </html>
+  );
 }
