@@ -18,6 +18,7 @@ import org.example.povi.domain.user.entity.User;
 import org.example.povi.domain.user.follow.service.FollowService;
 import org.example.povi.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -128,39 +129,45 @@ public class DiaryPostService {
     }
 
     /**
-     * 친구 피드 (로그인)
+     * 친구 피드 (로그인) - 페이징
      * - 맞팔: FRIEND+PUBLIC, 단방향: PUBLIC
      */
     @Transactional(readOnly = true)
-    public List<DiaryPostCardRes> listFriendDiaries(Long currentUserId) {
+    public Page<DiaryPostCardRes> listFriendDiaries(Long currentUserId, Pageable pageable) {
         requireLogin(currentUserId);
 
         Set<Long> followingIds = followService.getFollowingUserIds(currentUserId);
-        if (followingIds.isEmpty()) return List.of();
-
         Set<Long> mutualIds = followService.getMutualUserIds(currentUserId);
         Set<Long> oneWayIds = new HashSet<>(followingIds);
         oneWayIds.removeAll(mutualIds);
 
-        List<DiaryPost> friendPosts = new ArrayList<>();
-        if (!mutualIds.isEmpty()) {
-            friendPosts.addAll(diaryPostRepository.findByAuthorsAndVisibilityOrderByCreatedAtDesc(
-                    mutualIds, List.of(Visibility.FRIEND, Visibility.PUBLIC)));
-        }
-        if (!oneWayIds.isEmpty()) {
-            friendPosts.addAll(diaryPostRepository.findByAuthorsAndVisibilityOrderByCreatedAtDesc(
-                    oneWayIds, List.of(Visibility.PUBLIC)));
-        }
-        if (friendPosts.isEmpty()) return List.of();
+        boolean hasMutual = !mutualIds.isEmpty();
+        boolean hasOneWay = !oneWayIds.isEmpty();
 
-        friendPosts.sort(Comparator.comparing(DiaryPost::getCreatedAt).reversed());
+        Collection<Long> mutualParam = hasMutual ? mutualIds : List.of(-1L);
+        Collection<Long> oneWayParam = hasOneWay ? oneWayIds : List.of(-1L);
 
-        List<Long> postIds = friendPosts.stream().map(DiaryPost::getId).toList();
+        Page<DiaryPost> page = diaryPostRepository.findFriendFeedPaged(
+                mutualParam,
+                List.of(Visibility.FRIEND, Visibility.PUBLIC),
+                oneWayParam,
+                Visibility.PUBLIC,
+                hasMutual,
+                hasOneWay,
+                pageable
+        );
+
+        if (page.isEmpty()) return Page.empty(pageable);
+
+        // 현재 페이지 집계 (좋아요/댓글/내가 누른 글)
+        List<Long> postIds = page.getContent().stream().map(DiaryPost::getId).toList();
         Map<Long, Long> commentCnt = DiaryQueryMapper.toCountMap(diaryPostRepository.countCommentsInPostIds(postIds));
         Map<Long, Long> likeCnt = DiaryQueryMapper.toCountMap(diaryPostLikeRepository.countByPostIds(postIds));
         Set<Long> likedSet = new HashSet<>(diaryPostLikeRepository.findPostIdsLikedByUser(postIds, currentUserId));
 
-        return DiaryCardAssembler.toCards(friendPosts, likedSet, likeCnt, commentCnt);
+        // DTO 변환
+        List<DiaryPostCardRes> cards = DiaryCardAssembler.toCards(page.getContent(), likedSet, likeCnt, commentCnt);
+        return new PageImpl<>(cards, pageable, page.getTotalElements());
     }
 
     /**

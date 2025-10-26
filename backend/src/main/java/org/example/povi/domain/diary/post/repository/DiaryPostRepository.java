@@ -18,9 +18,9 @@ import java.util.List;
 public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
     void deleteAllByUser(User user);
 
-    /**
-     * "나의 다이어리" 월별 조회 (백엔드 필터링 + 페이지네이션)
-     */
+    // ======================================================================
+    // "나의 다이어리" 조회 (월별 페이징 / 주간 비페이징)
+    // ======================================================================
     Page<DiaryPost> findByUserIdAndCreatedAtBetween(
             Long userId,
             LocalDateTime startAt,
@@ -28,18 +28,15 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
             Pageable pageable
     );
 
-    /**
-     * 범위 조회(비페이징) - 주간 통계용
-     */
     List<DiaryPost> findByUserIdAndCreatedAtBetween(
             Long userId,
             LocalDateTime startAt,
             LocalDateTime endAt
     );
 
-    /**
-     * 여러 작성자의 다이어리를 가시성 조건으로 조회 (최신순)
-     */
+    // ======================================================================
+    // 친구 피드 (비페이징)
+    // ======================================================================
     @Query("""
             select p
             from DiaryPost p
@@ -52,9 +49,31 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
             @Param("visibilities") Collection<Visibility> visibilities
     );
 
-    /**
-     * Explore 피드 조회 - 맞팔 사용자(FRIEND+PUBLIC), 그 외 사용자(PUBLIC)
-     */
+    // ======================================================================
+    // 친구 피드 (페이징)
+    // ======================================================================
+    @Query("""
+    select p
+    from DiaryPost p
+    where (
+            (:hasMutual = true and p.user.id in :mutualIds and p.visibility in :friendVisible)
+         or (:hasOneWay = true and p.user.id in :oneWayIds and p.visibility = :publicVis)
+    )
+    order by p.createdAt desc
+    """)
+    Page<DiaryPost> findFriendFeedPaged(
+            @Param("mutualIds") Collection<Long> mutualIds,
+            @Param("friendVisible") Collection<Visibility> friendVisible,
+            @Param("oneWayIds") Collection<Long> oneWayIds,
+            @Param("publicVis") Visibility publicVis,
+            @Param("hasMutual") boolean hasMutual,
+            @Param("hasOneWay") boolean hasOneWay,
+            Pageable pageable
+    );
+
+    // ======================================================================
+    // Explore 피드 (기간 + 가시성 규칙)
+    // ======================================================================
     @Query("""
             select p
             from DiaryPost p
@@ -72,13 +91,10 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
             @Param("mutualIds") Collection<Long> mutualIds,
             @Param("friendVisible") Collection<Visibility> friendVisible,
             @Param("publicVis") Visibility publicVis,
-            @Param("startAt") java.time.LocalDateTime startAt,
-            @Param("endAt") java.time.LocalDateTime endAt
+            @Param("startAt") LocalDateTime startAt,
+            @Param("endAt") LocalDateTime endAt
     );
 
-    /**
-     * Explore 피드 조회 - 맞팔 사용자가 없는 경우 (PUBLIC만 조회)
-     */
     @Query("""
             select p
             from DiaryPost p
@@ -91,25 +107,20 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
     List<DiaryPost> findExploreFeedPublicOnlyInPeriod(
             @Param("viewerId") Long viewerId,
             @Param("publicVis") Visibility publicVis,
-            @Param("startAt") java.time.LocalDateTime startAt,
-            @Param("endAt") java.time.LocalDateTime endAt
+            @Param("startAt") LocalDateTime startAt,
+            @Param("endAt") LocalDateTime endAt
     );
 
-    /**
-     * 여러 게시글에 대한 댓글 수 집계
-     */
+    // ======================================================================
+    // 집계/통계
+    // ======================================================================
     @Query("""
-              select c.post.id as postId, count(c) as cnt
-              from DiaryComment c
-              where c.post.id in :postIds
-              group by c.post.id
+            select c.post.id as postId, count(c) as cnt
+            from DiaryComment c
+            where c.post.id in :postIds
+            group by c.post.id
             """)
     List<Object[]> countCommentsInPostIds(@Param("postIds") List<Long> postIds);
 
-
-    /**
-     * 특정 사용자의 전체 다이어리 개수
-     */
     long countByUserId(Long userId);
 }
-

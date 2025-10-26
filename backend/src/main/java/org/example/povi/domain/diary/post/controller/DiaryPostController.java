@@ -14,6 +14,7 @@ import org.example.povi.domain.diary.post.dto.request.DiaryPostCreateReq;
 import org.example.povi.domain.diary.post.dto.request.DiaryPostUpdateReq;
 import org.example.povi.domain.diary.post.dto.response.*;
 import org.example.povi.domain.diary.post.service.DiaryPostService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -125,10 +126,11 @@ public class DiaryPostController {
             @Content(array = @ArraySchema(schema = @Schema(implementation = DiaryPostCardRes.class)))),
             @ApiResponse(responseCode = "401", description = "인증 실패")
     })
-    public ResponseEntity<List<DiaryPostCardRes>> listFriendDiaries(
-            @AuthenticationPrincipal(expression = "id") Long userId
+    public ResponseEntity<Page<DiaryPostCardRes>> listFriendDiaries(
+            @AuthenticationPrincipal(expression = "id") Long userId,
+            @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        List<DiaryPostCardRes> res = diaryPostService.listFriendDiaries(userId);
+        Page<DiaryPostCardRes> res = diaryPostService.listFriendDiaries(userId, pageable);
         return ResponseEntity.ok(res);
     }
 

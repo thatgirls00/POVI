@@ -1,13 +1,13 @@
 "use client";
 
-import { JSX, useEffect, useMemo, useState } from "react";
+import {JSX, useEffect, useMemo, useState} from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Header } from "@/components/header";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ImageIcon, PenLine, Calendar, Heart } from "lucide-react";
+import {useRouter, useSearchParams} from "next/navigation";
+import {Header} from "@/components/header";
+import {Button} from "@/components/ui/button";
+import {Card} from "@/components/ui/card";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {ImageIcon, PenLine, Calendar, Heart} from "lucide-react";
 import api from "@/lib/axios";
 import DiaryDetailDialog from "@/components/diary-detail-dialog";
 
@@ -67,6 +67,12 @@ type DiaryCardVM = {
     liked: boolean;
     likeCount: number;
 };
+
+type PageResponse<T> = {
+    content: T[];
+    totalElements: number;
+    // 그 외 필드가 오더라도 무시
+} & Record<string, any>;
 
 /* ===== 이모지 매핑 ===== */
 const emojiMap: Record<string, string> = {
@@ -132,51 +138,92 @@ export default function DiaryPostsPage(): JSX.Element {
 
     // 클램프: 오늘 이후 금지
     const clampYM = (y: number, m: number) => {
-        if (y > currentYear) return { y: currentYear, m: currentMonth };
-        if (y === currentYear && m > currentMonth) return { y, m: currentMonth };
-        return { y, m };
+        if (y > currentYear) return {y: currentYear, m: currentMonth};
+        if (y === currentYear && m > currentMonth) return {y, m: currentMonth};
+        return {y, m};
     };
+
+    const initTab = ((): "my" | "friend" | "all" => {
+        const t = (search.get("tab") ?? "my").toLowerCase();
+        return t === "friend" ? "friend" : t === "all" ? "all" : "my";
+    })();
 
     const initYearRaw = Number(search.get("year") ?? currentYear);
     const initMonthRaw = Number(search.get("month") ?? currentMonth);
-    const { y: initYear, m: initMonth } = clampYM(initYearRaw, initMonthRaw);
+    const {y: initYear, m: initMonth} = clampYM(initYearRaw, initMonthRaw);
+
     const initPage = Number(search.get("page") ?? 0);
 
-    const [tab, setTab] = useState<"my" | "friend" | "all">("my");
+    const [tab, setTab] = useState<"my" | "friend" | "all">(initTab);
     const [year, setYear] = useState<number>(initYear);
     const [month, setMonth] = useState<number>(initMonth);
     const [page, setPage] = useState<number>(initPage);
 
     const [myData, setMyData] = useState<MyDiaryListVM | null>(null);
     const [friends, setFriends] = useState<DiaryCardVM[]>([]);
+    const [friendsTotal, setFriendsTotal] = useState<number>(0);
     const [explore, setExplore] = useState<DiaryCardVM[]>([]);
     const [loading, setLoading] = useState(false);
     const [err, setErr] = useState<string | null>(null);
 
-    /* 탭/쿼리 기반 데이터 로드 */
+    /* 탭 전환 시 페이지 초기화 + URL 반영 */
+    const handleChangeTab = (v: string) => {
+        const next = (v as any) as "my" | "friend" | "all";
+        setTab(next);
+        setPage(0);
+        const q = new URLSearchParams(search.toString());
+        q.set("tab", next);
+        if (next === "my") {
+            q.set("year", String(year));
+            q.set("month", String(month));
+        } else {
+            q.delete("year");
+            q.delete("month");
+        }
+        q.set("page", "0");
+        router.replace(`/diary-posts?${q.toString()}`);
+    };
+
+    /* 데이터 로드 */
     useEffect(() => {
         let cancelled = false;
 
         const fetchMy = async () => {
             const q = new URLSearchParams();
-            if (year) q.set("year", String(year));
-            if (month) q.set("month", String(month));
+            q.set("tab", "my");
+            q.set("year", String(year));
+            q.set("month", String(month));
             q.set("page", String(page));
             q.set("size", String(PAGE_SIZE));
-
             router.replace(`/diary-posts?${q.toString()}`);
 
-            const { data } = await api.get(`/diary-posts/mine?${q.toString()}`);
+            const {data} = await api.get(`/diary-posts/mine?${q.toString()}`);
             if (!cancelled) setMyData(toMyDiaryListVM(data));
         };
 
         const fetchFriends = async () => {
-            const { data } = await api.get("/diary-posts/friends");
-            if (!cancelled) setFriends((data ?? []).map(toDiaryCardVM));
+            const q = new URLSearchParams();
+            q.set("tab", "friend");
+            q.set("page", String(page));
+            q.set("size", String(PAGE_SIZE));
+            router.replace(`/diary-posts?${q.toString()}`);
+
+            const {data} = await api.get<PageResponse<any>>(
+                `/diary-posts/friends?${q.toString()}`
+            );
+            if (!cancelled) {
+                const items = (data?.content ?? []).map(toDiaryCardVM);
+                setFriends(items);
+                setFriendsTotal(data?.totalElements ?? 0);
+            }
         };
 
         const fetchExplore = async () => {
-            const { data } = await api.get("/diary-posts/explore");
+            const q = new URLSearchParams();
+            q.set("tab", "all");
+            router.replace(`/diary-posts?${q.toString()}`);
+
+            const {data} = await api.get(`/diary-posts/explore`);
             if (!cancelled) setExplore((data ?? []).map(toDiaryCardVM));
         };
 
@@ -185,8 +232,8 @@ export default function DiaryPostsPage(): JSX.Element {
             setErr(null);
             try {
                 if (tab === "my") await fetchMy();
-                else if (tab === "friend" && friends.length === 0) await fetchFriends();
-                else if (tab === "all" && explore.length === 0) await fetchExplore();
+                else if (tab === "friend") await fetchFriends();
+                else await fetchExplore();
             } catch (e: any) {
                 if (!cancelled) setErr(e?.response?.data?.message ?? "불러오기 실패");
             } finally {
@@ -198,6 +245,7 @@ export default function DiaryPostsPage(): JSX.Element {
         return () => {
             cancelled = true;
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tab, year, month, page]);
 
     const visibilityLabel = (v: Visibility) =>
@@ -229,23 +277,27 @@ export default function DiaryPostsPage(): JSX.Element {
                         }
                         : it
                 );
-                setMyData({ ...myData, myDiaries: updated });
+                setMyData({...myData, myDiaries: updated});
             } else if (tab === "friend") apply(friends, setFriends);
             else apply(explore, setExplore);
 
-            const { data } = await api.post(`/diary-posts/${postId}/likes/toggle`);
+            const {data} = await api.post(`/diary-posts/${postId}/likes/toggle`);
             const reconcile = (arr: any[], setArr: any) =>
                 setArr(
                     arr.map((it) =>
                         it.id === postId
-                            ? { ...it, liked: !!data.liked, likeCount: data.likeCount ?? it.likeCount }
+                            ? {
+                                ...it,
+                                liked: !!data.liked,
+                                likeCount: data.likeCount ?? it.likeCount,
+                            }
                             : it
                     )
                 );
 
             if (tab === "my" && myData)
                 reconcile(myData.myDiaries, (next: MyDiaryCardVM[]) =>
-                    setMyData({ ...myData, myDiaries: next })
+                    setMyData({...myData, myDiaries: next})
                 );
             else if (tab === "friend") reconcile(friends, setFriends);
             else reconcile(explore, setExplore);
@@ -260,8 +312,10 @@ export default function DiaryPostsPage(): JSX.Element {
 
     const handleOpenDiary = async (id: number) => {
         try {
-            const { data } = await api.get(`/diary-posts/${id}`);
-            const dateStr = data?.createdAt ? new Date(data.createdAt).toISOString().slice(0, 10) : "";
+            const {data} = await api.get(`/diary-posts/${id}`);
+            const dateStr = data?.createdAt
+                ? new Date(data.createdAt).toISOString().slice(0, 10)
+                : "";
             setSelectedDiary({
                 id: data.postId,
                 title: data.title,
@@ -287,7 +341,11 @@ export default function DiaryPostsPage(): JSX.Element {
         if (!isoDate) return false;
         const d = new Date(isoDate);
         const today = new Date();
-        const today0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const today0 = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+        );
         const dow = (today0.getDay() + 6) % 7;
         const start = new Date(today0);
         start.setDate(today0.getDate() - dow);
@@ -308,7 +366,10 @@ export default function DiaryPostsPage(): JSX.Element {
                 ? {
                     ...prev,
                     totalCount: Math.max(0, prev.totalCount - 1),
-                    thisWeekCount: Math.max(0, prev.thisWeekCount - (isInThisWeek(createdDate) ? 1 : 0)),
+                    thisWeekCount: Math.max(
+                        0,
+                        prev.thisWeekCount - (isInThisWeek(createdDate) ? 1 : 0)
+                    ),
                     myDiaries: prev.myDiaries.filter((d) => d.id !== postId),
                 }
                 : prev
@@ -326,19 +387,21 @@ export default function DiaryPostsPage(): JSX.Element {
                     toggleLike(d.id);
                 }}
             >
-                <Heart className={`h-4 w-4 ${d.liked ? "fill-current" : ""}`} />
+                <Heart className={`h-4 w-4 ${d.liked ? "fill-current" : ""}`}/>
                 <span>{d.likeCount}</span>
             </button>
             <span>💬 {d.commentCount}</span>
         </div>
     );
 
-    const isLastPage = (page + 1) * PAGE_SIZE >= (myData?.totalCount ?? 0);
+    /* 페이지 끝 판별 */
+    const isMyLastPage = (page + 1) * PAGE_SIZE >= (myData?.totalCount ?? 0);
+    const isFriendsLastPage = (page + 1) * PAGE_SIZE >= friendsTotal;
 
     /* ===== 렌더 ===== */
     return (
         <div className="min-h-screen">
-            <Header />
+            <Header/>
             <main className="container py-8 md:py-12 max-w-5xl">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                     <div>
@@ -348,20 +411,20 @@ export default function DiaryPostsPage(): JSX.Element {
                     <div className="flex gap-3">
                         <Button variant="outline" asChild>
                             <Link href="/calendar">
-                                <Calendar className="h-4 w-4 mr-2" />
+                                <Calendar className="h-4 w-4 mr-2"/>
                                 캘린더 보기
                             </Link>
                         </Button>
                         <Button asChild>
                             <Link href="/diary-posts/new">
-                                <PenLine className="h-4 w-4 mr-2" />
+                                <PenLine className="h-4 w-4 mr-2"/>
                                 새 다이어리
                             </Link>
                         </Button>
                     </div>
                 </div>
 
-                <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="space-y-6">
+                <Tabs value={tab} onValueChange={handleChangeTab} className="space-y-6">
                     <TabsList className="grid w-full max-w-md grid-cols-3">
                         <TabsTrigger value="my">나의 다이어리</TabsTrigger>
                         <TabsTrigger value="friend">친구 다이어리</TabsTrigger>
@@ -403,7 +466,7 @@ export default function DiaryPostsPage(): JSX.Element {
                                             setMonth(nextMonth);
                                         }}
                                     >
-                                        {Array.from({ length: 6 }).map((_, i) => {
+                                        {Array.from({length: 6}).map((_, i) => {
                                             const y = currentYear - i;
                                             return (
                                                 <option key={y} value={y}>
@@ -425,7 +488,7 @@ export default function DiaryPostsPage(): JSX.Element {
                                                     setMonth(Math.min(m, maxMonthForYear));
                                                 }}
                                             >
-                                                {Array.from({ length: maxMonthForYear }).map((_, i) => {
+                                                {Array.from({length: maxMonthForYear}).map((_, i) => {
                                                     const m = i + 1;
                                                     return (
                                                         <option key={m} value={m}>
@@ -449,7 +512,7 @@ export default function DiaryPostsPage(): JSX.Element {
                                         <button
                                             className="px-3 py-2 border rounded-md"
                                             onClick={() => setPage((p) => p + 1)}
-                                            disabled={isLastPage}
+                                            disabled={isMyLastPage}
                                         >
                                             다음
                                         </button>
@@ -489,8 +552,9 @@ export default function DiaryPostsPage(): JSX.Element {
                                                         className="w-20 h-20 rounded-lg object-cover"
                                                     />
                                                 ) : (
-                                                    <div className="flex-shrink-0 w-20 h-20 bg-muted rounded-lg flex items-center justify-center">
-                                                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                                                    <div
+                                                        className="flex-shrink-0 w-20 h-20 bg-muted rounded-lg flex items-center justify-center">
+                                                        <ImageIcon className="h-8 w-8 text-muted-foreground"/>
                                                     </div>
                                                 )}
                                             </div>
@@ -503,6 +567,40 @@ export default function DiaryPostsPage(): JSX.Element {
 
                     {/* ===== 친구 다이어리 ===== */}
                     <TabsContent value="friend" className="space-y-4">
+                        <div className="mb-4">
+                            <h2 className="text-2xl font-bold mb-1">친구들의 다이어리</h2>
+                            <p className="text-muted-foreground">
+                                팔로잉한 친구들이 공유한 감정을 확인하세요
+                            </p>
+                        </div>
+                        {loading && friends.length === 0 ? (
+                            <p>불러오는 중…</p>
+                        ) : err && friends.length === 0 ? (
+                            <p>{err}</p>
+                        ) : null}
+
+                        {/* 페이지 컨트롤 */}
+                        <div className="flex items-center gap-2 justify-end">
+                            <button
+                                className="px-3 py-2 border rounded-md disabled:opacity-40"
+                                disabled={page <= 0}
+                                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                            >
+                                이전
+                            </button>
+                            <span className="text-sm">page {page + 1}</span>
+                            <button
+                                className="px-3 py-2 border rounded-md"
+                                onClick={() => setPage((p) => p + 1)}
+                                disabled={isFriendsLastPage}
+                            >
+                                다음
+                            </button>
+                            <span className="ml-2 text-sm text-muted-foreground hidden sm:inline">
+                {PAGE_SIZE}개/페이지
+              </span>
+                        </div>
+
                         {friends.map((d) => (
                             <Card
                                 key={d.id}
@@ -526,6 +624,13 @@ export default function DiaryPostsPage(): JSX.Element {
 
                     {/* ===== 모두의 다이어리 ===== */}
                     <TabsContent value="all" className="space-y-4">
+                        {/* 👇 추가된 헤더 */}
+                        <div className="mb-4">
+                            <h2 className="text-2xl font-bold mb-1">모두의 다이어리</h2>
+                            <p className="text-muted-foreground">
+                                최근 일주일 사이 전체 공개된 다이어리를 둘러보세요
+                            </p>
+                        </div>
                         {explore.map((d) => (
                             <Card
                                 key={d.id}
@@ -560,13 +665,13 @@ export default function DiaryPostsPage(): JSX.Element {
                     diary={selectedDiary}
                     onLikeToggle={(postId, liked, likeCount) => {
                         const updateList = (list: DiaryCardVM[] | MyDiaryCardVM[], setter: any) =>
-                            setter(list.map((it: any) => (it.id === postId ? { ...it, liked, likeCount } : it)));
+                            setter(list.map((it: any) => (it.id === postId ? {...it, liked, likeCount} : it)));
 
                         if (tab === "my" && myData) {
                             const next = myData.myDiaries.map((it) =>
-                                it.id === postId ? { ...it, liked, likeCount } : it
+                                it.id === postId ? {...it, liked, likeCount} : it
                             );
-                            setMyData({ ...myData, myDiaries: next });
+                            setMyData({...myData, myDiaries: next});
                         } else if (tab === "friend") {
                             updateList(friends, setFriends);
                         } else {
@@ -575,13 +680,13 @@ export default function DiaryPostsPage(): JSX.Element {
                     }}
                     onCommentChange={(postId, commentCount) => {
                         const updateComments = (list: DiaryCardVM[] | MyDiaryCardVM[], setter: any) =>
-                            setter(list.map((it: any) => (it.id === postId ? { ...it, commentCount } : it)));
+                            setter(list.map((it: any) => (it.id === postId ? {...it, commentCount} : it)));
 
                         if (myData) {
                             const next = myData.myDiaries.map((it) =>
-                                it.id === postId ? { ...it, commentCount } : it
+                                it.id === postId ? {...it, commentCount} : it
                             );
-                            setMyData({ ...myData, myDiaries: next });
+                            setMyData({...myData, myDiaries: next});
                         }
                         updateComments(friends, setFriends);
                         updateComments(explore, setExplore);
