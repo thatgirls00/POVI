@@ -23,8 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/diary-posts")
@@ -142,10 +140,11 @@ public class DiaryPostController {
             @Content(array = @ArraySchema(schema = @Schema(implementation = DiaryPostCardRes.class)))),
             @ApiResponse(responseCode = "401", description = "인증 실패")
     })
-    public ResponseEntity<List<DiaryPostCardRes>> explore(
-            @AuthenticationPrincipal(expression = "id") Long userId
+    public ResponseEntity<Page<DiaryPostCardRes>> explore(
+            @AuthenticationPrincipal(expression = "id") Long userId,
+            @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        List<DiaryPostCardRes> res = diaryPostService.listExploreFeed(userId);
+        Page<DiaryPostCardRes> res = diaryPostService.listExploreFeed(userId, pageable);
         return ResponseEntity.ok(res);
     }
 }

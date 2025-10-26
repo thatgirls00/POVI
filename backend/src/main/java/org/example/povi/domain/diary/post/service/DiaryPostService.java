@@ -176,31 +176,34 @@ public class DiaryPostService {
      * - 맞팔: FRIEND+PUBLIC, 그 외: PUBLIC
      */
     @Transactional(readOnly = true)
-    public List<DiaryPostCardRes> listExploreFeed(Long currentUserId) {
+    public Page<DiaryPostCardRes> listExploreFeed(Long currentUserId, Pageable pageable) {
         requireLogin(currentUserId);
 
+        // 최근 7일 고정: [오늘-6일 00:00, 내일 00:00)
         LocalDate today = LocalDate.now();
-        LocalDateTime startAt = today.minusDays(6).atStartOfDay(); // 오늘 포함 7일
-        LocalDateTime endAt = today.plusDays(1).atStartOfDay();  // 내일 0시(미만)
+        LocalDateTime startAt = today.minusDays(6).atStartOfDay();
+        LocalDateTime endAt = today.plusDays(1).atStartOfDay();
 
         Set<Long> mutualIds = followService.getMutualUserIds(currentUserId);
 
-        List<DiaryPost> posts = mutualIds.isEmpty()
-                ? diaryPostRepository.findExploreFeedPublicOnlyInPeriod(
-                currentUserId, Visibility.PUBLIC, startAt, endAt)
-                : diaryPostRepository.findExploreFeedWithMutualsInPeriod(
+        Page<DiaryPost> page = mutualIds.isEmpty()
+                ? diaryPostRepository.findExploreFeedPublicOnlyInPeriodPaged(
+                currentUserId, Visibility.PUBLIC, startAt, endAt, pageable)
+                : diaryPostRepository.findExploreFeedWithMutualsInPeriodPaged(
                 currentUserId, mutualIds,
                 List.of(Visibility.FRIEND, Visibility.PUBLIC),
-                Visibility.PUBLIC, startAt, endAt);
+                Visibility.PUBLIC, startAt, endAt, pageable);
 
-        if (posts.isEmpty()) return List.of();
+        if (page.isEmpty()) return Page.empty(pageable);
 
-        List<Long> postIds = posts.stream().map(DiaryPost::getId).toList();
+        // 현재 페이지 집계
+        List<Long> postIds = page.getContent().stream().map(DiaryPost::getId).toList();
         Map<Long, Long> commentCnt = DiaryQueryMapper.toCountMap(diaryPostRepository.countCommentsInPostIds(postIds));
         Map<Long, Long> likeCnt = DiaryQueryMapper.toCountMap(diaryPostLikeRepository.countByPostIds(postIds));
         Set<Long> likedSet = new HashSet<>(diaryPostLikeRepository.findPostIdsLikedByUser(postIds, currentUserId));
 
-        return DiaryCardAssembler.toCards(posts, likedSet, likeCnt, commentCnt);
+        List<DiaryPostCardRes> cards = DiaryCardAssembler.toCards(page.getContent(), likedSet, likeCnt, commentCnt);
+        return new PageImpl<>(cards, pageable, page.getTotalElements());
     }
 
 

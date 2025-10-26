@@ -18,9 +18,11 @@ import java.util.List;
 public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
     void deleteAllByUser(User user);
 
-    // ======================================================================
-    // "나의 다이어리" 조회 (월별 페이징 / 주간 비페이징)
-    // ======================================================================
+    // =========================================================
+    // 나의 다이어리 (월별 페이징 / 주간 비페이징)
+    //  - 월별 카드 목록: Page
+    //  - 주간 통계 집계용: List
+    // =========================================================
     Page<DiaryPost> findByUserIdAndCreatedAtBetween(
             Long userId,
             LocalDateTime startAt,
@@ -34,24 +36,12 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
             LocalDateTime endAt
     );
 
-    // ======================================================================
-    // 친구 피드 (비페이징)
-    // ======================================================================
-    @Query("""
-            select p
-            from DiaryPost p
-            where p.user.id in :authorIds
-              and p.visibility in :visibilities
-            order by p.createdAt desc
-            """)
-    List<DiaryPost> findByAuthorsAndVisibilityOrderByCreatedAtDesc(
-            @Param("authorIds") Collection<Long> authorIds,
-            @Param("visibilities") Collection<Visibility> visibilities
-    );
-
-    // ======================================================================
+    // =========================================================
     // 친구 피드 (페이징)
-    // ======================================================================
+    //  - 맞팔: FRIEND + PUBLIC
+    //  - 단방향: PUBLIC
+    //  - hasMutual / hasOneWay 플래그로 조건 단순화 (빈 컬렉션 처리 회피)
+    // =========================================================
     @Query("""
     select p
     from DiaryPost p
@@ -71,44 +61,49 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
             Pageable pageable
     );
 
-    // ======================================================================
-    // Explore 피드 (기간 + 가시성 규칙)
-    // ======================================================================
+    // =========================================================
+    // 모두의 다이어리 Explore (기간 + 가시성 규칙, 페이징)
+    //  - viewer 제외
+    //  - 최근 7일 기간 필터
+    //  - 맞팔: FRIEND + PUBLIC, 그 외: PUBLIC
+    // =========================================================
     @Query("""
-            select p
-            from DiaryPost p
-            where p.user.id <> :viewerId
-              and p.createdAt >= :startAt
-              and p.createdAt < :endAt
-              and (
-                    (p.user.id in :mutualIds and p.visibility in :friendVisible)
-                 or (p.user.id not in :mutualIds and p.visibility = :publicVis)
-              )
-            order by p.createdAt desc
-            """)
-    List<DiaryPost> findExploreFeedWithMutualsInPeriod(
+        select p
+        from DiaryPost p
+        where p.user.id <> :viewerId
+          and p.createdAt >= :startAt
+          and p.createdAt < :endAt
+          and (
+                (p.user.id in :mutualIds and p.visibility in :friendVisible)
+             or (p.user.id not in :mutualIds and p.visibility = :publicVis)
+          )
+        order by p.createdAt desc
+        """)
+    Page<DiaryPost> findExploreFeedWithMutualsInPeriodPaged(
             @Param("viewerId") Long viewerId,
             @Param("mutualIds") Collection<Long> mutualIds,
             @Param("friendVisible") Collection<Visibility> friendVisible,
             @Param("publicVis") Visibility publicVis,
             @Param("startAt") LocalDateTime startAt,
-            @Param("endAt") LocalDateTime endAt
+            @Param("endAt") LocalDateTime endAt,
+            Pageable pageable
     );
 
     @Query("""
-            select p
-            from DiaryPost p
-            where p.user.id <> :viewerId
-              and p.createdAt >= :startAt
-              and p.createdAt < :endAt
-              and p.visibility = :publicVis
-            order by p.createdAt desc
-            """)
-    List<DiaryPost> findExploreFeedPublicOnlyInPeriod(
+        select p
+        from DiaryPost p
+        where p.user.id <> :viewerId
+          and p.createdAt >= :startAt
+          and p.createdAt < :endAt
+          and p.visibility = :publicVis
+        order by p.createdAt desc
+        """)
+    Page<DiaryPost> findExploreFeedPublicOnlyInPeriodPaged(
             @Param("viewerId") Long viewerId,
             @Param("publicVis") Visibility publicVis,
             @Param("startAt") LocalDateTime startAt,
-            @Param("endAt") LocalDateTime endAt
+            @Param("endAt") LocalDateTime endAt,
+            Pageable pageable
     );
 
     // ======================================================================
