@@ -61,9 +61,6 @@ public class SecurityConfig {
                                 "/auth/email/status",
                                 "/oauth2/**",
                                 "/quotes/today",
-                                "/transcriptions"
-                                "/transcriptions/**",
-                                "/me/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",

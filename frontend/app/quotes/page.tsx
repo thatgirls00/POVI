@@ -33,17 +33,21 @@ const quotes = [
   },
 ]
 
-// 날짜를 "N일 전" 형식으로 변환하는 함수
 const timeAgo = (dateString: string): string => {
-    const now = new Date()
-    const past = new Date(dateString)
-    const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000)
-    const diffInDays = Math.floor(diffInSeconds / (60 * 60 * 24))
-  
-    if (diffInDays === 0) return "오늘"
-    if (diffInDays === 1) return "1일 전"
-    return `${diffInDays}일 전`
-  }
+  const now = new Date();
+  const past = new Date(dateString);
+
+  // 시간, 분, 초를 모두 0으로 만들어 날짜만 비교하도록 설정
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const pastDate = new Date(past.getFullYear(), past.getMonth(), past.getDate());
+
+  const diffTime = today.getTime() - pastDate.getTime();
+  const diffInDays = diffTime / (1000 * 60 * 60 * 24);
+
+  if (diffInDays === 0) return "오늘";
+  if (diffInDays === 1) return "1일 전";
+  return `${diffInDays}일 전`;
+};
 
 export default function QuotesPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
@@ -54,21 +58,55 @@ export default function QuotesPage() {
   const [quote, setQuote] = useState<QuoteRes | null>(null);
   const [myTranscriptions, setMyTranscriptions] = useState<TranscriptionRes[]>([])
   
+  useEffect(() => {
+    const fetchTodaysQuote = async () => {
+      try {
+        // 백엔드 API에 GET 요청을 보냅니다.
+        const response = await fetch(`${baseUrl}/quotes/today`);
+        const data = await response.json();
+        // 응답받은 데이터로 상태를 업데이트합니다.
+        console.log(data)
+        setQuote(data);
+      } catch (error) {
+        console.error("오늘의 명언을 가져오는 데 실패했습니다:", error);
+      }
+    };
+    fetchTodaysQuote();
+  }, []); // 의존성 배열이 비어있으면 최초 1회만 실행됩니다.
 
-  const startCalligraphy = () => {
-    setIsCalligraphy(true)
-    setCalligraphyText("")
-  }
+  useEffect(() => {
+        const fetchMyTranscriptions = async () => {
+          // 실제 인증 로직에 따라 토큰을 가져옵니다. (예: localStorage)
+          const token = localStorage.getItem("accessToken")
+          if (!token) return // 토큰이 없으면 요청하지 않음
+    
+          try {
+            const response = await fetch(`${baseUrl}/transcriptions/me?size=4`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+    //         if (!response.ok) throw new Error("Network response was not ok")
+            const data = await response.json();
+        // 백엔드 DTO 구조에 맞춰 "transcriptionList"에서 데이터를 가져옵니다.
+        setMyTranscriptions(data.transcriptionList || []);
+      } catch (error) {
+        console.error(error);
+        setMyTranscriptions([]);
+      }
+    };
+    fetchMyTranscriptions();
+  }, [baseUrl]);
 
   const saveCalligraphy = async () => {
-        if (!quote) return
+        if (!quote) return;
     
         setIsSaved(true)
         const token = localStorage.getItem("accessToken")
         if (!token) {
-          alert("로그인이 필요합니다.")
-          setIsSaved(false)
-          return
+          alert("로그인이 필요합니다.");
+          setIsSaved(false);
+          return;
         }
     
         try {
@@ -87,8 +125,7 @@ export default function QuotesPage() {
     
           const newTranscription = await response.json()
     
-          // 3. 저장 성공 후 동작
-          // 3-1. 필사 화면을 닫습니다.
+          // 저장 성공 시, 상태를 업데이트하여 화면을 즉시 갱신합니다.
           setIsCalligraphy(false)
           // 3-2. 기존 목록의 맨 앞에 새 기록을 추가하고, 4개로 개수를 유지합니다.
           setMyTranscriptions((prev) => [newTranscription, ...prev].slice(0, 4))
@@ -100,51 +137,33 @@ export default function QuotesPage() {
         }
       }
 
-  useEffect(() => {
-    const fetchTodaysQuote = async () => {
-      try {
-        // 백엔드 API에 GET 요청을 보냅니다.
-        const response = await fetch(`${baseUrl}/quotes/today`);
-        const data = await response.json();
-        // 응답받은 데이터로 상태를 업데이트합니다.
-        console.log(data)
-        setQuote(data);
-      } catch (error) {
-        console.error("오늘의 명언을 가져오는 데 실패했습니다:", error);
-      }
-    };
-
-    fetchTodaysQuote();
-  }, []); // 의존성 배열이 비어있으면 최초 1회만 실행됩니다.
-
-  useEffect(() => {
-        const fetchMyTranscriptions = async () => {
-          // 실제 인증 로직에 따라 토큰을 가져옵니다. (예: localStorage)
-          const token = localStorage.getItem("accessToken")
-          if (!token) return // 토큰이 없으면 요청하지 않음
-    
-          try {
-            const response = await fetch(`${baseUrl}/transcriptions/me?size=4`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            })
-    //         if (!response.ok) throw new Error("Network response was not ok")
-            const data = await response.json()
-            // Spring Pageable 응답은 보통 content 필드에 데이터가 담겨 있습니다.
-            setMyTranscriptions(data.content || [])
-          } catch (error) {
-            console.error("내가 필사한 문장을 가져오는 데 실패했습니다:", error)
-          }
-        }
-        fetchMyTranscriptions()
-      }, [baseUrl])
-
-  const calligraphyTargetText = quote?.message || ""
+  const startCalligraphy = () => {
+    setIsCalligraphy(true)
+    setCalligraphyText("")
+  }
 
   if (!quote) {
-    return <div>로딩 중...</div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
+
+  const transcriptionGridClasses = (() => {
+    const count = myTranscriptions.length;
+    if (count === 1) {
+      // 아이템이 1개일 때 왼쪽 정렬
+      return "grid md:grid-cols-2 gap-4 md:justify-start";
+    } else if (count === 2) {
+      // 아이템이 2개일 때 양 옆으로 정렬 (flex justify-between 대신 grid-cols-2로 간격 유지)
+      return "grid md:grid-cols-2 gap-4 md:justify-between"; // grid-cols-2는 이미 양 옆으로 배치
+    } else if (count >= 3) {
+      // 아이템이 3개 이상일 때 (최대 4개)는 기본 grid-cols-2 유지
+      return "grid md:grid-cols-2 gap-4";
+    }
+    return "grid md:grid-cols-2 gap-4"; // 기본값 (없거나 기타 경우)
+  })();
 
   return (
     <div className="min-h-screen">
@@ -156,7 +175,7 @@ export default function QuotesPage() {
           <p className="text-muted-foreground">마음을 위로하는 따뜻한 문장을 만나보세요</p>
         </div>
 
-        {!isCalligraphy && quote ? (
+        {!isCalligraphy ? (
           <div className="space-y-6">
             {/* Daily Quote */}
             <Card className="p-12 bg-gradient-to-br from-accent/30 to-secondary/40 border-none">
@@ -172,8 +191,7 @@ export default function QuotesPage() {
             {/* Actions */}
             <div className="flex justify-center">
               <Button size="lg" className="gap-2" onClick={startCalligraphy}>
-                <PenLine className="h-5 w-5" />
-                필사하기
+                <PenLine className="h-5 w-5" /> 필사하기
               </Button>
             </div>
 
@@ -195,14 +213,24 @@ export default function QuotesPage() {
                 </Button>
               </div>
               {myTranscriptions.length > 0 ? (
-                <div className="grid md:grid-cols-2 gap-4">
-                  {myTranscriptions.map((item) => (
-                    <Card key={item.transcriptionId} className="p-4">
-                      <p className="text-sm leading-relaxed mb-2 truncate">{item.content}</p>
-                      <p className="text-xs text-muted-foreground">{timeAgo(item.createdAt)}</p>
-                    </Card>
-                  ))}
-                </div>
+                <div
+ className={
+   myTranscriptions.length > 1
+     ? "grid gap-4 md:grid-cols-2" // 아이템이 2개 이상이면 Grid
+     : "flex justify-start" // 아이템이 1개면 Flex + 왼쪽 정렬
+ }
+>
+ {myTranscriptions.map(item => (
+   <Card
+     key={item.transcriptionId}
+     // 아이템이 1개일 때 너비를 제한하여 어색하게 늘어나지 않도록 함
+     className={`p-4 ${myTranscriptions.length === 1 ? "w-full md:w-[calc(50%-0.5rem)]" : ""}`}
+   >
+     <p className="mb-2 truncate text-sm leading-relaxed">{item.content}</p>
+     <p className="text-xs text-muted-foreground">{timeAgo(item.createdAt)}</p>
+   </Card>
+ ))}
+</div>
               ) : (
                 <Card className="p-6 text-center text-muted-foreground">아직 필사한 문장이 없어요.</Card>
               )}

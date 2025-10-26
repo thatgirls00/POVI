@@ -15,6 +15,7 @@ import org.example.povi.domain.transcription.dto.TranscriptionRes;
 import org.example.povi.domain.transcription.repository.TranscriptionRepository;
 import org.example.povi.domain.user.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,11 +66,11 @@ public class TranscriptionService {
     @Transactional(readOnly = true)
     public TranscriptionListRes getMyTranscriptions(Long userId, Pageable pageable) {
 
-        List<Transcription> transcriptions = transcriptionRepository.findAllByUser_IdOrderByCreatedAtDesc(userId,pageable);
+        Page<Transcription> transcriptions = transcriptionRepository.findAllByUser_IdOrderByCreatedAtDesc(userId,pageable);
 
-        List<TranscriptionDetail> dtoList = transcriptions.stream()
+        List<TranscriptionDetail> dtoList = transcriptions.getContent().stream()
                 .map(TranscriptionDetail::fromEntity)
                 .toList();
-        return new TranscriptionListRes(dtoList);
+        return new TranscriptionListRes(dtoList, transcriptions.getTotalElements());
     }
 }

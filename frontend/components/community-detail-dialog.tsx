@@ -15,7 +15,7 @@ interface CommunityDetailDialogProps {
     id: number
     author: string
     date: string
-    emotion: string
+    emoticon: string
     title: string
     content: string
     likes: number
@@ -88,7 +88,7 @@ export function CommunityDetailDialog({ open, onOpenChange, post }: CommunityDet
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-start gap-4">
-            <div className="text-5xl">{post.emotion}</div>
+            <div className="text-5xl">{post.emoticon}</div>
             <div className="flex-1">
               <div className="flex items-start justify-between mb-2">
                 <div>

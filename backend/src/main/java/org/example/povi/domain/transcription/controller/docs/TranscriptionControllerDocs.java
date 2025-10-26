@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.povi.domain.transcription.dto.TranscriptionListRes;
 import org.example.povi.domain.transcription.dto.TranscriptionReq;
 import org.example.povi.domain.transcription.dto.TranscriptionRes;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +44,6 @@ public interface TranscriptionControllerDocs {
             })
     ResponseEntity<?> getMyTranscriptions(
             @RequestHeader("Authorization") String bearerToken,
-            @Parameter(description = "페이지 번호", example = "0") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지 크기", example = "20") @RequestParam(defaultValue = "20") int size
+            @PageableDefault(size = 4, sort = "createdAt,desc") Pageable pageable
     );
 }

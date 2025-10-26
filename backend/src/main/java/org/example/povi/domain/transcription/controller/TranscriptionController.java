@@ -8,8 +8,9 @@ import org.example.povi.domain.transcription.dto.TranscriptionReq;
 import org.example.povi.domain.transcription.service.TranscriptionService;
 import org.example.povi.domain.transcription.dto.TranscriptionListRes;
 import org.example.povi.domain.transcription.dto.TranscriptionRes;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class TranscriptionController implements TranscriptionControllerDocs {
     }
 
     @PostMapping("/{quoteId}")
-    public ResponseEntity<?> createTranscription(
+    public ResponseEntity<TranscriptionRes> createTranscription(
             @PathVariable Long quoteId,
             @Valid @RequestBody TranscriptionReq reqDto,
             @RequestHeader("Authorization") String bearerToken
@@ -50,14 +51,11 @@ public class TranscriptionController implements TranscriptionControllerDocs {
     }
 
     @GetMapping("/me")  // 본인이 작성한 필사기록 조회
-    public ResponseEntity<?> getMyTranscriptions(
+    public ResponseEntity<TranscriptionListRes> getMyTranscriptions(
             @RequestHeader("Authorization") String bearerToken,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
-    ) {
+            @PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable) {
         String token = resolveToken(bearerToken);
         Long userId = jwtTokenProvider.getUserId(token);
-        Pageable pageable = PageRequest.of(page, size);
         TranscriptionListRes responseDto = transcriptionService.getMyTranscriptions(userId,pageable);
         return ResponseEntity.ok(responseDto);
     }
