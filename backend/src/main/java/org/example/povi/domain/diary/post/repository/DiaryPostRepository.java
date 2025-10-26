@@ -1,13 +1,16 @@
 package org.example.povi.domain.diary.post.repository;
 
-import org.example.povi.domain.diary.post.entity.DiaryPost;
 import org.example.povi.domain.diary.enums.Visibility;
+import org.example.povi.domain.diary.post.entity.DiaryPost;
 import org.example.povi.domain.user.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,9 +19,23 @@ public interface DiaryPostRepository extends JpaRepository<DiaryPost, Long> {
     void deleteAllByUser(User user);
 
     /**
-     * 특정 사용자의 다이어리 전체 조회 (최신순)
+     * "나의 다이어리" 월별 조회 (백엔드 필터링 + 페이지네이션)
      */
-    List<DiaryPost> findByUserIdOrderByCreatedAtDesc(Long userId);
+    Page<DiaryPost> findByUserIdAndCreatedAtBetween(
+            Long userId,
+            LocalDateTime startAt,
+            LocalDateTime endAt,
+            Pageable pageable
+    );
+
+    /**
+     * 범위 조회(비페이징) - 주간 통계용
+     */
+    List<DiaryPost> findByUserIdAndCreatedAtBetween(
+            Long userId,
+            LocalDateTime startAt,
+            LocalDateTime endAt
+    );
 
     /**
      * 여러 작성자의 다이어리를 가시성 조건으로 조회 (최신순)

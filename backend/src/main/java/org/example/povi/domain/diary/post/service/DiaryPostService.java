@@ -2,7 +2,6 @@ package org.example.povi.domain.diary.post.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.povi.domain.diary.comment.repository.DiaryCommentRepository;
-import org.example.povi.domain.diary.enums.MoodEmoji;
 import org.example.povi.domain.diary.enums.Visibility;
 import org.example.povi.domain.diary.like.repository.DiaryPostLikeRepository;
 import org.example.povi.domain.diary.post.dto.request.DiaryPostCreateReq;
@@ -18,13 +17,17 @@ import org.example.povi.domain.diary.post.repository.DiaryPostRepository;
 import org.example.povi.domain.user.entity.User;
 import org.example.povi.domain.user.follow.service.FollowService;
 import org.example.povi.domain.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 @Service
@@ -80,23 +83,48 @@ public class DiaryPostService {
     }
 
     /**
-     * 내 다이어리 목록 + 주간 통계(월~일) (로그인)
+     * 내 다이어리: 월별 카드(페이징) + 이번 주 통계
      */
     @Transactional(readOnly = true)
-    public MyDiaryListRes getMyDiaryPostsWithWeeklyStats(Long currentUserId) {
+    public MyDiaryListRes getMyDiaryPostsWithMonthlyFilter(
+            Integer year,
+            Integer month,
+            Pageable pageable,
+            Long currentUserId
+    ) {
         requireLogin(currentUserId);
 
-        List<DiaryPost> myPosts = diaryPostRepository.findByUserIdOrderByCreatedAtDesc(currentUserId);
-        if (myPosts.isEmpty()) {
-            return new MyDiaryListRes(0, 0, new MoodSummaryRes(0.0, MoodEmoji.fromValence(0.0)), List.of());
-        }
+        // 기준일 계산 (파라미터 없으면 오늘 기준)
+        LocalDate today = LocalDate.now();
+        int y = (year == null) ? today.getYear() : year;
+        int m = (month == null) ? today.getMonthValue() : month;
 
-        List<Long> postIds = myPosts.stream().map(DiaryPost::getId).toList();
-        Map<Long, Long> commentCnt = DiaryQueryMapper.toCountMap(diaryCommentRepository.countByPostIds(postIds));
-        Map<Long, Long> likeCnt = DiaryQueryMapper.toCountMap(diaryPostLikeRepository.countByPostIds(postIds));
-        Set<Long> likedSet = new HashSet<>(diaryPostLikeRepository.findPostIdsLikedByUser(postIds, currentUserId));
+        // 월별 경계 [YYYY-MM-01 00:00, 다음달 1일 00:00)
+        LocalDateTime startOfMonth = LocalDate.of(y, m, 1).atStartOfDay();
+        LocalDateTime startOfNextMonth = startOfMonth.plusMonths(1);
 
-        return MyDiaryAssembler.build(myPosts, likedSet, likeCnt, commentCnt, LocalDate.now());
+        // 이번 주 경계 [이번주 월요일 00:00, 다음주 월요일 00:00)
+        LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDateTime startOfWeek = monday.atStartOfDay();
+        LocalDateTime startOfNextWeek = startOfWeek.plusDays(7);
+
+        // 월별 카드 조회 (페이징)
+        Page<DiaryPost> cardPage = diaryPostRepository.findByUserIdAndCreatedAtBetween(
+                currentUserId, startOfMonth, startOfNextMonth, pageable
+        );
+
+        // 주간 통계 조회 (비페이징)
+        List<DiaryPost> thisWeekPosts = diaryPostRepository.findByUserIdAndCreatedAtBetween(
+                currentUserId, startOfWeek, startOfNextWeek
+        );
+
+        // 집계 데이터 준비 (좋아요/댓글/내가 누른 글)
+        List<Long> postIds = cardPage.getContent().stream().map(DiaryPost::getId).toList();
+        Map<Long, Long> likeCnt = postIds.isEmpty() ? Map.of() : DiaryQueryMapper.toCountMap(diaryPostLikeRepository.countByPostIds(postIds));
+        Map<Long, Long> commentCnt = postIds.isEmpty() ? Map.of() : DiaryQueryMapper.toCountMap(diaryCommentRepository.countByPostIds(postIds));
+        Set<Long> likedSet = postIds.isEmpty() ? Set.of() : new HashSet<>(diaryPostLikeRepository.findPostIdsLikedByUser(postIds, currentUserId));
+
+        return MyDiaryAssembler.build(cardPage, thisWeekPosts, likedSet, likeCnt, commentCnt);
     }
 
     /**

@@ -9,10 +9,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.povi.auth.token.jwt.CustomJwtUser;
 import org.example.povi.domain.diary.post.dto.request.DiaryPostCreateReq;
 import org.example.povi.domain.diary.post.dto.request.DiaryPostUpdateReq;
 import org.example.povi.domain.diary.post.dto.response.*;
 import org.example.povi.domain.diary.post.service.DiaryPostService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,7 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/diary-posts")
 @Tag(name = "Diary Posts", description = "일기 게시글 API")
-public class DiaryPostController{
+public class DiaryPostController {
 
     private final DiaryPostService diaryPostService;
 
@@ -104,9 +108,12 @@ public class DiaryPostController{
             @ApiResponse(responseCode = "401", description = "인증 실패")
     })
     public ResponseEntity<MyDiaryListRes> listMyDiaries(
-            @AuthenticationPrincipal(expression = "id") Long userId
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month,
+            @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @AuthenticationPrincipal CustomJwtUser user
     ) {
-        MyDiaryListRes res = diaryPostService.getMyDiaryPostsWithWeeklyStats(userId);
+        MyDiaryListRes res = diaryPostService.getMyDiaryPostsWithMonthlyFilter(year, month, pageable, user.getId());
         return ResponseEntity.ok(res);
     }
 
