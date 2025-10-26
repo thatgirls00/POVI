@@ -26,15 +26,9 @@ export default function LoginPage() {
     try {
       setLoading(true)
 
-      const response = await api.post('/auth/login', {
-        email,
-        password,
-      })
-
-      // ✅ 백엔드에서 이메일 미인증 상태면 403 혹은 401로 응답되도록 처리되어 있어야 함
+      const response = await api.post('/auth/login', { email, password })
       const { accessToken, refreshToken } = response.data
 
-      // ✅ 토큰 저장
       localStorage.setItem('accessToken', accessToken)
       localStorage.setItem('refreshToken', refreshToken)
 
@@ -43,12 +37,16 @@ export default function LoginPage() {
     } catch (error: any) {
       console.error('❌ 로그인 실패:', error)
 
-      // ✅ 이메일 미인증 시 에러 메시지 분기 처리
-      const errorMessage = error.response?.data?.message
-      if (errorMessage === '이메일 인증이 필요합니다.') {
-        alert('이메일 인증을 완료하셔야 로그인할 수 있습니다.\n메일함을 확인해 주세요.')
+      const status = error.response?.status
+      const message = error.response?.data?.message
+
+      if (status === 400 && message === '입력값 검증 실패') {
+        alert('입력한 이메일 또는 비밀번호가 형식에 맞지 않습니다.')
+      } else if (status === 401 || status === 403) {
+        // 이메일 인증 안됨 or 권한 없음
+        alert(message || '로그인 권한이 없습니다.')
       } else {
-        alert('로그인 실패: ' + (errorMessage || '서버 오류'))
+        alert('로그인 실패: ' + (message || '서버 오류'))
       }
     } finally {
       setLoading(false)
