@@ -7,6 +7,7 @@ import org.example.povi.auth.dto.*;
 import org.example.povi.auth.service.AuthService;
 import org.example.povi.auth.token.jwt.CustomJwtUser;
 import org.example.povi.auth.token.service.TokenService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +22,9 @@ public class AuthController implements AuthControllerDocs {
     private final TokenService tokenService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@RequestBody @Valid SignupRequestDto requestDto) {
-        authService.signup(requestDto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> signup(@RequestBody @Valid SignupRequestDto request) {
+        authService.signup(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/login")

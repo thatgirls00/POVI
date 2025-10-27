@@ -8,6 +8,8 @@ import java.util.List;
 public record TranscriptionListRes(
 
         @Schema(description = "필사 상세 목록")
-        List<TranscriptionDetail> transcriptionList
+        List<TranscriptionDetail> transcriptionList,
 
+        @Schema(description = "전체 필사 개수")
+        long totalCount
 ) {}

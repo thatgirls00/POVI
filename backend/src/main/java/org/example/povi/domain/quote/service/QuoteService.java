@@ -29,7 +29,7 @@ public class QuoteService {
         try {
             QuoteDto quoteDto = restTemplate.getForObject(QUOTE_API_URL, QuoteDto.class);
 
-            String author = quoteDto.getAuthor() + quoteDto.getAuthorProfile();  // 발언자 + 발언자 소개를 합침
+            String author = quoteDto.getAuthor() + " " + quoteDto.getAuthorProfile();  // 발언자 + 발언자 소개를 합침
             String message = quoteDto.getMessage();
 
             if(message != null && !message.isEmpty()) {

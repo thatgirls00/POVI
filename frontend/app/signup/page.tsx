@@ -69,6 +69,23 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (!form.email || !emailRegex.test(form.email)) {
+      alert("올바른 이메일 형식을 입력해주세요.")
+      return
+    }
+
+    if (form.password.length < 8 || form.password.length > 64) {
+      alert("비밀번호는 8자 이상 64자 이하로 입력해주세요.")
+      return
+    }
+
+    if (!form.nickname.trim()) {
+      alert("닉네임을 입력해주세요.")
+      return
+    }
+
     if (form.password !== form.confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.")
       return

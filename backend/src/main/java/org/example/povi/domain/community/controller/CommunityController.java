@@ -17,6 +17,7 @@ import org.example.povi.domain.community.dto.request.PostUpdateRequest;
 import org.example.povi.domain.community.service.CommunityService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -93,8 +94,8 @@ public class CommunityController implements CommunityControllerDocs{
     @GetMapping("/me")
     public ResponseEntity<Page<PostListResponse>> getMyPostList(
             @RequestHeader("Authorization") String bearerToken,
-            @PageableDefault(size = 4, sort = "createdAt,desc") Pageable pageable) {
-
+            @PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable
+    ) {
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
         Page<PostListResponse> postList = communityService.getMyPostList(userId, pageable);
         return ResponseEntity.ok(postList);
@@ -139,7 +140,7 @@ public class CommunityController implements CommunityControllerDocs{
     @GetMapping("/me/comments")
     public ResponseEntity<Page<CommentListResponse>> getMyComments(
             @RequestHeader("Authorization") String bearerToken,
-            @PageableDefault(size = 2, sort = "createdAt,desc") Pageable pageable
+            @PageableDefault(size = 2, sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable
     ) {
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
         Page<CommentListResponse> response = communityService.getMyComments(userId, pageable);
@@ -181,7 +182,7 @@ public class CommunityController implements CommunityControllerDocs{
     @GetMapping("/me/likes")
     public ResponseEntity<Page<LikeListResponse>> getMyLikedPosts(
             @RequestHeader("Authorization") String bearerToken,
-            @PageableDefault(size = 2, sort = "createdAt,desc") Pageable pageable) {
+            @PageableDefault(size = 2, sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable) {
 
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
         Page<LikeListResponse> response = communityService.getMyLikedPosts(userId, pageable);
@@ -212,9 +213,8 @@ public class CommunityController implements CommunityControllerDocs{
     @GetMapping("/me/bookmarks")
     public ResponseEntity<Page<BookmarkListResponse>> getMyBookmarks(
             @RequestHeader("Authorization") String bearerToken,
-            @PageableDefault(size = 4, sort = "createdAt,desc") Pageable pageable
+            @PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable
     ) {
-
         Long userId = jwtUtil.getUserId(bearerToken.replace("Bearer ", ""));
         Page<BookmarkListResponse> response = communityService.getMyBookmarkedPosts(userId, pageable);
         return ResponseEntity.ok(response);

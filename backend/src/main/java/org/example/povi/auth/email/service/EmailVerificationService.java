@@ -3,6 +3,7 @@ package org.example.povi.auth.email.service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.example.povi.auth.email.limiter.EmailVerificationRateLimiter;
 import org.example.povi.auth.email.dto.EmailVerificationRequestDto;
 import org.example.povi.auth.email.dto.EmailVerificationStatusResponseDto;
 import org.example.povi.auth.email.entity.EmailVerificationToken;
@@ -29,6 +30,7 @@ public class EmailVerificationService {
     private final UserRepository userRepository;
     private final JavaMailSender mailSender;
     private final EmailVerificationTemplateMapper templateMapper;
+    private final EmailVerificationRateLimiter rateLimiter;
 
     private static final long TOKEN_EXPIRATION_MINUTES = 60;
 
@@ -38,6 +40,7 @@ public class EmailVerificationService {
     @Transactional
     public void sendVerificationEmail(EmailVerificationRequestDto request) {
         String email = request.email();
+        rateLimiter.validateSendLimit(email);
         tokenRepository.deleteAllByExpiresAtBefore(LocalDateTime.now());
 
         String token = generateToken();
@@ -121,4 +124,5 @@ public class EmailVerificationService {
     private String generateToken() {
         return UUID.randomUUID().toString();
     }
+
 }

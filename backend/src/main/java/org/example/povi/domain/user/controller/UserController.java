@@ -26,7 +26,7 @@ public class UserController implements UserControllerDocs {
 
 
     @GetMapping("/myPage")
-    public ResponseEntity<?> getMyPage(
+    public ResponseEntity<MyPageRes> getMyPage(
             @RequestHeader("Authorization") String bearerToken
     ) {
         String token = resolveToken(bearerToken);
@@ -36,7 +36,7 @@ public class UserController implements UserControllerDocs {
     }
 
     @PatchMapping("/updateProfile")
-    public ResponseEntity<?> updateProfile(
+    public ResponseEntity<ProfileRes> updateProfile(
             @RequestHeader("Authorization") String bearerToken,
             @RequestPart("dto") @Valid ProfileUpdateReq reqDto,
             @RequestPart(value = "image", required = false)MultipartFile imageFile
