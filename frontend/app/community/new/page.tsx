@@ -12,8 +12,9 @@ import { Textarea } from "@/components/ui/textarea"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ImagePlus, X } from "lucide-react"
+import apiClient from "@/lib/axios"
 
-const emotions = [
+const emoticons = [
   { emoji: "😊", label: "행복해요" },
   { emoji: "😔", label: "우울해요" },
   { emoji: "😰", label: "불안해요" },
@@ -30,11 +31,39 @@ export default function NewCommunityPostPage() {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [images, setImages] = useState<string[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = () => {
-    // Submit logic here
-    router.push("/community")
+  const handleSubmit = async () => {
+    if (!emoticons || !title.trim() || !content.trim()) {
+      alert("감정, 제목, 내용을 모두 입력해주세요.")
+      return
+    }
+
+    const formData = new FormData()
+    formData.append("title", title)
+    formData.append("content", content)
+    formData.append("emotion", emoticons.find((e) => e.label === selectedEmotion)?.label || "")
+    images.forEach((file) => formData.append("photos", file))
+
+    setIsSubmitting(true)
+    try {
+      // ✅ 1️⃣ 게시글 작성 요청
+      await apiClient.post("/posts", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+
+      // ✅ 2️⃣ 목록 새로고침 강제 (CommunityPage에서 fetchPosts가 실행되도록)
+      router.push("/community?refresh=" + Date.now())
+
+      alert("게시글이 성공적으로 등록되었습니다.")
+    } catch (error) {
+      console.error("게시글 작성 실패:", error)
+      alert("게시글 작성 중 오류가 발생했습니다.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
+
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -76,7 +105,7 @@ export default function NewCommunityPostPage() {
           <Card className="p-6">
             <Label className="text-lg font-semibold mb-4 block">지금 기분이 어떠신가요?</Label>
             <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
-              {emotions.map((emotion) => (
+              {emoticons.map((emotion) => (
                 <button
                   key={emotion.label}
                   onClick={() => setSelectedEmotion(emotion.label)}
@@ -174,6 +203,7 @@ export default function NewCommunityPostPage() {
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link href="/community">취소</Link>
+              {isSubmitting ? "작성 중..." : "작성 완료"}
             </Button>
           </div>
         </div>
