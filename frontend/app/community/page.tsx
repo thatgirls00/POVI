@@ -51,6 +51,19 @@ export default function CommunityPage() {
     }
   }
 
+  // 감정 enum → 실제 이모지 매핑
+  const emotionMap: Record<string, string> = {
+    HAPPY: "😊",
+    SAD: "😔",
+    ANGRY: "😡",
+    ANXIOUS: "😰",
+    THANKFUL: "🥰",
+    TIRED: "😭",
+    CALM: "😌",
+    NORMAL: "😐",
+  }
+
+
   useEffect(() => {
     fetchPosts()
   }, [filter])
@@ -91,7 +104,9 @@ export default function CommunityPage() {
                         onClick={() => openPostDetail(post)}
                     >
                       <div className="flex gap-4">
-                        <div className="text-4xl">{post.emoticon}</div>
+                        <div className="text-4xl">{post.emoticon}
+                          {emotionMap[post.emoticon] || "🙂"}
+                        </div>
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-2">
                             <div>
