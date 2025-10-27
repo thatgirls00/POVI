@@ -41,8 +41,12 @@ interface CommunityDetailDialogProps {
     content: string
     likeCount: number
     commentCount: number
-  }
+    isMyPost: boolean // 추가된 속성
+    }
+
 }
+
+
 
 
 // ✅ 프론트 전용 JWT 해석 함수

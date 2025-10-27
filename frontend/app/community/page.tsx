@@ -1,13 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Heart, MessageCircle, Flag, Bookmark } from "lucide-react"
+import {Heart, MessageCircle, Flag, Bookmark, PenLine} from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import apiClient from "@/lib/axios"
 import { CommunityDetailDialog } from "@/components/community-detail-dialog"
+import Link from "next/link";
 
 // ✅ PostListResponse 기반 타입
 interface Post {
@@ -77,7 +78,20 @@ export default function CommunityPage() {
       <div className="min-h-screen">
         <Header />
         <main className="container py-8 md:py-12 max-w-5xl">
-          <h1 className="text-2xl font-bold mb-6">커뮤니티</h1>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-2xl font-bold">익명 커뮤니티</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                비슷한 감정을 가진 사람들과 위로를 나눠보세요.
+              </p>
+            </div>
+            <Link href="/community/new">
+              <Button className="bg-green-700 hover:bg-green-800 text-white">
+                <PenLine className="h-4 w-4 mr-2"/>
+                글쓰기
+              </Button>
+            </Link>
+          </div>
 
           <Tabs
               value={filter}
@@ -111,7 +125,8 @@ export default function CommunityPage() {
                           <div className="flex items-start justify-between mb-2">
                             <div>
                               <h3 className="font-semibold text-lg mb-1">{post.title}</h3>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <div
+                                  className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <span>{post.authorNickname}</span>
                                 <span>•</span>
                                 <span>{new Date(post.createdAt).toLocaleDateString("ko-KR")}</span>
@@ -126,7 +141,7 @@ export default function CommunityPage() {
                                   console.log("신고 기능 준비 중")
                                 }}
                             >
-                              <Flag className="h-4 w-4" />
+                              <Flag className="h-4 w-4"/>
                             </Button>
                           </div>
 
@@ -137,21 +152,21 @@ export default function CommunityPage() {
                                 className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
                                 onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
                             >
-                              <Heart className="h-4 w-4" />
+                              <Heart className="h-4 w-4"/>
                               <span>{post.likeCount}</span>
                             </button>
                             <button
                                 className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
                                 onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
                             >
-                              <MessageCircle className="h-4 w-4" />
+                              <MessageCircle className="h-4 w-4"/>
                               <span>{post.commentCount}</span>
                             </button>
                             <button
                                 className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
                                 onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
                             >
-                              <Bookmark className="h-4 w-4" />
+                              <Bookmark className="h-4 w-4"/>
                             </button>
                           </div>
                         </div>
@@ -174,6 +189,7 @@ export default function CommunityPage() {
                     content: selectedPost.content,
                     likeCount: selectedPost.likeCount,
                     commentCount: selectedPost.commentCount,
+                    isMyPost: false,
                   }}
               />
           )}
