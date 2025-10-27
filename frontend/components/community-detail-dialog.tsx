@@ -179,6 +179,7 @@ export function CommunityDetailDialog({ open, onOpenChange, post }: CommunityDet
 
   if (!open) return null
 
+
   return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -188,21 +189,32 @@ export function CommunityDetailDialog({ open, onOpenChange, post }: CommunityDet
               <p>게시글 정보를 불러오지 못했습니다.</p>
           ) : (
               <div className="space-y-6">
-                {/* Header */}
-                <div className="flex items-start gap-4">
-                  <div className="text-5xl">{postDetail.emoticon}</div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h2 className="text-2xl font-bold mb-2">{postDetail.title}</h2>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span>{postDetail.authorNickname}</span>
-                          <span>•</span>
-                          <span>{new Date(postDetail.createdAt).toLocaleDateString("ko-KR")}</span>
-                        </div>
-                      </div>
-                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-destructive">
-                        <Flag className="h-4 w-4" />
+          {/* Header */}
+          <div className="flex items-start gap-4">
+            <div className="text-5xl">{post.emoticon}</div>
+            <div className="flex-1">
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>{post.author}</span>
+                    <span>•</span>
+                    <span>{post.date}</span>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  {post.isMyPost && (
+                    <>
+                      <Button size="sm" variant="ghost" onClick={handleEdit}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive"
+                        onClick={handleDelete}
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
