@@ -17,7 +17,7 @@ public class RedisRefreshTokenRepository implements RefreshTokenRepository {
     private final RedisTemplate<String, String> redisTemplate;
 
     // Refresh Token 유효기간 (7일)
-    private static final Duration REFRESH_TOKEN_EXPIRATION = Duration.ofDays(7);
+    private static final Duration REFRESH_TOKEN_EXPIRATION = Duration.ofDays(1);
 
     /**
      * Refresh Token 저장
