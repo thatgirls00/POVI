@@ -33,15 +33,14 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * - Bean Validation (DTO @Valid) 실패 처리
+     * - Bean Validation 실패 시 처리 (예: @NotBlank 등)
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
-        String message = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         ErrorResponse error = ErrorResponse.of(
                 HttpStatus.BAD_REQUEST.value(),
-                "입력값 검증 실패",
-                message
+                "INVALID_REQUEST", // 프론트 고정 코드로 판단 가능
+                "요청 형식이 올바르지 않습니다." // 클라이언트에 보여줄 메시지
         );
         return ResponseEntity.badRequest().body(error);
     }
@@ -51,7 +50,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleDuplicateTranscription(DuplicateTranscriptionException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT) // 409 Conflict 상태 코드
-                .body(ex.getMessage()); // "이미 필사한 명언입니다." 메시지
+                .body(ex.getMessage());
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
