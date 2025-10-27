@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
-import { Heart, Bookmark, Flag, Trash2 } from "lucide-react"
+import {Heart, Bookmark, Flag, Trash2, Pencil} from "lucide-react"
 import apiClient from "@/lib/axios"
 
 interface CommentResponse {
@@ -73,6 +73,17 @@ export function CommunityDetailDialog({ open, onOpenChange, post }: CommunityDet
     const nickname = getUserNicknameFromToken()
     setCurrentUserNickname(nickname)
   }, [])
+
+  const emotionMap: Record<string, string> = {
+    HAPPY: "😊",
+    SAD: "😔",
+    ANGRY: "😡",
+    ANXIOUS: "😰",
+    THANKFUL: "🥰",
+    TIRED: "😭",
+    CALM: "😌",
+    NORMAL: "😐",
+  }
 
   // ✅ 게시글 상세 불러오기
   const fetchPostDetail = async () => {
@@ -189,36 +200,45 @@ export function CommunityDetailDialog({ open, onOpenChange, post }: CommunityDet
               <p>게시글 정보를 불러오지 못했습니다.</p>
           ) : (
               <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-start gap-4">
-            <div className="text-5xl">{post.emoticon}</div>
-            <div className="flex-1">
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>{post.author}</span>
-                    <span>•</span>
-                    <span>{post.date}</span>
+                {/* Header */}
+                <div className="flex items-start gap-4">
+                  <div className="text-5xl">{post.emoticon}
+                    {emotionMap[postDetail.emoticon] || "🙂"}
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  {post.isMyPost && (
-                    <>
-                      <Button size="sm" variant="ghost" onClick={handleEdit}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
-                        onClick={handleDelete}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span>{post.authorNickname}</span>
+                          <span>•</span>
+                          <span>{post.createdAt}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {post.isMyPost && (
+                            <>
+                              <Button size="sm" variant="ghost" onClick={handleEdit}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-destructive hover:text-destructive"
+                                  onClick={handleDelete}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </>
+                        )}
+                        <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-destructive">
+                          <Flag className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
+
 
                 {/* Content */}
                 <p className="text-base leading-relaxed whitespace-pre-wrap">{postDetail.content}</p>
